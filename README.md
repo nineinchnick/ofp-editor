@@ -1,6 +1,11 @@
+# Private fork of the iD OSM Editor
+
+I needed a private copy to hack around with. Hopefully I'll have more info soon @kriscarle
+
+-------------
 # iD - friendly JavaScript editor for [OpenStreetMap](http://www.openstreetmap.org/)
 
-[![Build Status](https://secure.travis-ci.org/systemed/iD.png)](https://travis-ci.org/systemed/iD)
+
 
 [![](http://ideditor.com/img/editor.png)](http://ideditor.com/)
 
