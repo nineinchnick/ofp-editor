@@ -82,10 +82,22 @@ iD.ui.Geocoder = function(context) {
                 gcForm.call(iD.ui.Toggle(show));
                 if (!show && !resultsList.classed('hide')) {
                     resultsList.call(iD.ui.Toggle(show));
+                    // remove results so that they lose focus. if the user has
+                    // tabbed into the list, then they will have focus still,
+                    // even if they're hidden.
+                    resultsList.selectAll('span').remove();
                 }
                 if (show) inputNode.node().focus();
                 else inputNode.node().blur();
                 shown = show;
+
+                if (show) {
+                    selection.on('mousedown.geocoder-inside', function() {
+                        return d3.event.stopPropagation();
+                    });
+                } else {
+                    selection.on('mousedown.geocoder-inside', null);
+                }
             }
         }
         var tooltip = bootstrap.tooltip()
@@ -99,7 +111,7 @@ iD.ui.Geocoder = function(context) {
             .call(tooltip);
 
         button.append('span')
-            .attr('class', 'icon geocode');
+            .attr('class', 'icon geocode light');
 
         var gcForm = selection.append('form');
 
@@ -112,11 +124,8 @@ iD.ui.Geocoder = function(context) {
         var resultsList = selection.append('div')
             .attr('class', 'content fillD map-overlay hide');
 
-        selection.on('mousedown.geocoder-inside', function() {
-            return d3.event.stopPropagation();
-        });
-
         context.surface().on('mousedown.geocoder-outside', hide);
+        context.container().on('mousedown.b.geocoder-outside', hide);
 
         var keybinding = d3.keybinding('geocoder');
 

@@ -91,7 +91,8 @@ window.iD = function () {
     };
 
     /* Map */
-    context.background = function() { return map.background; };
+    context.layers = function() { return map.layers; };
+    context.background = function() { return map.layers[0]; };
     context.surface = function() { return map.surface; };
     context.projection = map.projection;
     context.tail = map.tail;
@@ -101,7 +102,13 @@ window.iD = function () {
     context.zoomOut = map.zoomOut;
 
     /* Background */
-    var backgroundSources = iD.data.imagery.map(iD.BackgroundSource.template);
+    var backgroundSources = iD.data.imagery.map(function(source) {
+        if (source.sourcetag === 'Bing') {
+            return iD.BackgroundSource.Bing(source, context.background().dispatch);
+        } else {
+            return iD.BackgroundSource.template(source);
+        }
+    });
     backgroundSources.push(iD.BackgroundSource.Custom);
 
     context.backgroundSources = function() {
@@ -124,7 +131,7 @@ window.iD = function () {
 
     var q = iD.util.stringQs(location.hash.substring(1)), detected = false;
     if (q.layer) {
-        context.background()
+        context.layers()[0]
            .source(_.find(backgroundSources, function(l) {
                if (l.data.sourcetag === q.layer) {
                    detected = true;
@@ -162,6 +169,8 @@ iD.detect = function() {
     browser.opera = ua.indexOf('Opera') >= 0;
 
     browser.locale = navigator.language;
+
+    browser.filedrop = (window.FileReader && 'ondrop' in window);
 
     function nav(x) {
         return navigator.userAgent.indexOf(x) !== -1;

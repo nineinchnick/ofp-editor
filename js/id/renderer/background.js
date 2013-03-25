@@ -156,7 +156,7 @@ iD.Background = function() {
         return background;
     };
 
-    function setPermalink(source) {
+    function setHash(source) {
         var tag = source.data.sourcetag;
         var q = iD.util.stringQs(location.hash.substring(1));
         if (tag) {
@@ -168,14 +168,17 @@ iD.Background = function() {
         }
     }
 
+    background.dispatch = d3.dispatch('change');
+
     background.source = function(_) {
         if (!arguments.length) return source;
         source = _;
         cache = {};
         tile.scaleExtent((source.data && source.data.scaleExtent) || [1, 20]);
-        setPermalink(source);
+        setHash(source);
+        background.dispatch.change();
         return background;
     };
 
-    return background;
+    return d3.rebind(background, background.dispatch, 'on');
 };

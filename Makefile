@@ -18,6 +18,7 @@ data/data.js: $(DATA_FILES)
 	js/lib/d3.v3.js \
 	js/lib/d3.combobox.js \
 	js/lib/d3.geo.tile.js \
+	js/lib/d3.jsonp.js \
 	js/lib/d3.keybinding.js \
 	js/lib/d3.one.js \
 	js/lib/d3.size.js \
@@ -57,7 +58,7 @@ data/data.js: $(DATA_FILES)
 	js/id/validate.js \
 	js/id/end.js \
 	js/lib/locale.js \
-	locale/*.js
+	data/locales.js
 
 iD.js: node_modules Makefile
 	@rm -f $@
@@ -80,3 +81,6 @@ install: all
 
 clean:
 	rm -f iD*.js
+
+translations:
+	node data/update_locales

@@ -1,75 +1,129 @@
-iD.ui.preset = function(context) {
+iD.ui.preset = function(context, entity) {
     var event = d3.dispatch('change', 'setTags', 'close'),
-        entity,
         tags,
         keys,
         preset,
         formwrap,
         formbuttonwrap;
 
-    function input(d) {
-        var i = iD.ui.preset[d.type](d, context)
-            .on('close', event.close)
-            .on('change', event.change);
-
-        event.on('setTags.' + d.key || d.type, function(tags) {
-            i.tags(_.clone(tags));
-        });
-
-        if (d.type === 'address') i.entity(entity);
-
-        keys = keys.concat(d.key ? [d.key] : d.keys);
-
-        d3.select(this).call(i);
-    }
-
     function presets(selection) {
-
         selection.html('');
-        keys = [];
 
+        keys = [];
         formwrap = selection.append('div');
-        draw(formwrap, preset.fields);
+
+        var geometry = entity.geometry(context.graph()),
+            fields = preset.fields.filter(function(f) {
+                return f.matchGeometry(geometry);
+            });
+
+        fields.unshift(context.presets().field('name'));
+
+        draw(formwrap, fields);
 
         var wrap = selection.append('div')
-            .attr('class', 'col12 inspector-inner');
+            .attr('class', 'col12 more-buttons inspector-inner');
 
         formbuttonwrap = wrap.append('div')
-            .attr('class', 'col9 preset-input');
+            .attr('class', 'col12 preset-input');
 
         formbuttonwrap.selectAll('button')
-            .data(preset.additional)
+            .data(context.presets().universal().filter(notInForm))
             .enter()
             .append('button')
-                .attr('class', 'preset-add-field')
-                .attr('title', function(d) { return d.label(); })
-                .on('click', addForm)
-                .append('span')
-                    .attr('class', function(d) { return 'icon ' + d.icon; });
+            .attr('class', 'preset-add-field')
+            .on('click', addForm)
+            .call(bootstrap.tooltip()
+                .placement('top')
+                .title(function(d) { return d.label(); }))
+            .append('span')
+            .attr('class', function(d) { return 'icon ' + d.icon; });
+
+        function notInForm(p) {
+            return preset.fields.indexOf(p) < 0;
+        }
 
         function addForm(d) {
-            draw(formwrap, [d]);
-            d3.select(this).remove();
-            if (!wrap.selectAll('button').node()) wrap.remove();
+            var field = draw(formwrap, [d]);
+
+            var input = field.selectAll('input, textarea').node();
+            if (input) input.focus();
+
+            d3.select(this)
+                .style('opacity', 1)
+                .transition()
+                .style('opacity', 0)
+                .remove();
+
+            if (!wrap.selectAll('button').node()) {
+                wrap.remove();
+            }
         }
     }
 
-    function formKey(d) {
-        return d.key || String(d.keys);
-    }
-
     function draw(selection, fields) {
-        var sections = selection.selectAll('div.preset-section')
-            .data(fields, formKey)
+        var sections = selection.selectAll('div.form-field')
+            .data(fields, function(field) { return field.id; })
             .enter()
             .append('div')
-            .attr('class', 'preset-section fillL inspector-inner col12');
+            .style('opacity', 0)
+            .attr('class', function(field) {
+                return 'form-field form-field-' + field.id + ' fillL inspector-inner col12';
+            });
 
-        sections.append('h4')
-            .attr('for', function(d) { return 'input-' + d.key; })
-            .text(function(d) { return d.label(); });
+        var label = sections.append('label')
+            .attr('class', 'form-label')
+            .attr('for', function(field) { return 'preset-input-' + field.id; })
+            .text(function(field) { return field.label(); });
 
-        sections.each(input);
+        label.append('button')
+            .attr('class', 'fr icon undo modified-icon')
+            .attr('tabindex', -1)
+            .on('click', function(field) {
+                var original = context.graph().base().entities[entity.id];
+                var t = {};
+                (field.keys || [field.key]).forEach(function(key) {
+                    t[key] = original ? original.tags[key] : undefined;
+                });
+                event.change(t);
+            });
+
+        label.append('button')
+            .attr('class', 'fr icon inspect')
+            .attr('tabindex', -1)
+            .on('click', function(field) {
+                selection.selectAll('div.tag-help')
+                    .style('display', 'none');
+
+                d3.select(d3.select(this).node().parentNode.parentNode)
+                    .select('div.tag-help')
+                    .style('display', 'block')
+                    .call(iD.ui.TagReference(entity, {key: field.key}));
+            });
+
+        sections.transition()
+            .style('opacity', 1);
+
+        sections.each(function(field) {
+            var i = iD.ui.preset[field.type](field, context)
+                .on('close', event.close)
+                .on('change', event.change);
+
+            event.on('setTags.' + field.id, function(tags) {
+                i.tags(_.clone(tags));
+            });
+
+            if (field.type === 'address') i.entity(entity);
+
+            keys = keys.concat(field.key ? [field.key] : field.keys);
+
+            d3.select(this).call(i);
+        });
+
+        sections.append('div')
+            .attr('class', 'tag-help');
+
+        return sections;
     }
 
     presets.rendered = function() {
@@ -94,19 +148,15 @@ iD.ui.preset = function(context) {
             }
         });
 
-        context.presets().universal().forEach(function(p) {
-            if (haveKey(p.key) || _.any(p.keys, haveKey)) {
-                draw(formwrap, [p]);
-            }
-        });
+        formwrap.selectAll('div.form-field')
+            .classed('modified', function(d) {
+                var original = context.graph().base().entities[entity.id];
+                return _.any(d.keys || [d.key], function(key) {
+                    return original ? tags[key] !== original.tags[key] : tags[key];
+                });
+            });
 
         event.setTags(tags);
-        return presets;
-    };
-
-    presets.entity = function(_) {
-        if (!arguments.length) return entity;
-        entity = _;
         return presets;
     };
 
