@@ -2,3 +2,5 @@ iD.js
 iD.min.js
 build
 transifex.auth
+node_modules
+workspace.xml
