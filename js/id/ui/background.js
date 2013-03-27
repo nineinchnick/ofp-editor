@@ -116,9 +116,6 @@ iD.ui.Background = function(context) {
                     .placement('right')
                 );
 
-            layerInner.insert('span')
-                .attr('class', 'icon toggle icon-pre-text');
-
             layerInner.insert('span').text(function(d) {
                 return d.data.name;
             });
@@ -218,10 +215,6 @@ iD.ui.Background = function(context) {
                 .placement('right'))
             .on('click.set-gpx', clickGpx);
 
-        gpxLayerItem
-            .append('span')
-            .attr('class', 'icon toggle icon-pre-text');
-
         gpxLayerItem.append('span')
             .text(t('gpx.local_layer'));
 
@@ -237,7 +230,7 @@ iD.ui.Background = function(context) {
 
         var adjustments = content
             .append('div')
-            .attr('class', 'adjustments pad1');
+            .attr('class', 'adjustments');
 
         adjustments.append('a')
             .text(t('background.fix_misalignment'))

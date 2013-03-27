@@ -172,7 +172,7 @@ locale.en = {
         "no_documentation_key": "There is no documentation available for this key",
         "show_more": "Show More",
         "new_tag": "New tag",
-        "view_on_osm": "View on OSM",
+        "view_on_osm": "View on OSM →",
         "editing_feature": "Editing {feature}",
         "additional": "Additional tags",
         "choose": "Select feature type",
@@ -189,7 +189,7 @@ locale.en = {
     },
     "restore": {
         "heading": "You have unsaved changes",
-        "description": "Do you wish to restore changes from a previous editing session?",
+        "description": "Do you wish to restore unsaved changes from a previous editing session?",
         "restore": "Restore",
         "reset": "Reset"
     },
@@ -203,7 +203,9 @@ locale.en = {
     },
     "splash": {
         "welcome": "Welcome to the iD OpenStreetMap editor",
-        "text": "This is development version {version}. For more information see {website} and report bugs at {github}."
+        "text": "iD is a friendly but powerful tool for contributing to the world's best free world map. This is development version {version}. For more information see {website} and report bugs at {github}.",
+        "walkthrough": "Start the walkthrough",
+        "start": "Edit now"
     },
     "source_switch": {
         "live": "live",
@@ -232,7 +234,15 @@ locale.en = {
         "drag_drop": "Drag and drop a .gpx file on the page"
     },
     "help": {
-        "title": "Help"
+        "title": "Help",
+        "help": "# Help\n\nThis is an editor for [OpenStreetMap](http://www.openstreetmap.org/), the\nfree and editable map of the world. You can use it to add and update\ndata in your area, making an open-source and open-data map of the world\nbetter for everyone.\n\nEdits that you make on this map will be visible to everyone who uses\nOpenStreetMap. In order to make an edit, you'll need a\n[free OpenStreetMap account](https://www.openstreetmap.org/user/new).\n\nThe [iD editor](http://ideditor.com/) is a collaborative project with [source\ncode available on GitHub](https://github.com/systemed/iD).\n",
+        "editing_saving": "# Editing & Saving\n\nThis editor is designed to work primarily online, and you're accessing\nit through a website right now.\n\n### Selecting Features\n\nTo select a map feature, like a road or point of interest, click\non it on the map. This will highlight the selected feature, open a panel with\ndetails about it, and show a menu of things you can do with the feature.\n\nMultiple features can be selected by holding the 'Shift' key, clicking,\nand dragging on the map. This will select all features within the box\nthat's drawn, allowing you to do things with several features at once.\n\n### Saving Edits\n\nWhen you make changes like editing roads, buildings, and places, these are\nstored locally until you save them to the server. Don't worry if you make\na mistake - you can undo changes by clicking the undo button, and redo\nchanges by clicking the redo button.\n\nClick 'Save' to finish a group of edits - for instance, if you've completed\nan area of town and would like to start on a new area. You'll have a chance\nto review what you've done, and the editor supplies helpful suggestions\nand warnings if something doesn't seem right about the changes.\n\nIf everything looks good, you can enter a short comment explaining the change\nyou made, and click 'Save' again to post the changes\nto [OpenStreetMap.org](http://www.openstreetmap.org/), where they are visible\nto all other users and available for others to build and improve upon.\n\nIf you can't finish your edits in one sitting, you can leave the editor\nwindow and come back (on the same browser and computer), and the\neditor application will offer to restore your work.\n",
+        "roads": "# Roads\n\nYou can create, fix, and delete roads with this editor. Roads can be all\nkinds: paths, highways, trails, cycleways, and more - any often-crossed\nsegment should be mappable.\n\n### Selecting\n\nClick on a road to select it. An outline should become visible, along\nwith a small tools menu on the map and a sidebar showing more information\nabout the road.\n\n### Modifying\n\nOften you'll see roads that aren't aligned to the imagery behind them\nor to a GPS track. You can adjust these roads so they are in the correct\nplace.\n\nFirst click on the road you want to change. This will highlight it and show\ncontrol points along it that you can drag to better locations. If\nyou want to add new control points for more detail, double-click a part\nof the road without a point, and one will be added.\n\nIf the road connects to another road, but doesn't properly connect on\nthe map, you can drag one of its control points onto the other road in\norder to join them. Having roads connect is important for the map\nand essential for providing driving directions.\n\nYou can also click the 'Move' tool or press the `M` shortcut key to move the entire road at\none time, and then click again to save that movement.\n\n### Deleting\n\nIf a road is entirely incorrect - you can see that it doesn't exist in satellite\nimagery and ideally have confirmed locally that it's not present - you can delete\nit, which removes it from the map. Be cautious when deleting features -\nlike any other edit, the results are seen by everyone and satellite imagery\nis often out of date, so the road could simply be newly built.\n\nYou can delete a road by clicking on it to select it, then clicking the\ntrash can icon or pressing the 'Delete' key.\n\n### Creating\n\nFound somewhere there should be a road but there isn't? Click the 'Line'\nicon in the top-left of the editor or press the shortcut key `2` to start drawing\na line.\n\nClick on the start of the road on the map to start drawing. If the road\nbranches off from an existing road, start by clicking on the place where they connect.\n\nThen click on points along the road so that it follows the right path, according\nto satellite imagery or GPS. If the road you are drawing crosses another road, connect\nit by clicking on the intersection point. When you're done drawing, double-click\nor press 'Return' or 'Enter' on your keyboard.\n",
+        "gps": "# GPS\n\nGPS data is the most trusted source of data for OpenStreetMap. This editor\nsupports local traces - `.gpx` files on your local computer. You can collect\nthis kind of GPS trace with a number of smartphone applications as well as\npersonal GPS hardware.\n\nFor information on how to perform a GPS survey, read\n[Surveying with a GPS](http://learnosm.org/en/beginner/using-gps/).\n\nTo use a GPX track for mapping, drag and drop the GPX file onto the map\neditor. If it's recognized, it will be added to the map as a bright green\nline. Click on the 'Background Settings' menu on the left side to enable,\ndisable, or zoom to this new GPX-powered layer.\n\nThe GPX track isn't directly uploaded to OpenStreetMap - the best way to\nuse it is to draw on the map, using it as a guide for the new features that\nyou add.\n",
+        "imagery": "# Imagery\n\nAerial imagery is an important resource for mapping. A combination of\nairplane flyovers, satellite views, and freely-compiled sources are available\nin the editor under the 'Background Settings' menu on the left.\n\nBy default a [Bing Maps](http://www.bing.com/maps/) satellite layer is\npresented in the editor, but as you pan and zoom the map to new geographical\nareas, new sources will become available. Some countries, like the United\nStates, France, and Denmark have very high-quality imagery available for some areas.\n\nImagery is sometimes offset from the map data because of a mistake on the\nimagery provider's side. If you see a lot of roads shifted from the background,\ndon't immediately move them all to match the background. Instead you can adjust\nthe imagery so that it matches the existing data by clicking 'Fix alignment' at\nthe bottom of the Background Settings UI.\n",
+        "addresses": "# Addresses\n\nAddresses are some of the most useful information for the map.\n\nAlthough addresses are often represented as parts of streets, in OpenStreetMap\nthey're recorded as attributes of buildings and places along streets.\n\nYou can add address information to places mapped as building outlines as well\nas well as those mapped as single points. The optimal source of address\ndata is from an on-the-ground survey or personal knowledge - as with any\nother feature, copying from commercial sources like Google Maps is strictly\nforbidden.\n",
+        "inspector": "# Using the Inspector\n\nThe inspector is the user interface element on the right-hand side of the\npage that appears when a feature is selected and allows you to edit its details.\n\n### Selecting a Feature Type\n\nAfter you add a point, line, or area, you can choose what type of feature it\nis, like whether it's a highway or residential road, supermarket or cafe.\nThe inspector will display buttons for common feature types, and you can\nfind others by typing what you're looking for in the search box.\n\nClick the 'i' in the bottom-right-hand corner of a feature type button to\nlearn more about it. Click a button to choose that type.\n\n### Using Forms and Editing Tags\n\nAfter you choose a feature type, or when you select a feature that already\nhas a type assigned, the inspector will display fields with details about\nthe feature like its name and address.\n\nBelow the fields you see, you can click icons to add other details,\nlike [Wikipedia](http://www.wikipedia.org/) information, wheelchair\naccess, and more.\n\nAt the bottom of the inspector, click 'Additional tags' to add arbitrary\nother tags to the element. [Taginfo](http://taginfo.openstreetmap.org/) is a\ngreat resource for learn more about popular tag combinations.\n\nChanges you make in the inspector are automatically applied to the map.\nYou can undo them at any time by clicking the 'Undo' button.\n\n### Closing the Inspector\n\nYou can close the inspector by clicking the close button in the top-right,\npressing the 'Escape' key, or clicking on the map.\n",
+        "buildings": "# Buildings\n\nOpenStreetMap is the world's largest database of buildings. You can create\nand improve this database.\n\n### Selecting\n\nYou can select a building by clicking on its border. This will highlight the\nbuilding and open a small tools menu and a sidebar showing more information\nabout the building.\n\n### Modifying\n\nSometimes buildings are incorrectly placed or have incorrect tags.\n\nTo move an entire building, select it, then click the 'Move' tool. Move your\nmouse to shift the building, and click when it's correctly placed.\n\nTo fix the specific shape of a building, click and drag the points that form\nits border into better places.\n\n### Creating\n\nOne of the main questions around adding buildings to the map is that\nOpenStreetMap records buildings both as shapes and points. The rule of thumb\nis to _map a building as a shape whenever possible_, and map companies, homes,\namenities, and other things that operate out of buildings as points placed\nwithin the building shape.\n\nStart drawing a building as a shape by clicking the 'Area' button in the top\nleft of the interface, and end it either by pressing 'Return' on your keyboard\nor clicking on the first point drawn to close the shape.\n\n### Deleting\n\nIf a building is entirely incorrect - you can see that it doesn't exist in satellite\nimagery and ideally have confirmed locally that it's not present - you can delete\nit, which removes it from the map. Be cautious when deleting features -\nlike any other edit, the results are seen by everyone and satellite imagery\nis often out of date, so the road could simply be newly built.\n\nYou can delete a building by clicking on it to select it, then clicking the\ntrash can icon or pressing the 'Delete' key.\n"
     },
     "presets": {
         "fields": {
@@ -1040,6 +1050,14 @@ locale.en = {
                 "name": "Office",
                 "terms": ""
             },
+            "other": {
+                "name": "Other",
+                "terms": ""
+            },
+            "other_area": {
+                "name": "Other",
+                "terms": ""
+            },
             "place": {
                 "name": "Place",
                 "terms": ""
@@ -1437,6 +1455,48 @@ locale.en = {
                 "terms": ""
             }
         }
+    },
+    "intro": {
+        "navigation": {
+            "drag": "The main map area shows OpenStreetMap data on top of background imagery. You can navigate by dragging and scrolling, just like any web map. **Drag the map!**",
+            "select": "Map features can be represented three ways: using points, lines or areas. All features can be selected by clicking on them. **Click on the point to select it.**",
+            "header": "The header shows us the feature type.",
+            "pane": "The main pane shows the feature's attributes, such as its name and address."
+        },
+        "points": {
+            "add": "Points can be used to represent features such as shops, restaurants and monuments. They mark a specific location, and describe what's there. **Click the Point button to add a new point.**",
+            "place": "The point can be placed by clicking on the map. **Place the point on top of the building.**",
+            "search": "There many different features that can be represented by points. The point you just added is a Cafe. **Search for 'Cafe' **",
+            "choose": "**Choose Cafe from the grid.**",
+            "describe": "The point is now marked as a cafe. Using the feature editor, we can add more information about the feature. **Add a name**",
+            "close": "The feature editor can be closed by clicking on the close button. **Close the feature editor**",
+            "reselect": "Often points will already exist, but have mistakes or be incomplete. We can edit existing points. **Select the point you just created.**",
+            "fixname": "**Change the name and close the feature editor.**",
+            "reselect_delete": "All features on the map can be deleted. **Reselect the point you created.**",
+            "delete": "The menu around the point contains operations that can be performed on it, including delete. **Delete the point.**"
+        },
+        "areas": {
+            "add": "Areas are a more detailed way to represent features. They provide information on the boundaries of the feature. Areas can be used for most features types points can be used for, and are often preferred. **Click the Area button to add a new area.**",
+            "corner": "Areas are drawn by placing nodes that mark the boundary of the area. **Place the starting node on one of the corners of the playground.**",
+            "place": "Draw the area by placing more nodes. Finish the area by clicking on the starting point. **Draw an area for the playground.**",
+            "search": "**Search for Playground.**",
+            "choose": "**Choose Playground from the grid.**",
+            "describe": "**Add a name, and close the feature editor**"
+        },
+        "lines": {
+            "add": "Lines are used to represent features such as roads, railways and rivers. **Click the Line button to add a new line.**",
+            "start": "**Start the line by clicking on the end of the road.**",
+            "intersect": "Click to add more points to the line. You can drag the map while drawing if necessary. Roads, and many other types of lines, are part of a larger network. It is important for these lines to be connected properly in order for routing applications to work. **Click on Flower Street, to create an intersection connecting the two lines.**",
+            "finish": "Lines can be finished by clicking on the last point again. **Finish drawing the road.**",
+            "road": "**Select Road from the grid**",
+            "residential": "There are different types of roads, the most common of which is Residential. **Choose the Residential road type**",
+            "describe": "**Name the road and close the feature editor.**"
+        },
+        "startediting": {
+            "help": "More documentation and this walkthrough are available here.",
+            "save": "Don't forget to regularly save your changes!",
+            "start": "Start mapping!"
+        }
     }
 };
 locale.zh = {
@@ -1665,9 +1725,6 @@ locale.zh = {
     "zoom": {
         "in": "放大",
         "out": "缩小"
-    },
-    "imagery": {
-        "provided_by": "影像由{source}提供"
     },
     "gpx": {
         "local_layer": "本地GPX文件",
@@ -2330,6 +2387,12 @@ locale.zh = {
             "office": {
                 "name": "办公室"
             },
+            "other": {
+                "name": "其他"
+            },
+            "other_area": {
+                "name": "其他"
+            },
             "place": {
                 "name": "地点"
             },
@@ -2856,9 +2919,6 @@ locale.zh_TW = {
     "zoom": {
         "in": "放大",
         "out": "縮小"
-    },
-    "imagery": {
-        "provided_by": "影像由 {source} 提供"
     },
     "gpx": {
         "local_layer": "本機GPX檔案",
@@ -4190,9 +4250,6 @@ locale.fr = {
         "in": "Zoomer",
         "out": "Dézoomer"
     },
-    "imagery": {
-        "provided_by": "Image provenant de {source}"
-    },
     "gpx": {
         "local_layer": "Fichier GPX personnel",
         "drag_drop": "Glisser et déposer un fichier .gpx sur la page"
@@ -4727,6 +4784,7 @@ locale.de = {
         "reset": "Zurücksetzen"
     },
     "restore": {
+        "heading": "Ungespeicherte Änderungen vorhanden",
         "description": "Es gibt ungespeicherte Änderungen aus einer vorherigen Sitzung. Möchtest du diese Änderungen wiederherstellen?",
         "restore": "Wiederherstellen",
         "reset": "Zurücksetzen"
@@ -4745,6 +4803,7 @@ locale.de = {
     },
     "source_switch": {
         "live": "live",
+        "lose_changes": "Es gibt ungespeicherte Änderungen. Durch Wechsel des Karten-Servers, gehen diese verloren. Sind Sie sicher, dass Sie die Server wechseln wollen?",
         "dev": "dev"
     },
     "tag_reference": {
@@ -4764,8 +4823,12 @@ locale.de = {
         "in": "Hineinzoomen",
         "out": "Herauszoomen"
     },
-    "imagery": {
-        "provided_by": "Bilddaten von {source}"
+    "gpx": {
+        "local_layer": "Lokale GPX-Datei",
+        "drag_drop": "Eine GPX-Datei per Drag & Drop auf die Seite ziehen"
+    },
+    "help": {
+        "title": "Hilfe"
     },
     "presets": {
         "fields": {
@@ -4784,10 +4847,22 @@ locale.de = {
             "aeroway": {
                 "label": "Typ"
             },
+            "amenity": {
+                "label": "Typ"
+            },
             "atm": {
                 "label": "Geldautomat"
             },
+            "bicycle_parking": {
+                "label": "Typ"
+            },
             "building": {
+                "label": "Gebäude"
+            },
+            "building_area": {
+                "label": "Gebäude"
+            },
+            "building_yes": {
                 "label": "Gebäude"
             },
             "capacity": {
@@ -6963,9 +7038,6 @@ locale.pt = {
         "in": "Aproximar",
         "out": "Afastar"
     },
-    "imagery": {
-        "provided_by": "Imagens disponibilizadas por {source}"
-    },
     "gpx": {
         "local_layer": "Ficheiro GPX local",
         "drag_drop": "Arraste um ficheiro .gpx para a página"
@@ -8455,9 +8527,6 @@ locale.uk = {
         "in": "Наблизитись",
         "out": "Віддалитись"
     },
-    "imagery": {
-        "provided_by": "Фон наданий {source}"
-    },
     "gpx": {
         "local_layer": "Локальний файл GPX",
         "drag_drop": "Перетягніть файл .gpx на сторінку"
@@ -9556,7 +9625,7 @@ locale.vi = {
         "truncated_list": "Đang xem các đóng góp của {users} và {count} người khác"
     },
     "geocoder": {
-        "title": "Tìm kiếm địa phương",
+        "title": "Tìm kiếm Địa phương",
         "placeholder": "Tìm kiếm địa phương",
         "no_results": "Không tìm thấy địa phương với tên “{name}”"
     },
@@ -9578,7 +9647,7 @@ locale.vi = {
     },
     "background": {
         "title": "Hình nền",
-        "description": "Tùy chọn hình nền",
+        "description": "Tùy chọn Hình nền",
         "percent_brightness": "Sáng {opacity}%",
         "fix_misalignment": "Chỉnh lại hình nền bị chệch",
         "reset": "đặt lại"
@@ -9599,7 +9668,9 @@ locale.vi = {
     },
     "splash": {
         "welcome": "Chào mừng bạn đến với iD, chương trình sửa đổi OpenStreetMap",
-        "text": "Đây là phiên bản đang phát triển {version}. Xem thêm thông tin tại {website} và báo cáo lỗi tại {github}."
+        "text": "Đây là phiên bản đang phát triển {version}. Xem thêm thông tin tại {website} và báo cáo lỗi tại {github}.",
+        "walkthrough": "Mở trình hướng dẫn",
+        "start": "Tiến hành sửa đổi"
     },
     "source_switch": {
         "live": "thật",
@@ -9622,9 +9693,6 @@ locale.vi = {
     "zoom": {
         "in": "Phóng to",
         "out": "Thu nhỏ"
-    },
-    "imagery": {
-        "provided_by": "Hình ảnh do {source} cung cấp"
     },
     "gpx": {
         "local_layer": "Tập tin GPX địa phương",
@@ -10320,6 +10388,12 @@ locale.vi = {
             },
             "office": {
                 "name": "Văn phòng"
+            },
+            "other": {
+                "name": "Khác"
+            },
+            "other_area": {
+                "name": "Khác"
             },
             "place": {
                 "name": "Địa phương"

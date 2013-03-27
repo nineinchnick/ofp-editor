@@ -5,16 +5,6 @@ iD.ui = function(context) {
         var history = context.history(),
             map = context.map();
 
-        if (!iD.detect().support) {
-            container
-                .text(t('browser_notice'))
-                .style({
-                    'text-align': 'center',
-                    'font-style': 'italic'
-                });
-            return;
-        }
-
         if (iD.detect().opera) container.classed('opera', true);
 
         var hash = iD.behavior.Hash(context);
@@ -31,7 +21,7 @@ iD.ui = function(context) {
 
         var bar = container.append('div')
             .attr('id', 'bar')
-            .attr('class','pad1 fillD');
+            .attr('class','fillD');
 
         var limiter = bar.append('div')
             .attr('class', 'limiter');
@@ -152,6 +142,7 @@ iD.ui = function(context) {
         context.container()
             .call(iD.ui.Splash(context))
             .call(iD.ui.Restore(context));
+
     };
 };
 

@@ -2,7 +2,6 @@ var fs = require('fs'),
     path = require('path'),
     glob = require('glob'),
     YAML = require('js-yaml'),
-    marked = require('marked'),
     _ = require('./js/lib/lodash'),
     jsonschema = require('jsonschema'),
     fieldSchema = require('./data/presets/schema/field.json'),
@@ -48,20 +47,6 @@ var translations = {
     presets: {}
 };
 
-function generateDocumentation() {
-    var docs = [];
-    glob.sync(__dirname + '/data/doc/*.md').forEach(function(file) {
-        var text = readtxt(file),
-            title = text.split('\n')[0]
-                .replace('#', '').trim();
-        docs.push({
-            html: marked(text.split('\n').slice(1).join('\n')),
-            title: title
-        });
-    });
-    fs.writeFileSync('data/doc.json', stringify(docs));
-}
-
 function generateFields() {
     var fields = {};
     glob.sync(__dirname + '/data/presets/fields/*.json').forEach(function(file) {
@@ -101,7 +86,6 @@ function generatePresets() {
     fs.writeFileSync('data/presets.yaml', YAML.dump({en: {presets: translations}}));
 }
 
-generateDocumentation();
 generateFields();
 generatePresets();
 
@@ -110,7 +94,6 @@ fs.writeFileSync('data/data.js', 'iD.data = ' + stringify({
     discarded: r('discarded.json'),
     keys: r('keys.json'),
     imagery: r('imagery.json'),
-    docs: r('doc.json'),
     presets: {
         presets: rp('presets.json'),
         defaults: rp('defaults.json'),
@@ -122,6 +105,7 @@ fs.writeFileSync('data/data.js', 'iD.data = ' + stringify({
 // Push changes from data/core.yaml into data/locales.js
 var core = YAML.load(fs.readFileSync('data/core.yaml', 'utf8'));
 var presets = YAML.load(fs.readFileSync('data/presets.yaml', 'utf8'));
-var en = _.merge(core, presets);
+var intro = YAML.load(fs.readFileSync('data/intro.yaml', 'utf8'));
+var en = _.merge(_.merge(core, presets), intro);
 var out = 'locale.en = ' + stringify(en.en) + ';';
 fs.writeFileSync('data/locales.js', fs.readFileSync('data/locales.js', 'utf8').replace(/locale.en =[^;]*;/, out));

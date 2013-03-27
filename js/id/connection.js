@@ -13,7 +13,8 @@ iD.Connection = function(context) {
         memberStr = 'member',
         nodeStr = 'node',
         wayStr = 'way',
-        relationStr = 'relation';
+        relationStr = 'relation',
+        off;
 
     connection.changesetUrl = function(changesetId) {
         return url + '/browse/changeset/' + changesetId;
@@ -227,6 +228,9 @@ iD.Connection = function(context) {
     function abortRequest(i) { i.abort(); }
 
     connection.loadTiles = function(projection, dimensions) {
+
+        if (off) return;
+
         var scaleExtent = [16, 16],
             s = projection.scale(),
             tiles = d3.geo.tile()
@@ -294,6 +298,11 @@ iD.Connection = function(context) {
         return connection;
     };
 
+    connection.toggle = function(_) {
+        off = !_;
+        return connection;
+    };
+
     connection.user = function(_) {
         if (!arguments.length) return user;
         user = _;
@@ -304,6 +313,12 @@ iD.Connection = function(context) {
         _.forEach(inflight, abortRequest);
         loadedTiles = {};
         inflight = {};
+        return connection;
+    };
+
+    connection.loadedTiles = function(_) {
+        if (!arguments.length) return loadedTiles;
+        loadedTiles = _;
         return connection;
     };
 

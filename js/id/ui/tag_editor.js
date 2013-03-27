@@ -50,14 +50,13 @@ iD.ui.TagEditor = function(context, entity) {
             .attr('class', 'tag-wrap inspector-body fillL2 inspector-body-' + geometry);
 
         editorwrap.append('div')
-            .attr('class', 'col12 inspector-inner fillL2 preset-icon-wrap')
+            .attr('class', 'col12 inspector-inner preset-icon-wrap fillL3')
             .append('div')
                 .attr('class','fillL')
                 .append('span')
                     .attr('class', geometry + ' preset-icon icon feature-' + icon);
 
-        presetUI = iD.ui.preset(context, entity)
-            .preset(preset)
+        presetUI = iD.ui.preset(context, entity, preset)
             .on('change', changeTags)
             .on('close', event.close);
 
@@ -69,7 +68,7 @@ iD.ui.TagEditor = function(context, entity) {
             .call(presetUI);
 
         editorwrap.append('div')
-            .attr('class', 'inspector-inner col12 fillL2 additional-tags')
+            .attr('class', 'inspector-inner col12 additional-tags')
             .call(tagList, preset.id === 'other');
 
         if (!entity.isNew()) {

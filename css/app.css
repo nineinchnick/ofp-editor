@@ -6,10 +6,17 @@ body {
     margin:0;
     padding:0;
     min-width: 768px;
-    color:#222;
+    color:#333;
     overflow: hidden;
     /* text-rendering: optimizeLegibility;  */
     -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.unsupported {
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 100px;
+    font-size: 16px;
 }
 
 #iD {
@@ -94,9 +101,9 @@ h5 {
 }
 
 p {
-    font-size: 15px;
+    font-size: 12px;
     margin:0;
-    padding-bottom:20px;
+    padding:0;
 }
 
 p:last-child {
@@ -121,19 +128,6 @@ a:hover {
 
 /* Forms
 ------------------------------------------------------- */
-
-.fillD textarea,
-.fillD input[type=text] {
-    background-color: black;
-    border:1px solid rgba(255, 255, 255, .25);
-    color: white;
-}
-
-.fillD textarea:focus,
-.fillD input[type=text]:focus {
-    background-color: black;
-    border:1px solid rgba(255, 255, 255, .5);
-}
 
 textarea  {
     resize: vertical;
@@ -219,17 +213,17 @@ table.tags, table.tags td, table.tags th {
 ul li { list-style: none;}
 
 ul.toggle-list li a {
-    font-weight: bold;
     padding: 5px 10px;
-    color: #333;
     display:block;
     border-top: 1px solid #ccc;
     white-space:nowrap;
     text-overflow:ellipsis;
     overflow:hidden;
 }
-ul.toggle-list li a:focus,
+
 ul.toggle-list li a:hover { background-color: #ececec;}
+
+ul.toggle-list li a.selected { background-color: #e8ebff;}
 
 ul.link-list li {
     display: inline-block;
@@ -257,9 +251,14 @@ ul.link-list li:last-child {
     color: #333;
 }
 
+.fillL3 {
+    background: #f1f1f1;
+    color: #333;
+}
+
 .fillD {
-    background:rgba(0,0,0,.8);
-    color: #6C6C6C;
+    background:rgba(0,0,0,.5);
+    color: white;
 }
 
 .fl { float: left;}
@@ -277,11 +276,8 @@ a.hide {
 }
 
 .content {
-    border-radius: 4px;
     box-shadow: 0 0 30px 0px rgba(0, 0, 0, 0.7);
 }
-
-.pad1    {padding: 10px;}
 
 .loading {
     background: url(../img/loader_bg.gif);
@@ -309,14 +305,15 @@ a.hide {
     right: 0;
 }
 
-
 /* Buttons */
 
 button {
+    text-align: center;
+    font-weight:bold;
     line-height:20px;
     border:0;
     background: white;
-    font-weight:bold;
+    color:#333;
     font-size:12px;
     display: inline-block;
     height:40px;
@@ -336,8 +333,10 @@ button.active {
     cursor: url(../img/cursor-pointing.png) 6 1, pointer;
 }
 
+button[disabled],
 button.disabled {
-    background: #6c6c6c;
+    background-color: rgba(255,255,255,.25);
+    color: rgba(0,0,0,.5);
     cursor: auto;
 }
 
@@ -346,20 +345,13 @@ button.active:not([disabled]):not(.disabled) {
 }
 
 button.minor {
-    height: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
     width: 20px;
-    background: rgba(0,0,0,.5);
-}
-
-button.minor:hover {
-    background: #222;
-}
-
-button.centered {
-    float: none;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
+    opacity: .5;
+    border-radius: 0;
 }
 
 .button-wrap {
@@ -372,8 +364,8 @@ button.centered {
 .button-wrap:last-of-type { padding-right: 0;}
 
 .joined button {
-    border-right: 1px solid rgba(0,0,0,.5);
     border-radius:0;
+    border-right: 1px solid rgba(0,0,0,.5);
 }
 
 .joined button:first-child {
@@ -388,15 +380,9 @@ button.centered {
 button.action {
     background: #7092ff;
 }
+
 button.action:hover {
     background: #597BE7;
-}
-
-button.cancel {
-    background-color: #ff7070;
-}
-button.cancel:hover {
-    background-color: #ef5454;
 }
 
 button.save.has-count {
@@ -435,16 +421,6 @@ button.save.has-count .count::before {
     border-right:  6px solid rgba(255,255,255,.5);
 }
 
-button[disabled] {
-    cursor:auto;
-    background: rgba(255,255,255,.5);
-    pointer-events:none;
-}
-
-button[disabled] .label {
-    color: rgba(0,0,0,.5);
-}
-
 /* Icons */
 
 .icon {
@@ -456,11 +432,6 @@ button[disabled] .label {
   text-indent:-9999px;
   overflow:hidden;
   }
-
-.icon.big {
-    width: 40px;
-    height: 40px;
-}
 
 .icon-pre-text {
     margin-right: 3px;
@@ -492,7 +463,6 @@ button[disabled] .label {
 .icon.plus       { background-position: -240px 0px;}
 .icon.search     { background-position: -280px 0px;}
 .icon.geocode    { background-position: -280px 0px;}
-.icon.help       { background-position: -460px 0px;}
 .icon.layers     { background-position: -300px 0px;}
 .icon.avatar     { background-position: -320px 0px;}
 .icon.nearby     { background-position: -340px 0px;}
@@ -500,8 +470,11 @@ button[disabled] .label {
 .icon.warning    { background-position: -380px 0px;}
 .icon.back       { background-position: -420px 0px;}
 .icon.forward    { background-position: -440px 0px;}
+.icon.help       { background-position: -460px 0px;}
 
+.icon.inspect.light    { background-position: -220px -20px;}
 .icon.geocode.light    { background-position: -280px -20px;}
+.icon.help.light       { background-position: -460px -20px;}
 
 .fillD .icon.avatar           { background-position: -320px -20px;}
 .fillD .icon.nearby           { background-position: -340px -20px;}
@@ -513,7 +486,6 @@ button[disabled] .icon.add-area   { background-position: -60px -40px;}
 button.disabled  .icon.undo       { background-position: -80px -40px;}
 button.disabled  .icon.redo       { background-position: -100px -40px;}
 button[disabled] .apply.icon      { background-position: -120px -40px;}
-button[disabled] .save.icon       { background-position: -140px -40px;}
 button[disabled] .close.icon      { background-position: -160px -40px;}
 button[disabled] .delete.icon     { background-position: -180px -40px;}
 button[disabled] .icon.remove     { background-position: -200px -40px;}
@@ -548,7 +520,6 @@ button[disabled] .icon.nearby     { background-position: -340px -40px;}
 .icon.note       { background-position: -120px -200px;}
 .icon.wheelchair { background-position: -140px -200px;}
 
-
 /* Toggle icon is special */
 
 .toggle.icon                   { background-position: 0px -180px;}
@@ -562,13 +533,12 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
 
 #bar {
     position:absolute;
+    padding: 10px;
     left:0px;
     top:0px;
     right:0;
     height:60px;
-    border-radius: 0;
 }
-
 
 /* Header for modals / panes
 ------------------------------------------------------- */
@@ -610,8 +580,6 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
 ------------------------------------------------------- */
 
 .inspector-wrap {
-    border-radius: 0 0 0 4px;
-    background:rgba(0,0,0,.8);
     position: absolute;
     height: 100%;
     right: 0;
@@ -707,25 +675,6 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     background: #ececec;
 }
 
-.grid-entry:hover .preset-help {
-    display: block;
-    border-radius: 0;
-}
-
-.grid-entry .preset-help {
-    display: none;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    height: 30px;
-    width: 30px;
-    background: rgba(0,0,0,.5);
-}
-
-.grid-entry .preset-help:hover {
-    background: rgba(0,0,0,.9);
-}
-
 .grid-entry > .icon {
     position: absolute;
     top: 30px;left: 0px; right: 0px;
@@ -733,30 +682,33 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
 }
 
 .inspector-body-line .grid-entry > .icon {
-    top: 10px;
+    top: 15px;
     left: -10px;
     right: -10px;
 }
 
 .grid-entry .label {
-    font-weight: bold;
     background: #f6f6f6;
-    text-align: center;
-    display: block;
+    text-align: left;
     position: absolute;
-    padding: 5px;
+    padding: 5px 10px;
+    height: 30px;
     bottom: 0;
     left: 0; right: 0;
-    margin: auto;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     border-top: 1px solid rgba(0, 0, 0, .1);
+    }
+
+.grid-entry .tag-reference-button {
+    border-left: 1px solid #CCC;
+    border-radius: 0 0 3px 0;
 }
 
 .current .grid-entry,
 .current .grid-entry .label {
-    background-color: #eef0ff;
+    background-color: #E8EBFF;
 }
 
 .category .grid-entry:after,
@@ -764,7 +716,7 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     content: "";
     position: absolute;
     top: 7px;
-    width: 100%;
+    left: 0; right: 0;
     border-top: 1px solid #ccc;
     border-radius: 6px;
     height: 6px;
@@ -817,7 +769,7 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     padding: 10px 0px 0px 10px;
     border: 1px solid #CCC;
     margin-top: 0px;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .subgrid .arrow {
@@ -897,7 +849,7 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     border-bottom: 1px solid #CCC;
 }
 
-.tag-wrap .preset-icon-wrap::after { 
+.tag-wrap .preset-icon-wrap::after {
     content: "";
     position: absolute;
     height: 0;
@@ -911,8 +863,8 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     border-bottom-color: #CCC;
 }
 
-.tag-wrap .preset-icon-wrap div { 
-    height: 90px;
+.tag-wrap .preset-icon-wrap div {
+    height: 80px;
     width: 33.3333%;
     width: -webkit-calc(33.3333% - 10px);
     width: calc(33.3333% - 10px);
@@ -922,7 +874,7 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     position: relative;
 }
 
-.tag-wrap .preset-icon-wrap .preset-icon { 
+.tag-wrap .preset-icon-wrap .preset-icon {
     position: absolute;
     top: 30px;
     left: 0px;
@@ -930,35 +882,41 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     margin: auto;
 }
 
-.tag-wrap .preset-icon-wrap .preset-icon.line { 
+.tag-wrap .preset-icon-wrap .preset-icon.line {
     top: 15px;
 }
 
-.form-field.inspector-inner { 
-    padding-bottom: 0;
-}
-
-.form-field .modified-icon {
-    opacity: 0.2;
-    display: none;
-    pointer-events: all;
-}
-
-.form-field .modified-icon:hover {
-    opacity: 0.5;
-}
-
-.form-field.modified .modified-icon {
-    display: inline-block;
+.inspector-preset .form-field {
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .form-label {
+    position: relative;
     font-weight: bold;
     border: 1px solid #cfcfcf;
-    padding: 5px 10px;
+    padding: 5px 0px 5px 10px;
     background: #f6f6f6;
     display: block;
     border-radius: 4px 4px 0 0;
+}
+
+.form-label button {
+    border-left: 1px solid #CCC;
+}
+
+.form-label .modified-icon {
+    border-right: 0;
+    opacity: 0;
+    right: 20px;
+}
+
+.modified .form-label .modified-icon {
+    opacity: .5;
+}
+
+.form-label button.tag-reference-button {
+    border-top-right-radius: 3px;
 }
 
 .form-field > input,
@@ -973,10 +931,16 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
     height: 65px;
 }
 
-.form-field-levels,
-.form-field-elevation,
-.form-field.checkselect {
-    width: 60%;
+.form-field-levels label,
+.form-field-elevation label,
+.form-field.checkselect label {
+    margin-right: 50%;
+}
+
+.form-field-levels input,
+.form-field-elevation input,
+.form-field.checkselect input {
+    width: 50%;
 }
 
 .form-field-name input {
@@ -986,6 +950,15 @@ a.selected:hover .toggle.icon  { background-position: -40px -180px;}
 }
 
 /* adding additional preset fields */
+
+.more-buttons {
+    margin-top: 20px;
+    border-top: 1px solid #CCC;
+}
+
+.more-buttons:nth-last-child(2) {
+    border-bottom: 1px solid #CCC;
+}
 
 button.preset-add-field {
     width: 16.6666%;
@@ -1071,6 +1044,7 @@ input[type=number] {
 
 .checkselect label:hover {
     cursor: pointer;
+    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
     background: #f1f1f1;
 }
 
@@ -1090,26 +1064,30 @@ input[type=number] {
 
 /* Preset form radio button */
 
+
 .radio-wrap {
     display: block;
-    box-sizing: border-box;
-    color: #999;
     overflow: hidden;
+    border-radius: 0 0 4px 4px;
 }
 
 .radio-wrap button {
+    text-align: left;
     font-weight: normal;
     padding: 2px 5px;
     height: 30px;
     border-radius: 0;
-    border-right: 1px solid #CCC;
-    width: 22.5%;
+    border-bottom: 1px solid #CCC;
+    color: #7092FF;
+    width: 100%;
 }
 
 .radio-wrap button:last-child {
-    border-right: 0;
-    width: 10%;
-    padding: 0;
+    border-bottom: 0;
+}
+
+.radio-wrap button.active {
+    background-color: #E8EBFF !important;
 }
 
 /* Preset form address */
@@ -1200,6 +1178,7 @@ div.combobox {
     padding: 5px;
     width: 100%;
     cursor: pointer;
+    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
     display: block;
     text-align: center;
 }
@@ -1216,6 +1195,7 @@ div.combobox {
 
 .tag-list {
     padding-top: 20px;
+    margin-right: 40px;
 }
 
 .tag-row {
@@ -1240,7 +1220,6 @@ div.combobox {
     border-right: 1px solid #CCC;
 }
 
-
 .tag-row:first-child input.key {
     border-top: 1px solid #CCC;
     border-top-left-radius: 4px;
@@ -1248,42 +1227,48 @@ div.combobox {
 
 .tag-row:first-child input.value {
     border-top: 1px solid #CCC;
-    border-top-right-radius: 4px;
-}
-
-.tag-row:last-child input.value {
-    border-bottom-right-radius: 4px;
 }
 
 .tag-row button {
     position: absolute;
     height: 30px;
     right: -20px;
-    opacity: 0;
+    border: 1px solid #CCC;
+    border-top-width: 0; border-left-width: 0;
     border-radius: 0;
+    opacity: 1;
+    background: #fafafa;
+}
+
+.tag-row button:hover {
+    background: #f1f1f1;
+}
+
+.tag-row button .icon {
+    opacity: .5;
+}
+
+.tag-row:first-child button {
+    border-top-width: 1px;
+}
+
+.tag-row:first-child button.tag-help {
+    border-top-right-radius: 4px;
+}
+
+.tag-row:last-child button.tag-help {
+    border-bottom-right-radius: 4px;
 }
 
 .tag-row button.tag-help {
-    left: -20px
-}
-
-.tag-row div.tag-help {
-    display: hidden;
-}
-
-.tag-row:hover input.value,
-.tag-row:hover input.key {
-    border-radius: 0;
-}
-
-.tag-row:hover button {
-    opacity: 1;
+    right: -40px;
 }
 
 /* Adding form fields to tag editor */
 
-
 .inspector-inner .add-tag {
+    width: -webkit-calc(50% - 20px);
+    width: calc(50% - 20px);
     height: 30px;
     border-top: 0;
     background: rgba(0,0,0,.5);
@@ -1296,6 +1281,36 @@ div.combobox {
 
 .inspector-inner .add-tag .label {
     display: none;
+}
+
+/* Tag reference */
+
+.tag-help {
+    overflow: hidden;
+}
+
+.additional-tags div.tag-help {
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background:#fff;
+}
+
+.additional-tags .tag-help .tag-reference-wrap {
+    padding: 10px;
+}
+
+img.wiki-image {
+    float: left;
+    max-width: 33.3333%;
+    margin-right: 20px;
+    max-height: 200px;
+    border-radius: 4px;
+}
+
+.tag-reference-spinner {
+    display: block;
+    margin: auto;
 }
 
 /* Map Controls */
@@ -1332,7 +1347,7 @@ div.combobox {
 /* Zoomer */
 
 .zoombuttons {
-    top:70px;
+    top:80px;
     width: 30px;
 }
 
@@ -1347,11 +1362,15 @@ div.combobox {
 /* Background Settings */
 
 .background-control {
-    top:190px;
+    top:200px;
 }
 
 .nudge-container {
     margin-top: 10px;
+}
+
+.background-control .adjustments {
+    padding: 10px;
 }
 
 .background-control .adjustments button {
@@ -1463,6 +1482,7 @@ div.combobox {
     display: block;
     float: left;
     cursor: pointer;
+    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
 }
 
 .opacity-options li .select-box{
@@ -1490,12 +1510,10 @@ div.combobox {
     height:18px;
 }
 
-
 .background-control .layer-toggle-gpx .layer-extent {
     float: right;
     border: 0;
 }
-
 
 .background-control .layer-toggle-gpx.selected .layer-extent {
     display:inline-block;
@@ -1504,7 +1522,7 @@ div.combobox {
 /* Geocoder */
 
 .geocode-control, .geocode-control form {
-    top:150px;
+    top:160px;
 }
 
 .geocode-control form {
@@ -1535,16 +1553,13 @@ div.combobox {
 /* Geolocator */
 
 .geolocate-control {
-    top:230px;
-}
-
-.geolocate-control button {
+    top:240px;
 }
 
 /* Help */
 
 .help-control {
-    top:270px;
+    top: 280px;
 }
 
 .help-control button {
@@ -1561,6 +1576,10 @@ div.combobox {
     overflow-y: scroll;
 }
 
+.help-wrap p {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
 
 .help-wrap .left-content .body p code {
     padding:2px 4px;
@@ -1578,14 +1597,13 @@ div.combobox {
 
 .help-wrap .toc li a {
     display: block;
-    font-weight: bold;
     border: 1px solid #CCC;
     border-bottom: 0px;
     padding: 5px;
 }
 
 .help-wrap .toc li a.selected {
-    background: #eef0ff;
+    background: #E8EBFF;
 }
 
 .help-wrap .toc li:first-child a {
@@ -1595,6 +1613,19 @@ div.combobox {
 .help-wrap .toc li:last-child a {
     border-bottom: 1px solid #CCC;
     border-radius: 0 0 4px 4px
+}
+
+.help-wrap .nav a {
+    width: 50%;
+    display: inline-block;
+}
+
+.help-wrap .nav a span {
+    padding: 10px;
+}
+
+.help-wrap .nav a.next {
+    text-align: right;
 }
 
 /* Map
@@ -1671,7 +1702,7 @@ div.combobox {
 .attribution {
     position: absolute;
     bottom: 35px;
-    right:10px;
+    left:10px;
     color:#888;
     font-size:10px;
 }
@@ -1717,6 +1748,7 @@ div.typeahead a {
     height: 30px;
     line-height: 30px;
     cursor: pointer;
+    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
     display: block;
     border-top:1px solid #ccc;
     background-color: #fff;
@@ -1743,7 +1775,6 @@ div.typeahead a:first-child {
     left: 0;
     right: 0;
     margin: auto;
-    top: 30px;
     z-index: 3;
 }
 
@@ -1794,18 +1825,64 @@ div.typeahead a:first-child {
     text-align: center;
 }
 
+.modal-actions button {
+    font-weight: normal;
+    color: #7092FF;
+    border-bottom: 1px solid #CCC;
+    border-radius: 0;
+    height: 180px;
+    text-align: center;
+    -webkit-transition: all 200ms;
+       -moz-transition: all 200ms;
+            transition: all 200ms;
+}
+
+.modal-actions button:before {
+    display: block;
+    content: '';
+    height: 100px;
+    width: 100px;
+    margin: auto;
+    margin-bottom: 10px;
+    background:transparent url(../img/sprite.png) no-repeat 0px -220px;
+}
+
+.modal-actions button:first-child {
+    border-right: 1px solid #CCC;
+}
+
+/* Restore Modal
+------------------------------------------------------- */
+
+.modal-actions button.restore:before {
+    background-position: -400px -220px;
+}
+
+.modal-actions button.reset:before {
+    background-position: -500px -220px;
+}
+
+
+/* Success Modal
+------------------------------------------------------- */
+
+.modal-actions button.twitter:before {
+    background-position: -100px -220px;
+}
+
 /* Splash Modal
 ------------------------------------------------------- */
 
-.modal-splash {
-    width: 33.3333%;
+.modal-splash h3 {
+    text-align: center;
+ }
+
+.modal-actions button.walkthrough:before {
+    background-position: -200px -220px;
 }
 
-.logo {
-    height: 100px;
-    width: 100px;
-    margin: 0 auto 20px auto;
-    background: url(../img/logo.png) 0 0 repeat;
+.modal-actions button.start:before {
+    background-position: -300px -220px;
 }
 
 /* Commit Modal
@@ -1846,19 +1923,12 @@ div.typeahead a:first-child {
     max-height: 160px;
 }
 
-.commit-modal .warning-section .changeset-list {
-    border-radius: 4px 0 0 4px;
-}
-
-.commit-modal .warning-section .changeset-list  button {
-    float: right;
+.commit-modal .warning-section .changeset-list button {
     position: absolute;
     right: 0;
     top: 0;
     bottom: 0;
-    border-radius: 0;
-    height: 100%;
-    width: 30px;
+    border-left: 1px solid #CCC;
 }
 
 .commit-modal .changeset-list li {
@@ -1877,40 +1947,6 @@ div.typeahead a:first-child {
 .changeset-list li span.count:after { content: ')'; }
 
 .changeset-list li:first-child { border-top: 0;}
-
-/* Success
-------------------------------------------------------- */
-
-.modal a.success-action {
-    height: 170px;
-    border-bottom: 1px solid #CCC;
-    text-align: center;
-    -webkit-transition: all 200ms;
-       -moz-transition: all 200ms;
-            transition: all 200ms;
-}
-
-.modal a.success-action:hover {
-    background-color: #ececec;
-}
-
-a.success-action.osm {
-    border-right: 1px solid #CCC;
-}
-
-a.success-action:before {
-    display: block;
-    content: '';
-    height: 100px;
-    width: 100px;
-    margin: auto;
-    margin-bottom: 10px;
-    background:transparent url(../img/sprite.png) no-repeat 0px -220px;
-}
-
-a.success-action.twitter:before {
-    background-position: -100px -220px;
-}
 
 /* Notices
 ------------------------------------------------------- */
@@ -1952,6 +1988,9 @@ a.success-action.twitter:before {
     width: 200px;
     position: absolute;
     display: none;
+    color:#333;
+    text-align: left;
+    font-size: 12px;
 }
 
 .tooltip.in {
@@ -1962,30 +2001,27 @@ a.success-action.twitter:before {
 }
 
 .tooltip.top {
-    margin-top: -10px;
+    margin-top: -20px;
     text-align: center;
 }
 
 .tooltip.right {
-    margin-left: 10px;
-    text-align: left;
+    margin-left: 20px;
 }
 
 .tooltip.bottom {
-    margin-top: 10px;
+    margin-top: 20px;
     text-align: center;
 }
 
 .tooltip.left {
-    margin-left: -10px;
-    text-align: right;
+    margin-left: -20px;
 }
 
 .tooltip-inner {
     display: inline-block;
     padding: 10px;
-    font-size: 11px;
-    font-weight: bold;
+    font-weight: normal;
     background-color: white;
 }
 
@@ -2077,8 +2113,12 @@ a.success-action.twitter:before {
     border-width: 0 5px 5px;
 }
 
+
+/* Exceptions for tooltips that are up against the edge of the screen */
 .add-point .tooltip {
     left: -20px !important; }
+
+.curtain-tooltip.intro-points-add .tooltip-arrow,
 .add-point .tooltip .tooltip-arrow {
     left: 60px;
 }
@@ -2179,15 +2219,21 @@ a.success-action.twitter:before {
   only screen and (-o-min-device-pixel-ratio: 3/2),
   only screen and (min--moz-device-pixel-ratio: 1.5),
   only screen and (min-device-pixel-ratio: 1.5) {
+  .intro-points-add .tooltip-inner::before,
+  .intro-areas-add .tooltip-inner::before,
+  .intro-lines-add .tooltip-inner::before,
+  .preset-icon-fill.area,
+  .modal-actions button:before,
   .map-control .icon,
   .button-wrap .icon {
     background-image: url(../img/sprite2x.png);
-    background-size: 500px 320px;
+    background-size: 600px 560px;
   }
 }
 
 /* Scrollbars
  ----------------------------------------------------- */
+
 ::-webkit-scrollbar {
     height: 20px;
     overflow: visible;
@@ -2209,10 +2255,8 @@ a.success-action.twitter:before {
 }
 ::-webkit-scrollbar-track:hover {
     background-color: rgba(0,0,0,.05);
-    box-shadow: inset 1px 0 0 rgba(0,0,0,.1);
 }
 ::-webkit-scrollbar-track:horizontal:hover {
-    box-shadow: inset 0 1px 0 rgba(0,0,0,.1)
 }
 ::-webkit-scrollbar-track:active {
     background-color: rgba(0,0,0,.05);
@@ -2238,4 +2282,100 @@ a.success-action.twitter:before {
 }
 ::-webkit-scrollbar-corner {
     background: transparent
+}
+
+/* Intro walkthrough
+ ----------------------------------------------------- */
+
+.curtain-darkness {
+    pointer-events: all;
+    fill-opacity: 0.7;
+    fill: #222;
+    fill-rule: evenodd;
+}
+
+.intro-nav-wrap {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 40px;
+    z-index: 1001;
+    box-shadow: 0 0 30px 0px rgba(0, 0, 0, 0.7);
+}
+
+.intro-nav-wrap button.step {
+    width: 20%;
+}
+
+.intro-nav-wrap button.step.finished {
+    background: #8cd05f;
+}
+
+.intro-nav-wrap button.step .icon {
+    display: none;
+}
+
+.intro-nav-wrap button.step.finished .icon {
+    display: inline-block;
+}
+
+
+.curtain-tooltip .tooltip-inner {
+    text-align: left;
+    padding: 20px;
+}
+
+.curtain-tooltip.left .tooltip-arrow,
+.curtain-tooltip.right .tooltip-arrow {
+    top: -5px;
+}
+
+.curtain-tooltip.right .tooltip-inner,
+.curtain-tooltip.left .tooltip-inner {
+    margin-top: -30%;
+}
+
+.curtain-tooltip .tooltip-inner {
+    font-size: 15px;
+}
+
+.curtain-tooltip .tooltip-inner .bold {
+    font-weight: bold;
+    display: block;
+    border-top: 1px solid #CCC;
+    margin-top: 20px;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 20px 20px 0 20px;
+}
+
+.curtain-tooltip .tooltip-inner .bold:only-child {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* Tooltip illustrations */
+
+.intro-points-add .tooltip-inner::before,
+.intro-areas-add .tooltip-inner::before,
+.intro-lines-add .tooltip-inner::before {
+    display: block;
+    content: "";
+    height: 80px;
+    width: 200px;
+    background:transparent url(../img/sprite.png) no-repeat 0px -320px;
+}
+
+.intro-areas-add .tooltip-inner::before {
+    background-position: 0px -400px;
+}
+
+.intro-lines-add .tooltip-inner::before {
+    background-position: 0px -480px;
+}
+
+.huge-modal-button {
+    height: 180px;
+    width: 100%;
 }

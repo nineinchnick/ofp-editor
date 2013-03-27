@@ -14,7 +14,7 @@ iD.ui.Help = function(context) {
             var toc = pane.append('ul')
                 .attr('class', 'toc');
 
-            function clickHelp(d) {
+            function clickHelp(d, i) {
                 doctitle.text(d.title);
                 body.html(d.html);
                 body.selectAll('a')
@@ -22,24 +22,74 @@ iD.ui.Help = function(context) {
                 menuItems.classed('selected', function(m) {
                     return m.title === d.title;
                 });
+
+                nav.html('');
+
+                var prevLink = nav.append('a')
+                        .attr('class', 'previous')
+                        .on('click', function() {
+                            clickHelp(docs[i - 1], i - 1);
+                        }),
+                    nextLink = nav.append('a')
+                        .attr('class', 'next')
+                        .on('click', function() {
+                            clickHelp(docs[i + 1], i + 1);
+                        });
+
+                if (i > 0) {
+                    prevLink.append('span').attr('class', 'icon back');
+                    prevLink.append('span').text(docs[i - 1].title);
+                }
+                if (i < docs.length - 1) {
+                    nextLink.append('span').text(docs[i + 1].title);
+                    nextLink.append('span').attr('class', 'icon forward');
+                }
             }
 
+            var docKeys = [
+                'help.help',
+                'help.editing_saving',
+                'help.roads',
+                'help.gps',
+                'help.imagery',
+                'help.addresses',
+                'help.inspector',
+                'help.buildings'];
+
+            function one(f) { return function(x) { return f(x); }; }
+            var docs = docKeys.map(one(t)).map(function(text) {
+                return {
+                    title: text.split('\n')[0].replace('#', '').trim(),
+                    html: marked(text.split('\n').slice(1).join('\n'))
+                };
+            });
+
             var menuItems = toc.selectAll('li')
-                .data(iD.data.doc)
+                .data(docs)
                 .enter()
                 .append('li')
                 .append('a')
                 .text(function(d) { return d.title; })
                 .on('click', clickHelp);
 
+            toc.append('li')
+                .append('a')
+                .text(t('splash.walkthrough'))
+                .on('click', function() {
+                    d3.select(document.body).call(iD.ui.intro(context));
+                    setVisible(false);
+                });
+
             var content = pane.append('div')
                     .attr('class', 'left-content'),
                 doctitle = content.append('h2')
                     .text(t('help.title')),
                 body = content.append('div')
-                    .attr('class', 'body');
+                    .attr('class', 'body'),
+                nav = content.append('div')
+                    .attr('class', 'nav');
 
-            clickHelp(iD.data.doc[0]);
+            clickHelp(docs[0], 0);
         }
 
         function hide() { setVisible(false); }
@@ -49,19 +99,20 @@ iD.ui.Help = function(context) {
             setVisible(!button.classed('active'));
         }
 
+        function blockClick() {
+            pane.on('mousedown.help-inside', function() {
+                return d3.event.stopPropagation();
+            });
+            selection.on('mousedown.help-inside', function() {
+                return d3.event.stopPropagation();
+            });
+        }
+
         function setVisible(show) {
             if (show !== shown) {
                 button.classed('active', show);
                 shown = show;
                 if (show) {
-                    function blockClick() {
-                        pane.on('mousedown.help-inside', function() {
-                            return d3.event.stopPropagation();
-                        });
-                        selection.on('mousedown.help-inside', function() {
-                            return d3.event.stopPropagation();
-                        });
-                    }
                     pane.style('display', 'block')
                         .style('left', '-500px')
                         .transition()
