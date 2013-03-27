@@ -55,7 +55,7 @@ iD.ui.TagReference = function(entity, tag) {
             referenceBody
                 .append('a')
                 .attr('target', '_blank')
-                .attr('href', 'http://wiki.openstreetmap.org/wiki/' + docs.title)
+                .attr('href', 'http://wiki.openfloorplan.org/wiki/' + docs.title)
                 .text(t('inspector.reference'));
         });
     }

@@ -76,7 +76,7 @@ iD.ui.TagEditor = function(context, entity) {
             tageditorpreset.append('div')
                 .attr('class', 'col12 inspector-inner')
                 .append('a')
-                .attr('href', 'http://www.openstreetmap.org/browse/' + entity.type + '/' + entity.osmId())
+                .attr('href', 'http:/localhost:3000/browse/' + entity.type + '/' + entity.osmId())
                 .attr('target', '_blank')
                 .text(t('inspector.view_on_osm'));
         }

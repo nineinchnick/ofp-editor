@@ -8,7 +8,7 @@ iD.ui.SourceSwitch = function(context) {
         var live = d3.select(this).classed('live');
 
         context.connection()
-            .url(live ? 'http://api06.dev.openstreetmap.org' : 'http://www.openstreetmap.org');
+            .url(live ? 'http://localhost:3000' : 'http://localhost:3000');
 
         context.map()
             .flush();

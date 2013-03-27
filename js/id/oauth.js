@@ -1,5 +1,5 @@
 iD.OAuth = function(context) {
-    var baseurl = 'http://www.openstreetmap.org',
+    var baseurl = 'http://localhost:3000',
         o = {},
         keys,
         oauth = {},

@@ -11,7 +11,7 @@ describe('iD.Connection', function () {
     });
 
     it('gets/sets url', function () {
-        var new_url = 'http://api06.openstreetmap.org';
+        var new_url = 'http://localhost:3000';
         expect(c.url(new_url)).to.equal(c);
         expect(c.url()).to.equal(new_url);
     });
@@ -24,13 +24,13 @@ describe('iD.Connection', function () {
 
     describe('#changesetUrl', function() {
         it('provides a changeset url', function() {
-            expect(c.changesetUrl(2)).to.eql('http://www.openstreetmap.org/browse/changeset/2');
+            expect(c.changesetUrl(2)).to.eql('http://localhost:3000/browse/changeset/2');
         });
     });
 
     describe('#userUrl', function() {
         it('provides a user url', function() {
-            expect(c.userUrl('bob')).to.eql('http://www.openstreetmap.org/user/bob');
+            expect(c.userUrl('bob')).to.eql('http://localhost:3000/user/bob');
         });
     });
 
