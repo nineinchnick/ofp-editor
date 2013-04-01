@@ -424,14 +424,14 @@ button.save.has-count .count::before {
 /* Icons */
 
 .icon {
-  display:inline-block;
-  vertical-align:top;
-  width:20px;
-  height:20px;
-  background:transparent url(../img/sprite.png) no-repeat 0px 0px;
-  text-indent:-9999px;
-  overflow:hidden;
-  }
+       display:inline-block;
+       vertical-align:top;
+       width:20px;
+       height:20px;
+       background:transparent url(../img/sprite.png) no-repeat 0px 0px;
+       text-indent:-9999px;
+       overflow:hidden;
+   }
 
 .icon-pre-text {
     margin-right: 3px;
@@ -471,10 +471,12 @@ button.save.has-count .count::before {
 .icon.back       { background-position: -420px 0px;}
 .icon.forward    { background-position: -440px 0px;}
 .icon.help       { background-position: -460px 0px;}
+.icon.overlay       { background:transparent url(../img/office-building.png) no-repeat 0px 0px;}
 
 .icon.inspect.light    { background-position: -220px -20px;}
 .icon.geocode.light    { background-position: -280px -20px;}
 .icon.help.light       { background-position: -460px -20px;}
+.icon.overlay.light       { background:transparent url(../img/office-building.png) no-repeat 0px 0px;}
 
 .fillD .icon.avatar           { background-position: -320px -20px;}
 .fillD .icon.nearby           { background-position: -340px -20px;}
@@ -1556,10 +1558,47 @@ img.wiki-image {
     top:240px;
 }
 
+/* Overlay */
+.overlay-control {
+    top: 280px;
+}
+
+.overlay-wrap {
+    position: absolute;
+    top:60px;
+    bottom: 30px;
+    width: 20%;
+    padding: 20px 20px 20px 50px;
+    left: 0;
+    overflow-y: scroll;
+}
+
+.overlay-wrap p {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.overlay-thumb {
+    height: 75%;
+    width: 75%;
+    border: 1px solid #000;
+    margin: 10px 5px 0 0;
+}
+
+.overlay-create-image {
+    position: absolute;
+    top: 100px;
+    left: 40px;
+}
+
+.overlay-wrap .left-content .body p code {
+    padding:2px 4px;
+    background:#eee;
+}
 /* Help */
 
 .help-control {
-    top: 280px;
+    top: 320px;
 }
 
 .help-control button {

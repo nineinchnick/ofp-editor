@@ -233,6 +233,10 @@ locale.en = {
         "local_layer": "Local GPX file",
         "drag_drop": "Drag and drop a .gpx file on the page"
     },
+	"overlay": {
+		"title": "Import Floor Plan Overlay",
+		"overlay": "#Import an Image Overlay of a Floor Plan\n\nDrag and Drop an image file or click browse"
+	},
     "help": {
         "title": "Help",
         "help": "# Help\n\nThis is an editor for [OpenStreetMap](http://www.openstreetmap.org/), the\nfree and editable map of the world. You can use it to add and update\ndata in your area, making an open-source and open-data map of the world\nbetter for everyone.\n\nEdits that you make on this map will be visible to everyone who uses\nOpenStreetMap. In order to make an edit, you'll need a\n[free OpenStreetMap account](https://www.openstreetmap.org/user/new).\n\nThe [iD editor](http://ideditor.com/) is a collaborative project with [source\ncode available on GitHub](https://github.com/systemed/iD).\n",

@@ -1,5 +1,13 @@
 <atlassian-ide-plugin>
   <project-configuration>
-    <servers />
+    <servers>
+      <jira>
+        <server-id>90f28df3-3d64-47aa-9325-da27685b7159</server-id>
+        <name>SYNCADD</name>
+        <url>https://syncadd.atlassian.net</url>
+        <shared>false</shared>
+      </jira>
+    </servers>
+    <default-jira-server>90f28df3-3d64-47aa-9325-da27685b7159</default-jira-server>
   </project-configuration>
 </atlassian-ide-plugin>

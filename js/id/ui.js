@@ -46,6 +46,10 @@ iD.ui = function(context) {
             .style('display', 'none')
             .attr('class', 'help-wrap fillL col5');
 
+		container.append('div')
+			.style('display', 'none')
+			.attr('class', 'overlay-wrap fillL col5');
+
         container.append('div')
             .attr('class', 'map-control zoombuttons')
             .call(iD.ui.Zoom(context));
@@ -61,6 +65,10 @@ iD.ui = function(context) {
         container.append('div')
             .attr('class', 'map-control geolocate-control')
             .call(iD.ui.Geolocate(map));
+
+	    container.append('div')
+		    .attr('class', 'map-control overlay-control')
+		    .call(iD.ui.Overlay(context));
 
         container.append('div')
             .attr('class', 'map-control help-control')

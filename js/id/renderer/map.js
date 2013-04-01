@@ -13,7 +13,8 @@ iD.Map = function(context) {
         minzoom = 0,
         layers = [
             iD.Background().projection(projection),
-            iD.LocalGpx(context).projection(projection)],
+            iD.LocalGpx(context).projection(projection),
+            iD.Overlay(context).projection(projection)],
         transformProp = iD.util.prefixCSSProperty('Transform'),
         points = iD.svg.Points(roundedProjection, context),
         vertices = iD.svg.Vertices(roundedProjection, context),
