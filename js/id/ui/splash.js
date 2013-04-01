@@ -1,7 +1,7 @@
 iD.ui.Splash = function(context) {
     return function(selection) {
-        // if (context.storage('sawSplash'))
-        //     return;
+        if (context.storage('sawSplash'))
+             return;
 
         context.storage('sawSplash', true);
 
@@ -34,35 +34,13 @@ iD.ui.Splash = function(context) {
             .text(t('splash.walkthrough'))
             .on('click', function() {
                 d3.select(document.body).call(iD.ui.intro(context));
-                modal
-                    .transition()
-                    .duration(200)
-                    .style('opacity','0')
-                    .remove();
-
-                modal.select('.modal')
-                    .transition()
-                    .duration(200)
-                    .style('top','0px')
-                    .remove();
+                modal.close();
             });
 
         buttons.append('button')
             .attr('class', 'col6 start')
             .text(t('splash.start'))
-            .on('click', function() {
-                modal
-                    .transition()
-                    .duration(200)
-                    .style('opacity','0')
-                    .remove();
-
-                modal.select('.modal')
-                    .transition()
-                    .duration(200)
-                    .style('top','0px')
-                    .remove();
-            });
+            .on('click', modal.close);
 
         modal.select('button.close').attr('class','hide');
 

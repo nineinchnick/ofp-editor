@@ -170,7 +170,7 @@ iD.detect = function() {
     // Added due to incomplete svg style support. See #715
     browser.opera = ua.indexOf('Opera') >= 0;
 
-    browser.locale = navigator.language;
+    browser.locale = navigator.language || navigator.userLanguage;
 
     browser.filedrop = (window.FileReader && 'ondrop' in window);
 
@@ -185,14 +185,4 @@ iD.detect = function() {
     else browser.os = 'win';
 
     return browser;
-};
-
-iD.unsupported = function(div) {
-    try {
-        div.innerHTML = t('browser_notice');
-    } catch(e) {
-        div.innerHTML = 'This editor is supported in Firefox, Chrome, Safari, Opera, and Internet Explorer 9 and above. ' +
-            'Please upgrade your browser or use Potlatch 2 to edit the map.';
-    }
-    div.className = 'unsupported';
 };

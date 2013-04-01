@@ -22,13 +22,16 @@ iD.ui.Inspector = function(context, entity) {
     }
 
     function inspector(selection) {
+
+        var reselect = selection.html();
+
         selection
             .html('')
             .style('display', 'block')
             .style('right', '-500px')
             .style('opacity', 1)
             .transition()
-            .duration(200)
+            .duration(reselect ? 0 : 200)
             .style('right', '0px');
 
         var panewrap = selection
@@ -46,9 +49,10 @@ iD.ui.Inspector = function(context, entity) {
         var presetGrid = iD.ui.PresetGrid(context, entity)
             .on('close', browse)
             .on('choose', function(preset) {
+                var right = panewrap.style('right').indexOf('%') > 0 ? '0%' : '0px';
                 panewrap
                     .transition()
-                    .style('right', '0%');
+                    .style('right', right);
 
                 tagLayer.call(tagEditor, preset);
             });
@@ -58,9 +62,12 @@ iD.ui.Inspector = function(context, entity) {
             .on('changeTags', changeTags)
             .on('close', browse)
             .on('choose', function(preset) {
+                var right = panewrap.style('right').indexOf('%') > 0 ?
+                    '-100%' :
+                    '-' + selection.style('width');
                 panewrap
                     .transition()
-                    .style('right', '-100%');
+                    .style('right', right);
 
                 presetLayer.call(presetGrid, preset);
             });

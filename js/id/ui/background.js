@@ -18,28 +18,6 @@ iD.ui.Background = function(context) {
 
     function background(selection) {
 
-        function toggle() {
-            tooltip.hide(button);
-            setVisible(content.classed('hide'));
-            content.selectAll('.toggle-list li:first-child a').node().focus();
-        }
-
-        function setVisible(show) {
-            if (show !== shown) {
-                button.classed('active', show);
-                content.call(iD.ui.Toggle(show));
-                shown = show;
-
-                if (show) {
-                    selection.on('mousedown.background-inside', function() {
-                        return d3.event.stopPropagation();
-                    });
-                } else {
-                    selection.on('mousedown.background-inside', null);
-                }
-            }
-        }
-
         function setOpacity(d) {
             context.map().layersurface.selectAll('.layer-layer')
                 .filter(function(d) { return d == context.map().layers[0]; })
@@ -59,7 +37,9 @@ iD.ui.Background = function(context) {
         function selectLayer() {
             content.selectAll('a.layer')
                 .classed('selected', function(d) {
-                    return d.data.name === context.background().source().data.name;
+                    var overlay = context.map().layers[2].source();
+                    return d.data.name === context.background().source().data.name ||
+                        (overlay.data && overlay.data.name === d.data.name);
                 });
         }
 
@@ -82,6 +62,18 @@ iD.ui.Background = function(context) {
             selectLayer();
         }
 
+        function clickSetOverlay(d) {
+            d3.event.preventDefault();
+            var overlay = context.map().layers[2];
+            if (overlay.source() === d) {
+                overlay.source(d3.functor(''));
+            } else {
+                overlay.source(d);
+            }
+            context.redraw();
+            selectLayer();
+        }
+
         function clickGpx(d) {
             d3.event.preventDefault();
             if (!_.isEmpty(context.map().layers[1].geojson())) {
@@ -93,9 +85,10 @@ iD.ui.Background = function(context) {
             }
         }
 
-        function update() {
+        function drawList(layerList, click, filter) {
+
             var layerLinks = layerList.selectAll('a.layer')
-                .data(getSources(), function(d) {
+                .data(getSources().filter(filter), function(d) {
                     return d.data.name;
                 });
 
@@ -106,7 +99,7 @@ iD.ui.Background = function(context) {
             layerInner
                 .attr('href', '#')
                 .attr('class', 'layer')
-                .on('click.set-source', clickSetSource);
+                .on('click.set-source', click);
 
             // only set tooltips for layers with tooltips
             layerInner
@@ -120,15 +113,28 @@ iD.ui.Background = function(context) {
                 return d.data.name;
             });
 
+            layerLinks.exit()
+                .remove();
+
+            layerList.style('display', layerList.selectAll('a.layer').data().length > 0 ? 'block' : 'none');
+        }
+
+        function update() {
+
+            backgroundList.call(drawList, clickSetSource, function(d) {
+                return !d.data.overlay;
+            });
+
+            overlayList.call(drawList, clickSetOverlay, function(d) {
+                return d.data.overlay;
+            });
+
             gpxLayerItem
                 .classed('selected', function() {
                     var gpxLayer = context.map().layers[1];
                     return !_.isEmpty(gpxLayer.geojson()) &&
                         gpxLayer.enable();
                 });
-
-            layerLinks.exit()
-                .remove();
 
             selectLayer();
         }
@@ -148,15 +154,51 @@ iD.ui.Background = function(context) {
         }
 
         var content = selection.append('div')
-                .attr('class', 'content fillD map-overlay hide'),
+                .attr('class', 'fillL map-overlay content hide'),
             tooltip = bootstrap.tooltip()
                 .placement('right')
                 .html(true)
-                .title(iD.ui.tooltipHtml(t('background.description'), key)),
-            button = selection.append('button')
+                .title(iD.ui.tooltipHtml(t('background.description'), key));
+
+        function hide() { setVisible(false); }
+        function toggle() {
+            if (d3.event) d3.event.preventDefault();
+            tooltip.hide(button);
+            setVisible(!button.classed('active'));
+            content.selectAll('.toggle-list li:first-child a').node().focus();
+        }
+
+        function setVisible(show) {
+            if (show !== shown) {
+                button.classed('active', show);
+                shown = show;
+
+                if (show) {
+                    selection.on('mousedown.background-inside', function() {
+                        return d3.event.stopPropagation();
+                    });
+                    content.style('display', 'block')
+                        .style('left', '-500px')
+                        .transition()
+                        .duration(200)
+                        .style('left', '30px');
+                } else {
+                    content.style('display', 'block')
+                        .style('left', '30px')
+                        .transition()
+                        .duration(200)
+                        .style('left', '-500px')
+                        .each('end', function() {
+                            d3.select(this).style('display', 'none');
+                        });
+                    selection.on('mousedown.background-inside', null);
+                }
+            }
+        }
+
+        var button = selection.append('button')
                 .attr('tabindex', -1)
-                .attr('class', 'fillD')
-                .on('click.background-toggle', toggle)
+                .on('click', toggle)
                 .call(tooltip),
             opa = content
                 .append('div')
@@ -168,14 +210,6 @@ iD.ui.Background = function(context) {
 
         opa.append('h4')
             .text(t('background.title'));
-
-        context.surface().on('mousedown.background-outside', function() {
-            setVisible(false);
-        });
-
-        context.container().on('mousedown.background-outside', function() {
-            setVisible(false);
-        });
 
         var opacityList = opa.append('ul')
             .attr('class', 'opacity-options');
@@ -199,34 +233,46 @@ iD.ui.Background = function(context) {
         opa.select('.opacity-options li:nth-child(2)')
             .classed('selected', true);
 
-        var layerList = content
+        var backgroundList = content
             .append('ul')
-            .attr('class', 'toggle-list fillL');
+            .attr('class', 'toggle-list');
+
+        var overlayList = content
+            .append('ul')
+            .attr('class', 'toggle-list');
 
         var gpxLayerItem = content
             .append('ul')
             .style('display', iD.detect().filedrop ? 'block' : 'none')
-            .attr('class', 'toggle-list fillL')
+            .attr('class', 'toggle-list')
             .append('li')
             .append('a')
             .classed('layer-toggle-gpx', true)
-            .call(bootstrap.tooltip()
-                .title(t('gpx.drag_drop'))
-                .placement('right'))
             .on('click.set-gpx', clickGpx);
+
+        gpxLayerItem.call(bootstrap.tooltip()
+            .title(t('gpx.drag_drop'))
+            .placement('right'));
 
         gpxLayerItem.append('span')
             .text(t('gpx.local_layer'));
 
         gpxLayerItem
-            .append('a')
-            .attr('class', 'icon geocode layer-extent')
+            .append('button')
+            .attr('class', 'minor layer-extent')
             .on('click', function() {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
-                context.map()
-                    .extent(d3.geo.bounds(context.map().layers[1].geojson()));
-            });
+                if (context.map().layers[1].geojson().type) {
+                    context.map()
+                        .extent(d3.geo.bounds(context
+                            .map()
+                            .layers[1]
+                            .geojson()));
+                }
+            })
+            .append('span')
+                .attr('class', 'icon geocode' );
 
         var adjustments = content
             .append('div')
@@ -274,6 +320,10 @@ iD.ui.Background = function(context) {
 
         d3.select(document)
             .call(keybinding);
+
+        context.surface().on('mousedown.background-outside', hide);
+        context.container().on('mousedown.background-outside', hide);
+
     }
 
     return background;

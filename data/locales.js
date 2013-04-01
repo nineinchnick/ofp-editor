@@ -53,12 +53,16 @@ locale.en = {
         },
         "circularize": {
             "title": "Circularize",
-            "description": "Make this round.",
+            "description": {
+                "line": "Make this line circular.",
+                "area": "Make this area circular."
+            },
             "key": "O",
             "annotation": {
                 "line": "Made a line circular.",
                 "area": "Made an area circular."
-            }
+            },
+            "not_closed": "This can't be made circular because it's not a loop."
         },
         "orthogonalize": {
             "title": "Orthogonalize",
@@ -67,7 +71,8 @@ locale.en = {
             "annotation": {
                 "line": "Squared the corners of a line.",
                 "area": "Squared the corners of an area."
-            }
+            },
+            "not_closed": "This can't be made square because it's not a loop."
         },
         "delete": {
             "title": "Delete",
@@ -91,15 +96,18 @@ locale.en = {
         },
         "disconnect": {
             "title": "Disconnect",
-            "description": "Disconnect these ways from each other.",
+            "description": "Disconnect these lines/areas from each other.",
             "key": "D",
-            "annotation": "Disconnected ways."
+            "annotation": "Disconnected lines/areas.",
+            "not_connected": "There aren't enough lines/areas here to disconnect."
         },
         "merge": {
             "title": "Merge",
             "description": "Merge these lines.",
             "key": "C",
-            "annotation": "Merged {n} lines."
+            "annotation": "Merged {n} lines.",
+            "not_eligible": "These features can't be merged.",
+            "not_adjacent": "These lines can't be merged because they aren't connected."
         },
         "move": {
             "title": "Move",
@@ -111,7 +119,8 @@ locale.en = {
                 "line": "Moved a line.",
                 "area": "Moved an area.",
                 "multiple": "Moved multiple objects."
-            }
+            },
+            "incomplete_relation": "This feature can't be moved because it hasn't been fully downloaded."
         },
         "rotate": {
             "title": "Rotate",
@@ -130,18 +139,29 @@ locale.en = {
         },
         "split": {
             "title": "Split",
-            "description": "Split this into two ways at this point.",
+            "description": {
+                "line": "Split this line into two at this point.",
+                "area": "Split the boundary of this area into two.",
+                "multiple": "Split the lines/area boundaries at this point into two."
+            },
             "key": "X",
-            "annotation": "Split a way."
+            "annotation": {
+                "line": "Split a line.",
+                "area": "Split an area boundary.",
+                "multiple": "Split {n} lines/area boundaries."
+            },
+            "not_eligible": "Lines can't be split at their beginning or end.",
+            "multiple_ways": "There are too many lines here to split."
         }
     },
     "nothing_to_undo": "Nothing to undo.",
     "nothing_to_redo": "Nothing to redo.",
     "just_edited": "You just edited OpenStreetMap!",
     "browser_notice": "This editor is supported in Firefox, Chrome, Safari, Opera, and Internet Explorer 9 and above. Please upgrade your browser or use Potlatch 2 to edit the map.",
-    "view_on_osm": "View on OSM →",
+    "view_on_osm": "View on OSM",
     "zoom_in_edit": "zoom in to edit the map",
     "logout": "logout",
+    "loading_auth": "Connecting to OpenStreetMap...",
     "report_a_bug": "report a bug",
     "commit": {
         "title": "Save Changes",
@@ -204,8 +224,8 @@ locale.en = {
     "splash": {
         "welcome": "Welcome to the iD OpenStreetMap editor",
         "text": "iD is a friendly but powerful tool for contributing to the world's best free world map. This is development version {version}. For more information see {website} and report bugs at {github}.",
-        "walkthrough": "Start the walkthrough",
-        "start": "Edit now"
+        "walkthrough": "Start the Walkthrough",
+        "start": "Edit Now"
     },
     "source_switch": {
         "live": "live",
@@ -248,6 +268,49 @@ locale.en = {
         "inspector": "# Using the Inspector\n\nThe inspector is the user interface element on the right-hand side of the\npage that appears when a feature is selected and allows you to edit its details.\n\n### Selecting a Feature Type\n\nAfter you add a point, line, or area, you can choose what type of feature it\nis, like whether it's a highway or residential road, supermarket or cafe.\nThe inspector will display buttons for common feature types, and you can\nfind others by typing what you're looking for in the search box.\n\nClick the 'i' in the bottom-right-hand corner of a feature type button to\nlearn more about it. Click a button to choose that type.\n\n### Using Forms and Editing Tags\n\nAfter you choose a feature type, or when you select a feature that already\nhas a type assigned, the inspector will display fields with details about\nthe feature like its name and address.\n\nBelow the fields you see, you can click icons to add other details,\nlike [Wikipedia](http://www.wikipedia.org/) information, wheelchair\naccess, and more.\n\nAt the bottom of the inspector, click 'Additional tags' to add arbitrary\nother tags to the element. [Taginfo](http://taginfo.openstreetmap.org/) is a\ngreat resource for learn more about popular tag combinations.\n\nChanges you make in the inspector are automatically applied to the map.\nYou can undo them at any time by clicking the 'Undo' button.\n\n### Closing the Inspector\n\nYou can close the inspector by clicking the close button in the top-right,\npressing the 'Escape' key, or clicking on the map.\n",
         "buildings": "# Buildings\n\nOpenStreetMap is the world's largest database of buildings. You can create\nand improve this database.\n\n### Selecting\n\nYou can select a building by clicking on its border. This will highlight the\nbuilding and open a small tools menu and a sidebar showing more information\nabout the building.\n\n### Modifying\n\nSometimes buildings are incorrectly placed or have incorrect tags.\n\nTo move an entire building, select it, then click the 'Move' tool. Move your\nmouse to shift the building, and click when it's correctly placed.\n\nTo fix the specific shape of a building, click and drag the points that form\nits border into better places.\n\n### Creating\n\nOne of the main questions around adding buildings to the map is that\nOpenStreetMap records buildings both as shapes and points. The rule of thumb\nis to _map a building as a shape whenever possible_, and map companies, homes,\namenities, and other things that operate out of buildings as points placed\nwithin the building shape.\n\nStart drawing a building as a shape by clicking the 'Area' button in the top\nleft of the interface, and end it either by pressing 'Return' on your keyboard\nor clicking on the first point drawn to close the shape.\n\n### Deleting\n\nIf a building is entirely incorrect - you can see that it doesn't exist in satellite\nimagery and ideally have confirmed locally that it's not present - you can delete\nit, which removes it from the map. Be cautious when deleting features -\nlike any other edit, the results are seen by everyone and satellite imagery\nis often out of date, so the road could simply be newly built.\n\nYou can delete a building by clicking on it to select it, then clicking the\ntrash can icon or pressing the 'Delete' key.\n"
     },
+    "intro": {
+        "navigation": {
+            "drag": "The main map area shows OpenStreetMap data on top of a background. You can navigate by dragging and scrolling, just like any web map. **Drag the map!**",
+            "select": "Map features are represented three ways: using points, lines or areas. All features can be selected by clicking on them. **Click on the point to select it.**",
+            "header": "The header shows us the feature type.",
+            "pane": "When a feature is selected, the feature editor is displayed. The header shows us the feature type and the main pane shows the feature's attributes, such as its name and address. **Close the feature editor with the close button in the top right.**"
+        },
+        "points": {
+            "add": "Points can be used to represent features such as shops, restaurants and monuments. They mark a specific location, and describe what's there. **Click the Point button to add a new point.**",
+            "place": "The point can be placed by clicking on the map. **Place the point on top of the building.**",
+            "search": "There many different features that can be represented by points. The point you just added is a Cafe. **Search for 'Cafe' **",
+            "choose": "**Choose Cafe from the grid.**",
+            "describe": "The point is now marked as a cafe. Using the feature editor, we can add more information about the feature. **Add a name**",
+            "close": "The feature editor can be closed by clicking on the close button. **Close the feature editor**",
+            "reselect": "Often points will already exist, but have mistakes or be incomplete. We can edit existing points. **Select the point you just created.**",
+            "fixname": "**Change the name and close the feature editor.**",
+            "reselect_delete": "All features on the map can be deleted. **Click on the point you created.**",
+            "delete": "The menu around the point contains operations that can be performed on it, including delete. **Delete the point.**"
+        },
+        "areas": {
+            "add": "Areas are a more detailed way to represent features. They provide information on the boundaries of the feature. Areas can be used for most features types points can be used for, and are often preferred. **Click the Area button to add a new area.**",
+            "corner": "Areas are drawn by placing nodes that mark the boundary of the area. **Place the starting node on one of the corners of the playground.**",
+            "place": "Draw the area by placing more nodes. Finish the area by clicking on the starting point. **Draw an area for the playground.**",
+            "search": "**Search for Playground.**",
+            "choose": "**Choose Playground from the grid.**",
+            "describe": "**Add a name, and close the feature editor**"
+        },
+        "lines": {
+            "add": "Lines are used to represent features such as roads, railways and rivers. **Click the Line button to add a new line.**",
+            "start": "**Start the line by clicking on the end of the road.**",
+            "intersect": "Click to add more points to the line. You can drag the map while drawing if necessary. Roads, and many other types of lines, are part of a larger network. It is important for these lines to be connected properly in order for routing applications to work. **Click on Flower Street, to create an intersection connecting the two lines.**",
+            "finish": "Lines can be finished by clicking on the last point again. **Finish drawing the road.**",
+            "road": "**Select Road from the grid**",
+            "residential": "There are different types of roads, the most common of which is Residential. **Choose the Residential road type**",
+            "describe": "**Name the road and close the feature editor.**",
+            "restart": "The road needs to intersect Flower Street."
+        },
+        "startediting": {
+            "help": "More documentation and this walkthrough are available here.",
+            "save": "Don't forget to regularly save your changes!",
+            "start": "Start mapping!"
+        }
+    },
     "presets": {
         "fields": {
             "access": {
@@ -261,6 +324,9 @@ locale.en = {
                     "street": "Street",
                     "city": "City"
                 }
+            },
+            "admin_level": {
+                "label": "Admin Level"
             },
             "aeroway": {
                 "label": "Type"
@@ -686,12 +752,24 @@ locale.en = {
                 "name": "Wall",
                 "terms": ""
             },
+            "boundary/administrative": {
+                "name": "Administrative Boundary",
+                "terms": ""
+            },
             "building": {
                 "name": "Building",
                 "terms": ""
             },
+            "building/apartments": {
+                "name": "Apartments",
+                "terms": ""
+            },
             "building/entrance": {
                 "name": "Entrance",
+                "terms": ""
+            },
+            "building/house": {
+                "name": "House",
                 "terms": ""
             },
             "entrance": {
@@ -974,8 +1052,16 @@ locale.en = {
                 "name": "Survey Point",
                 "terms": ""
             },
+            "man_made/wastewater_plant": {
+                "name": "Wastewater Plant",
+                "terms": "sewage works,sewage treatment plant,water treatment plant,reclamation plant"
+            },
             "man_made/water_tower": {
                 "name": "Water Tower",
+                "terms": ""
+            },
+            "man_made/water_works": {
+                "name": "Water Works",
                 "terms": ""
             },
             "natural": {
@@ -1459,48 +1545,6 @@ locale.en = {
                 "terms": ""
             }
         }
-    },
-    "intro": {
-        "navigation": {
-            "drag": "The main map area shows OpenStreetMap data on top of background imagery. You can navigate by dragging and scrolling, just like any web map. **Drag the map!**",
-            "select": "Map features can be represented three ways: using points, lines or areas. All features can be selected by clicking on them. **Click on the point to select it.**",
-            "header": "The header shows us the feature type.",
-            "pane": "The main pane shows the feature's attributes, such as its name and address."
-        },
-        "points": {
-            "add": "Points can be used to represent features such as shops, restaurants and monuments. They mark a specific location, and describe what's there. **Click the Point button to add a new point.**",
-            "place": "The point can be placed by clicking on the map. **Place the point on top of the building.**",
-            "search": "There many different features that can be represented by points. The point you just added is a Cafe. **Search for 'Cafe' **",
-            "choose": "**Choose Cafe from the grid.**",
-            "describe": "The point is now marked as a cafe. Using the feature editor, we can add more information about the feature. **Add a name**",
-            "close": "The feature editor can be closed by clicking on the close button. **Close the feature editor**",
-            "reselect": "Often points will already exist, but have mistakes or be incomplete. We can edit existing points. **Select the point you just created.**",
-            "fixname": "**Change the name and close the feature editor.**",
-            "reselect_delete": "All features on the map can be deleted. **Reselect the point you created.**",
-            "delete": "The menu around the point contains operations that can be performed on it, including delete. **Delete the point.**"
-        },
-        "areas": {
-            "add": "Areas are a more detailed way to represent features. They provide information on the boundaries of the feature. Areas can be used for most features types points can be used for, and are often preferred. **Click the Area button to add a new area.**",
-            "corner": "Areas are drawn by placing nodes that mark the boundary of the area. **Place the starting node on one of the corners of the playground.**",
-            "place": "Draw the area by placing more nodes. Finish the area by clicking on the starting point. **Draw an area for the playground.**",
-            "search": "**Search for Playground.**",
-            "choose": "**Choose Playground from the grid.**",
-            "describe": "**Add a name, and close the feature editor**"
-        },
-        "lines": {
-            "add": "Lines are used to represent features such as roads, railways and rivers. **Click the Line button to add a new line.**",
-            "start": "**Start the line by clicking on the end of the road.**",
-            "intersect": "Click to add more points to the line. You can drag the map while drawing if necessary. Roads, and many other types of lines, are part of a larger network. It is important for these lines to be connected properly in order for routing applications to work. **Click on Flower Street, to create an intersection connecting the two lines.**",
-            "finish": "Lines can be finished by clicking on the last point again. **Finish drawing the road.**",
-            "road": "**Select Road from the grid**",
-            "residential": "There are different types of roads, the most common of which is Residential. **Choose the Residential road type**",
-            "describe": "**Name the road and close the feature editor.**"
-        },
-        "startediting": {
-            "help": "More documentation and this walkthrough are available here.",
-            "save": "Don't forget to regularly save your changes!",
-            "start": "Start mapping!"
-        }
     }
 };
 locale.zh = {
@@ -1693,6 +1737,7 @@ locale.zh = {
         "reset": "重置"
     },
     "restore": {
+        "heading": "您有未保存的更改",
         "description": "上次您有未保存的更改。你想恢复这些更改吗？",
         "restore": "恢复",
         "reset": "重置"
@@ -1707,10 +1752,13 @@ locale.zh = {
     },
     "splash": {
         "welcome": "欢迎使用OpenStreetMap编辑器iD",
-        "text": "这是开发版本{version}。欲了解更多信息，请参阅{website}，在{github}报告bug。"
+        "text": "这是开发版本{version}。欲了解更多信息，请参阅{website}，在{github}报告bug。",
+        "walkthrough": "开始练习",
+        "start": "现在编辑"
     },
     "source_switch": {
         "live": "live",
+        "lose_changes": "您有未保存的更改。切换地图服务器会丢弃他们。你确定要切换服务器吗？",
         "dev": "dev"
     },
     "tag_reference": {
@@ -1733,6 +1781,9 @@ locale.zh = {
     "gpx": {
         "local_layer": "本地GPX文件",
         "drag_drop": "把GPX文件拖到页面上。"
+    },
+    "help": {
+        "title": "帮助"
     },
     "presets": {
         "fields": {
@@ -4217,6 +4268,7 @@ locale.fr = {
         "reset": "réinitialiser"
     },
     "restore": {
+        "heading": "Vous avez des changements non sauvés.",
         "description": "Vous avez des changements non sauvegardés d'une précédente édition. Souhaitez-vous restaurer ces changements?",
         "restore": "Restaurer",
         "reset": "Annuler"
@@ -4231,7 +4283,8 @@ locale.fr = {
     },
     "splash": {
         "welcome": "Bienvenue sur ID l'editeur en ligne d'OpenStreetMap",
-        "text": "Cette version {version}, est une version de développement. Si vous souhaitez plus d'informations, veuillez consulter {website} ou pour signaler un bug   {github}."
+        "text": "Cette version {version}, est une version de développement. Si vous souhaitez plus d'informations, veuillez consulter {website} ou pour signaler un bug   {github}.",
+        "start": "Editer"
     },
     "source_switch": {
         "live": "live",
@@ -4257,6 +4310,9 @@ locale.fr = {
     "gpx": {
         "local_layer": "Fichier GPX personnel",
         "drag_drop": "Glisser et déposer un fichier .gpx sur la page"
+    },
+    "help": {
+        "title": "Aide"
     },
     "presets": {
         "fields": {
@@ -4803,7 +4859,8 @@ locale.de = {
     },
     "splash": {
         "welcome": "Willkommen beim iD OpenStreetMap-Editor",
-        "text": "Dies ist eine Entwicklungsversion {version}. Für weitere Informationen besuche {website} und melde Fehler unter {github}."
+        "text": "Dies ist eine Entwicklungsversion {version}. Für weitere Informationen besuche {website} und melde Fehler unter {github}.",
+        "start": "Jetzt bearbeiten"
     },
     "source_switch": {
         "live": "live",
@@ -4872,20 +4929,60 @@ locale.de = {
             "capacity": {
                 "label": "Kapazität"
             },
+            "collection_times": {
+                "label": "Leerungszeiten"
+            },
+            "country": {
+                "label": "Land"
+            },
+            "cuisine": {
+                "label": "Küche"
+            },
+            "denomination": {
+                "label": "Glaubensrichtung"
+            },
+            "entrance": {
+                "label": "Art"
+            },
             "fax": {
                 "label": "Fax"
+            },
+            "fee": {
+                "label": "Gebühr"
+            },
+            "highway": {
+                "label": "Art"
+            },
+            "historic": {
+                "label": "Art"
             },
             "internet_access": {
                 "label": "Internetzugang",
                 "options": {
-                    "wlan": "Wifi"
+                    "wlan": "Wifi",
+                    "wired": "Kabelgebunden"
                 }
+            },
+            "landuse": {
+                "label": "Art"
+            },
+            "layer": {
+                "label": "Ebene"
+            },
+            "leisure": {
+                "label": "Art"
             },
             "levels": {
                 "label": "Etagen"
             },
+            "man_made": {
+                "label": "Art"
+            },
             "maxspeed": {
                 "label": "Höchstgeschwindigkeit"
+            },
+            "network": {
+                "label": "Netzwerk"
             },
             "note": {
                 "label": "Notiz"
@@ -4893,11 +4990,38 @@ locale.de = {
             "oneway": {
                 "label": "Einbahnstraße"
             },
+            "opening_hours": {
+                "label": "Öffnungszeiten"
+            },
+            "operator": {
+                "label": "Betreiber"
+            },
             "phone": {
                 "label": "Telefon"
             },
+            "place": {
+                "label": "Art"
+            },
+            "railway": {
+                "label": "Art"
+            },
             "religion": {
-                "label": "Religion"
+                "label": "Religion",
+                "options": {
+                    "christian": "Christlich",
+                    "muslim": "Muslimisch",
+                    "buddhist": "Buddhistisch",
+                    "jewish": "Jüdisch"
+                }
+            },
+            "service": {
+                "label": "Art"
+            },
+            "shelter": {
+                "label": "Unterstand"
+            },
+            "shop": {
+                "label": "Art"
             },
             "source": {
                 "label": "Quelle"
@@ -4905,22 +5029,49 @@ locale.de = {
             "sport": {
                 "label": "Sport"
             },
+            "structure": {
+                "options": {
+                    "bridge": "Brücke",
+                    "tunnel": "Tunnel"
+                }
+            },
             "surface": {
                 "label": "Oberfläche"
+            },
+            "tourism": {
+                "label": "Art"
+            },
+            "water": {
+                "label": "Art"
+            },
+            "waterway": {
+                "label": "Art"
             },
             "website": {
                 "label": "Webseite"
             },
+            "wetland": {
+                "label": "Art"
+            },
             "wikipedia": {
                 "label": "Wikipedia"
+            },
+            "wood": {
+                "label": "Art"
             }
         },
         "presets": {
+            "aeroway": {
+                "name": "Luftfahrt"
+            },
             "aeroway/aerodrome": {
                 "name": "Flughafen"
             },
             "aeroway/helipad": {
                 "name": "Hubschrauberlandeplatz"
+            },
+            "amenity": {
+                "name": "Einrichtungen"
             },
             "amenity/bank": {
                 "name": "Bank"
@@ -4937,8 +5088,23 @@ locale.de = {
             "amenity/bicycle_rental": {
                 "name": "Fahrradverleih"
             },
+            "amenity/cafe": {
+                "name": "Café"
+            },
             "amenity/cinema": {
                 "name": "Kino"
+            },
+            "amenity/courthouse": {
+                "name": "Gericht"
+            },
+            "amenity/embassy": {
+                "name": "Botschaft"
+            },
+            "amenity/fast_food": {
+                "name": "Fast Food"
+            },
+            "amenity/fire_station": {
+                "name": "Feuerwehrhaus"
             },
             "amenity/fuel": {
                 "name": "Tankstelle"
@@ -4958,8 +5124,14 @@ locale.de = {
             "amenity/pharmacy": {
                 "name": "Apotheke"
             },
+            "amenity/place_of_worship": {
+                "name": "Gebetsort"
+            },
             "amenity/place_of_worship/christian": {
                 "name": "Kirche"
+            },
+            "amenity/place_of_worship/jewish": {
+                "name": "Sy­n­a­go­ge"
             },
             "amenity/place_of_worship/muslim": {
                 "name": "Moschee"
@@ -4970,6 +5142,9 @@ locale.de = {
             "amenity/post_box": {
                 "name": "Briefkasten"
             },
+            "amenity/post_office": {
+                "name": "Poststelle"
+            },
             "amenity/pub": {
                 "name": "Pub"
             },
@@ -4979,8 +5154,14 @@ locale.de = {
             "amenity/school": {
                 "name": "Schule"
             },
+            "amenity/swimming_pool": {
+                "name": "Schwimmbecken"
+            },
             "amenity/telephone": {
                 "name": "Telefon"
+            },
+            "amenity/theatre": {
+                "name": "The­a­ter"
             },
             "amenity/toilets": {
                 "name": "Toilette"
@@ -4990,6 +5171,9 @@ locale.de = {
             },
             "amenity/university": {
                 "name": "Universität"
+            },
+            "building": {
+                "name": "Gebäude"
             },
             "entrance": {
                 "name": "Eingang"
@@ -5009,17 +5193,38 @@ locale.de = {
             "highway/footway": {
                 "name": "Fußweg"
             },
+            "highway/motorway": {
+                "name": "Autobahn"
+            },
             "highway/path": {
                 "name": "Pfad"
             },
+            "highway/primary": {
+                "name": "Hauptverbindungsstraße"
+            },
+            "highway/residential": {
+                "name": "Wohngebietsstraße"
+            },
+            "highway/secondary": {
+                "name": "Landstraße"
+            },
+            "highway/service": {
+                "name": "Erschließungsweg"
+            },
             "highway/steps": {
                 "name": "Treppen"
+            },
+            "highway/tertiary": {
+                "name": "Kreisstraße"
             },
             "highway/track": {
                 "name": "Feld-/Waldweg"
             },
             "highway/traffic_signals": {
                 "name": "Ampeln"
+            },
+            "highway/trunk": {
+                "name": "Kraftfahrstraße"
             },
             "highway/turning_circle": {
                 "name": "Wendestelle"
@@ -5030,8 +5235,20 @@ locale.de = {
             "historic/monument": {
                 "name": "Monument"
             },
+            "landuse": {
+                "name": "Landnutzung"
+            },
             "landuse/allotments": {
                 "name": "Kleigartenanlage"
+            },
+            "landuse/basin": {
+                "name": "Becken"
+            },
+            "landuse/cemetery": {
+                "name": "Friedhof"
+            },
+            "landuse/farm": {
+                "name": "Bauernhof"
             },
             "landuse/forest": {
                 "name": "Wald"
@@ -5048,11 +5265,17 @@ locale.de = {
             "landuse/residential": {
                 "name": "Wohngebiet"
             },
+            "leisure/garden": {
+                "name": "Garten"
+            },
             "leisure/golf_course": {
                 "name": "Golfplatz"
             },
             "leisure/park": {
                 "name": "Park"
+            },
+            "leisure/pitch": {
+                "name": "Sportplatz"
             },
             "leisure/pitch/american_football": {
                 "name": "American Football Feld"
@@ -5068,6 +5291,21 @@ locale.de = {
             },
             "leisure/playground": {
                 "name": "Spieplatz"
+            },
+            "leisure/stadium": {
+                "name": "Stadium"
+            },
+            "leisure/swimming_pool": {
+                "name": "Schwimmbecken"
+            },
+            "man_made/lighthouse": {
+                "name": "Leuchtturm"
+            },
+            "man_made/pier": {
+                "name": "Steg"
+            },
+            "man_made/survey_point": {
+                "name": "Vermessungspunkt"
             },
             "natural/beach": {
                 "name": "Strand"
@@ -5117,6 +5355,9 @@ locale.de = {
             "railway/subway": {
                 "name": "U-Bahn"
             },
+            "shop": {
+                "name": "Laden"
+            },
             "shop/butcher": {
                 "name": "Fleischer"
             },
@@ -5141,6 +5382,9 @@ locale.de = {
             "tourism/information": {
                 "name": "Information"
             },
+            "tourism/motel": {
+                "name": "Motel"
+            },
             "tourism/museum": {
                 "name": "Museum"
             },
@@ -5149,6 +5393,9 @@ locale.de = {
             },
             "tourism/theme_park": {
                 "name": "Themenpark"
+            },
+            "tourism/viewpoint": {
+                "name": "Aussichtspunkt"
             },
             "tourism/zoo": {
                 "name": "Zoo"
@@ -6717,7 +6964,17 @@ locale.pl = {
                 "point": "Przesunięto punkt.",
                 "vertex": "Przesunięto węzeł drogi.",
                 "line": "Przesunięto linię.",
-                "area": "Przesunięto obszar."
+                "area": "Przesunięto obszar.",
+                "multiple": "Przesunięto wiele obiektów."
+            }
+        },
+        "rotate": {
+            "title": "Obróć",
+            "description": "Obróć ten obiekt względem jego środka.",
+            "key": "R",
+            "annotation": {
+                "line": "Obrócono linię.",
+                "area": "Obrócono obszar."
             }
         },
         "reverse": {
@@ -6744,6 +7001,7 @@ locale.pl = {
     "commit": {
         "title": "Zapisz zmiany",
         "description_placeholder": "Krótki opis twoich zmian",
+        "message_label": "Opis zmian",
         "upload_explanation": "Zmiany które wyślesz jako {user} będą widoczne na wszystkich mapach używających danych OpenStreetMap.",
         "save": "Zapisz",
         "cancel": "Anuluj",
@@ -6767,8 +7025,13 @@ locale.pl = {
     "inspector": {
         "no_documentation_combination": "Nie ma dokumentacji dla tej kombinacji tagu.",
         "no_documentation_key": "Nie ma dokumentacji dla tego klucza",
+        "show_more": "Pokaż więcej",
         "new_tag": "Nowy tag",
-        "view_on_osm": "Zobacz w OSM"
+        "view_on_osm": "Zobacz w OSM",
+        "editing_feature": "Edytujesz {feature}",
+        "additional": "Dodatkowe znaczniki",
+        "results": "{n} wyników dla {search}",
+        "reference": "Zobacz na OpenStreetMap Wiki →"
     },
     "background": {
         "title": "Tło",
@@ -6778,6 +7041,7 @@ locale.pl = {
         "reset": "resetuj"
     },
     "restore": {
+        "heading": "Masz niezapisane zmiany",
         "description": "Masz niezapisane zmiany z poprzedniej sesji. Chcesz je przywrócić?",
         "restore": "Przywróć",
         "reset": "Resetuj"
@@ -6785,6 +7049,7 @@ locale.pl = {
     "save": {
         "title": "Zapisz",
         "help": "Zapisz zmiany na OpenStreetMap, aby były one widoczne dla innych",
+        "no_changes": "Brak zmian do zapisania.",
         "error": "Wystąpił błąd podczas próby zapisu.",
         "uploading": "Wysyłanie zmian do OpenStreetMap.",
         "unsaved_changes": "Masz niezapisane zmiany."
@@ -6813,6 +7078,440 @@ locale.pl = {
     "zoom": {
         "in": "Powiększ",
         "out": "Zmniejsz"
+    },
+    "gpx": {
+        "local_layer": "Lokalny plik GPX",
+        "drag_drop": "Przeciągnij i upuść plik .gpx na stronę"
+    },
+    "help": {
+        "title": "Pomoc"
+    },
+    "presets": {
+        "fields": {
+            "access": {
+                "label": "Dostęp"
+            },
+            "address": {
+                "label": "Adres",
+                "placeholders": {
+                    "housename": "Nazwa budynku",
+                    "number": "123",
+                    "street": "Ulica",
+                    "city": "Miasto"
+                }
+            },
+            "aeroway": {
+                "label": "Typ"
+            },
+            "amenity": {
+                "label": "Typ"
+            },
+            "atm": {
+                "label": "Bankomat"
+            },
+            "bicycle_parking": {
+                "label": "Typ"
+            },
+            "building": {
+                "label": "Budynek"
+            },
+            "building_area": {
+                "label": "Budynek"
+            },
+            "building_yes": {
+                "label": "Budynek"
+            },
+            "capacity": {
+                "label": "Pojemność"
+            },
+            "construction": {
+                "label": "Typ"
+            },
+            "crossing": {
+                "label": "Typ"
+            },
+            "cuisine": {
+                "label": "Kuchnia"
+            },
+            "denomination": {
+                "label": "Wyznanie"
+            },
+            "entrance": {
+                "label": "Typ"
+            },
+            "fax": {
+                "label": "Faks"
+            },
+            "fee": {
+                "label": "Opłata"
+            },
+            "highway": {
+                "label": "Typ"
+            },
+            "historic": {
+                "label": "Typ"
+            },
+            "internet_access": {
+                "label": "Dostęp do internetu",
+                "options": {
+                    "wlan": "Bezprzewodowy",
+                    "wired": "Przewodowy"
+                }
+            },
+            "landuse": {
+                "label": "Typ"
+            },
+            "layer": {
+                "label": "Warstwa"
+            },
+            "leisure": {
+                "label": "Typ"
+            },
+            "levels": {
+                "label": "Poziomy"
+            },
+            "man_made": {
+                "label": "Typ"
+            },
+            "maxspeed": {
+                "label": "Ograniczenie prędkości"
+            },
+            "network": {
+                "label": "Sieć"
+            },
+            "note": {
+                "label": "Notatka"
+            },
+            "office": {
+                "label": "Typ"
+            },
+            "oneway": {
+                "label": "Jednokierunkowa"
+            },
+            "opening_hours": {
+                "label": "Godziny"
+            },
+            "phone": {
+                "label": "Telefon"
+            },
+            "place": {
+                "label": "Typ"
+            },
+            "railway": {
+                "label": "Typ"
+            },
+            "religion": {
+                "label": "Religia",
+                "options": {
+                    "christian": "Chrześcijaństwo",
+                    "muslim": "Islam",
+                    "buddhist": "Buddyzm",
+                    "jewish": "Judaizm",
+                    "hindu": "Hinduizm",
+                    "shinto": "Szintoizm",
+                    "taoist": "Taoizm"
+                }
+            },
+            "service": {
+                "label": "Typ"
+            },
+            "shelter": {
+                "label": "Schronienie"
+            },
+            "shop": {
+                "label": "Typ"
+            },
+            "source": {
+                "label": "Źródło"
+            },
+            "sport": {
+                "label": "Sport"
+            },
+            "surface": {
+                "label": "Nawierzchnia"
+            },
+            "tourism": {
+                "label": "Typ"
+            },
+            "water": {
+                "label": "Typ"
+            },
+            "waterway": {
+                "label": "Typ"
+            },
+            "website": {
+                "label": "Strona WWW"
+            },
+            "wetland": {
+                "label": "Typ"
+            },
+            "wikipedia": {
+                "label": "Wikipedia"
+            },
+            "wood": {
+                "label": "Typ"
+            }
+        },
+        "presets": {
+            "aeroway/aerodrome": {
+                "name": "Lotnisko"
+            },
+            "aeroway/helipad": {
+                "name": "Lądowisko dla helikopterów"
+            },
+            "amenity/bank": {
+                "name": "Bank"
+            },
+            "amenity/bar": {
+                "name": "Bar"
+            },
+            "amenity/bicycle_parking": {
+                "name": "Parking dla rowerów"
+            },
+            "amenity/bicycle_rental": {
+                "name": "Wypożyczalnia rowerów"
+            },
+            "amenity/cafe": {
+                "name": "Kawiarnia"
+            },
+            "amenity/cinema": {
+                "name": "Kino"
+            },
+            "amenity/fast_food": {
+                "name": "Fast food"
+            },
+            "amenity/fire_station": {
+                "name": "Straż pożarna"
+            },
+            "amenity/grave_yard": {
+                "name": "Cmentarz"
+            },
+            "amenity/hospital": {
+                "name": "Szpital"
+            },
+            "amenity/library": {
+                "name": "Biblioteka"
+            },
+            "amenity/parking": {
+                "name": "Parking"
+            },
+            "amenity/pharmacy": {
+                "name": "Apteka"
+            },
+            "amenity/place_of_worship": {
+                "name": "Miejsce kultu religijnego"
+            },
+            "amenity/place_of_worship/christian": {
+                "name": "Kościół"
+            },
+            "amenity/place_of_worship/jewish": {
+                "name": "Synagoga"
+            },
+            "amenity/place_of_worship/muslim": {
+                "name": "Meczet"
+            },
+            "amenity/police": {
+                "name": "Policja"
+            },
+            "amenity/post_box": {
+                "name": "Skrzynka pocztowa"
+            },
+            "amenity/post_office": {
+                "name": "Poczta"
+            },
+            "amenity/pub": {
+                "name": "Pub"
+            },
+            "amenity/restaurant": {
+                "name": "Restauracja"
+            },
+            "amenity/school": {
+                "name": "Szkoła"
+            },
+            "amenity/toilets": {
+                "name": "Toalety"
+            },
+            "amenity/townhall": {
+                "name": "Ratusz"
+            },
+            "amenity/university": {
+                "name": "Uniwersytet"
+            },
+            "building": {
+                "name": "Budynek"
+            },
+            "entrance": {
+                "name": "Wejście"
+            },
+            "highway": {
+                "name": "Droga"
+            },
+            "highway/bus_stop": {
+                "name": "Przystanek autobusowy"
+            },
+            "highway/crossing": {
+                "name": "Przejście dla pieszych"
+            },
+            "highway/cycleway": {
+                "name": "Ścieżka rowerowa"
+            },
+            "highway/footway": {
+                "name": "Ścieżka dla pieszych"
+            },
+            "highway/motorway": {
+                "name": "Autostrada"
+            },
+            "highway/path": {
+                "name": "Ścieżka"
+            },
+            "highway/primary": {
+                "name": "Droga krajowa"
+            },
+            "highway/residential": {
+                "name": "Droga lokalna"
+            },
+            "highway/secondary": {
+                "name": "Droga wojewódzka"
+            },
+            "highway/service": {
+                "name": "Droga serwisowa"
+            },
+            "highway/steps": {
+                "name": "Schody"
+            },
+            "highway/tertiary": {
+                "name": "Droga powiatowa"
+            },
+            "highway/track": {
+                "name": "Droga gruntowa"
+            },
+            "highway/traffic_signals": {
+                "name": "Sygnalizacja świetlna"
+            },
+            "highway/trunk": {
+                "name": "Droga ekspresowa"
+            },
+            "highway/turning_circle": {
+                "name": "Miejsce do zawracania"
+            },
+            "highway/unclassified": {
+                "name": "Droga niesklasyfikowana"
+            },
+            "historic": {
+                "name": "Miejsce historyczne"
+            },
+            "historic/monument": {
+                "name": "Pomnik"
+            },
+            "landuse": {
+                "name": "Użytkowanie gruntów"
+            },
+            "landuse/allotments": {
+                "name": "Działki"
+            },
+            "landuse/basin": {
+                "name": "Zbiornik wodny"
+            },
+            "landuse/cemetery": {
+                "name": "Cmentarz"
+            },
+            "landuse/commercial": {
+                "name": "Biura i usługi"
+            },
+            "landuse/construction": {
+                "name": "Budowa"
+            },
+            "landuse/farm": {
+                "name": "Teren rolny"
+            },
+            "landuse/farmyard": {
+                "name": "Podwórze gospodarskie"
+            },
+            "landuse/forest": {
+                "name": "Las"
+            },
+            "landuse/grass": {
+                "name": "Trawa"
+            },
+            "landuse/industrial": {
+                "name": "Obszar przemysłowy"
+            },
+            "landuse/meadow": {
+                "name": "Łąka"
+            },
+            "landuse/orchard": {
+                "name": "Sad"
+            },
+            "landuse/quarry": {
+                "name": "Kamieniołom"
+            },
+            "landuse/residential": {
+                "name": "Zabudowa mieszkaniowa"
+            },
+            "landuse/vineyard": {
+                "name": "Winnica"
+            },
+            "leisure": {
+                "name": "Rozrywka i wypoczynek"
+            },
+            "leisure/golf_course": {
+                "name": "Pole golfowe"
+            },
+            "leisure/park": {
+                "name": "Park"
+            },
+            "leisure/pitch": {
+                "name": "Boisko"
+            },
+            "leisure/pitch/american_football": {
+                "name": "Boisko do futbolu amerykańskiego"
+            },
+            "leisure/pitch/baseball": {
+                "name": "Boisko do baseballu"
+            },
+            "leisure/pitch/basketball": {
+                "name": "Boisko do koszykówki"
+            },
+            "leisure/pitch/soccer": {
+                "name": "Boisko do piłki nożnej"
+            },
+            "leisure/pitch/tennis": {
+                "name": "Kort tenisowy"
+            },
+            "leisure/playground": {
+                "name": "Plac zabaw"
+            },
+            "man_made": {
+                "name": "Obiekty sztuczne"
+            },
+            "man_made/lighthouse": {
+                "name": "Latarnia morska"
+            },
+            "man_made/pier": {
+                "name": "Molo"
+            },
+            "man_made/water_tower": {
+                "name": "Wieża ciśnień"
+            },
+            "natural": {
+                "name": "Natura"
+            },
+            "natural/bay": {
+                "name": "Zatoka"
+            },
+            "natural/beach": {
+                "name": "Plaża"
+            },
+            "natural/cliff": {
+                "name": "Klif"
+            },
+            "natural/coastline": {
+                "name": "Wybrzeże"
+            },
+            "natural/glacier": {
+                "name": "Lodowiec"
+            }
+        }
     }
 };
 locale.pt = {
@@ -9703,7 +10402,9 @@ locale.vi = {
         "drag_drop": "Kéo thả một tập tin .gpx vào trang"
     },
     "help": {
-        "title": "Trợ giúp"
+        "title": "Trợ giúp",
+        "help": "# Trợ giúp\n\nĐây là trình vẽ của [OpenStreetMap](http://www.openstreetmap.org/), bản đồ có mã nguồn mở và dữ liệu mở cho phép mọi người cùng sửa đổi. Bạn có thể sử dụng chương trình này để bổ sung và cập nhật dữ liệu bản đồ tại khu vực của bạn. Bạn có thể cải tiến bản đồ thế giới mở để cho mọi người sử dụng.\n\nCác sửa đổi của bạn trên bản đồ này sẽ xuất hiện cho mọi người dùng OpenStreetMap. Để sửa bản đồ, bạn cần có một [tài khoản OpenStreetMap miễn phí](https://www.openstreetmap.org/user/new).\n\n[Tình vẽ iD](http://ideditor.com/) là một dự án cộng tác và xuất bản [tất cả mã nguồn tại GitHub](https://github.com/systemed/iD).\n",
+        "addresses": "# Địa chỉ\n\nĐịa chỉ là những thông tin rất cần thiết trên bản đồ.\n\nTuy bản đồ thường trình bày các địa chỉ như một thuộc tính của đường sá, nhưng OpenStreetMap liên kết các địa chỉ với các tòa nhà hoặc miếng đất dọc đường.\n\nBạn có thể thêm thông tin địa chỉ vào các hình dạng tòa nhà hoặc các địa điểm quan tâm. Tốt nhất là lấy thông tin địa chỉ từ kinh nghiệm cá nhân, thí dụ đi dạo trên phố và ghi chép các địa chỉ hoặc nhớ lại những chi tiết từ hoạt động hàng ngày của bạn. Cũng như bất cứ chi tiết nào, dự án này hoàn toàn cấm sao chép từ các nguồn thương mại như Bản đồ Google.\n"
     },
     "presets": {
         "fields": {

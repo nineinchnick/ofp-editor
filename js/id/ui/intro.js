@@ -9,19 +9,27 @@ iD.ui.intro = function(context) {
         // Save current map state
         var history = context.history().toJSON(),
             hash = window.location.hash,
+            background = context.background().source(),
             opacity = d3.select('.layer-layer:first-child').style('opacity'),
             loadedTiles = context.connection().loadedTiles(),
             baseEntities = context.history().graph().base().entities;
 
         // Load semi-real data used in intro
         context.connection().toggle(false).flush();
-        context.history().reset();
+        context.history().save().reset();
         context.history().merge(iD.Graph().load(JSON.parse(iD.introGraph)).entities);
+
+        context.background().source(_.find(context.backgroundSources(), function(d) {
+            return d.data.sourcetag === "Bing";
+        }));
 
         // Block saving
         var savebutton = d3.select('#bar button.save'),
             save = savebutton.on('click');
         savebutton.on('click', null);
+
+        var beforeunload = window.onbeforeunload;
+        window.onbeforeunload = null;
 
         d3.select('.layer-layer:first-child').style('opacity', 1);
 
@@ -50,12 +58,14 @@ iD.ui.intro = function(context) {
             d3.select('.layer-layer:first-child').style('opacity', opacity);
             context.connection().toggle(true).flush().loadedTiles(loadedTiles);
             context.history().reset().merge(baseEntities);
+            context.background().source(background);
             if (history) context.history().fromJSON(history);
             window.location.replace(hash);
+            window.onbeforeunload = beforeunload;
             d3.select('#bar button.save').on('click', save);
         });
 
-        var navwrap = selection.append('div').attr('class', 'intro-nav-wrap');
+        var navwrap = selection.append('div').attr('class', 'intro-nav-wrap fillD');
 
         var buttonwrap = navwrap.append('div')
             .attr('class', 'joined')

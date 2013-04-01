@@ -14,7 +14,9 @@ iD.Map = function(context) {
         layers = [
             iD.Background().projection(projection),
             iD.LocalGpx(context).projection(projection),
-            iD.Overlay(context).projection(projection)],
+            iD.Background('overlay').projection(projection),
+            iD.Overlay(context).projection(projection)
+            ],
         transformProp = iD.util.prefixCSSProperty('Transform'),
         points = iD.svg.Points(roundedProjection, context),
         vertices = iD.svg.Vertices(roundedProjection, context),
@@ -72,11 +74,24 @@ iD.Map = function(context) {
             all = _.compact(_.values(complete));
             filter = function(d) {
                 if (d.type === 'midpoint') {
-                    var a = graph.entity(d.edge[0]),
-                        b = graph.entity(d.edge[1]);
-                    return !a || !b ||
-                        _.intersection(graph.parentWays(a), all).length ||
-                        _.intersection(graph.parentWays(b), all).length;
+
+                    var a = d.edge[0],
+                        b = d.edge[1];
+
+                    // redraw a midpoint if it needs to be
+                    // - moved (either edge node moved)
+                    // - deleted (edge nodes not consecutive in any parent way)
+                    if (a in complete || b in complete) return true;
+
+                    var parentsWays = graph.parentWays({ id: a });
+                    for (var i = 0; i < parentsWays.length; i++) {
+                        var nodes = parentsWays[i].nodes;
+                        for (var n = 0; n < nodes.length; n++) {
+                            if (nodes[n] === a && (nodes[n - 1] === b || nodes[n + 1] === b)) return false;
+                        }
+                    }
+                    return true;
+
                 } else {
                     return d.id in complete;
                 }
@@ -264,6 +279,7 @@ iD.Map = function(context) {
         t[1] += d[1];
         projection.translate(t);
         zoom.translate(projection.translate());
+        dispatch.move(map);
         return redraw();
     };
 

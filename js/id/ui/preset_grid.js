@@ -47,9 +47,6 @@ iD.ui.PresetGrid = function(context, entity) {
 
         grid.call(drawGrid, defaultLimit);
 
-        var searchwrap = selection.append('div')
-            .attr('class', 'preset-grid-search-wrap inspector-inner');
-
         function keydown() {
             // hack to let delete shortcut work when search is autofocused
             if (search.property('value').length === 0 &&
@@ -92,8 +89,11 @@ iD.ui.PresetGrid = function(context, entity) {
             }
         }
 
+        var searchwrap = selection.append('div')
+            .attr('class', 'preset-grid-search-wrap');
+
         var search = searchwrap.append('input')
-            .attr('class', 'preset-grid-search major')
+            .attr('class', 'major')
             .attr('placeholder','Search')
             .attr('type', 'search')
             .on('keydown', keydown)
@@ -134,18 +134,6 @@ iD.ui.PresetGrid = function(context, entity) {
         }
 
         function name(d) { return d.name(); }
-
-        function presetClass(d) {
-            var s = 'preset-icon-fill ' + entity.geometry(context.graph());
-            if (d.members) {
-                s += 'category';
-            } else {
-                for (var i in d.tags) {
-                    s += ' tag-' + i + ' tag-' + i + '-' + d.tags[i];
-                }
-            }
-            return s;
-        }
 
         // Inserts a div inline after the entry for the provided entity
         // Used for preset descriptions, and for expanding categories
@@ -202,7 +190,8 @@ iD.ui.PresetGrid = function(context, entity) {
                 }
 
                 var tagReference = iD.ui.TagReference(entity, tag);
-                presetinspect.call(tagReference);
+                presetinspect.style('max-height', '200px')
+                    .call(tagReference);
                 tagReference.show();
             }
 
@@ -235,22 +224,14 @@ iD.ui.PresetGrid = function(context, entity) {
                 .transition()
                 .style('opacity', 1);
 
-            buttonInner.append('div')
-                .attr('class', presetClass);
-
-            var geometry = entity.geometry(context.graph()),
-                fallbackIcon = geometry === 'line' ? 'other-line' : 'marker-stroked';
-
-            buttonInner.append('div')
-                .attr('class', function(d) {
-                    return 'feature-' + (d.icon || fallbackIcon) + ' icon';
-                });
+            buttonInner
+                .call(iD.ui.PresetIcon(context.geometry(entity.id)));
 
             var label = buttonInner.append('div')
                 .attr('class','label')
                 .text(name);
 
-            label.filter(function(d) { return !d.members; })
+            entered.filter(function(d) { return !d.members; })
                 .append('button')
                 .attr('tabindex', -1)
                 .attr('class', 'tag-reference-button minor')
