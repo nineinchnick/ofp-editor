@@ -205,6 +205,12 @@ en:
   gpx:
     local_layer: "Local GPX file"
     drag_drop: "Drag and drop a .gpx file on the page"
+  overlay:
+     title: Import Floor Plan Overlay
+     overlay: |
+      # Import an Image Overlay of a Floor Plan
+
+      Drag and Drop an image file or click browse
   help:
     title: "Help"
     help: |

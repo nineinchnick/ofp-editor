@@ -129,6 +129,8 @@ window.iD = function () {
         return context;
     };
 
+    context.overlay = null;
+
     var q = iD.util.stringQs(location.hash.substring(1)), detected = false;
     if (q.layer) {
         context.layers()[0]

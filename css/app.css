@@ -487,12 +487,14 @@ button.save.has-count .count::before {
 .icon.back       { background-position: -420px 0;}
 .icon.forward    { background-position: -440px 0;}
 .icon.help       { background-position: -460px 0;}
+.icon.overlay       { background:transparent url(../img/office-building.png) no-repeat 0px 0px;}
 
 .icon.inspect.light    { background-position: -220px -20px;}
 .icon.geocode.light    { background-position: -280px -20px;}
 .icon.help.light       { background-position: -460px -20px;}
 .icon.avatar.light     { background-position: -320px -20px;}
 .icon.nearby.light     { background-position: -340px -20px;}
+.icon.overlay.light       { background:transparent url(../img/office-building.png) no-repeat 0px 0px;}
 
 .icon.back.blue        { background-position: -420px -20px;}
 .icon.forward.blue     { background-position: -440px -20px;}
@@ -1593,7 +1595,47 @@ img.wiki-image {
 .geolocate-control button {
     border-radius: 0 0 4px 0;
 }
+/* Overlay */
+.overlay-control {
+    top: 380px;
+}
 
+.overlay-control button {
+    border-radius: 0 4px 4px 0;
+}
+
+.overlay-wrap {
+    position: absolute;
+    top:60px;
+    bottom: 30px;
+    width: 20%;
+    padding: 20px 20px 20px 50px;
+    left: 0;
+    overflow-y: scroll;
+}
+
+.overlay-wrap p {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.overlay-thumb {
+    height: 75%;
+    width: 75%;
+    border: 1px solid #000;
+    margin: 10px 5px 0 0;
+}
+
+.overlay-create-image {
+    position: absolute;
+    top: 100px;
+    left: 40px;
+}
+
+.overlay-wrap .left-content .body p code {
+    padding:2px 4px;
+    background:#eee;
+}
 /* Help */
 
 .help-control {
