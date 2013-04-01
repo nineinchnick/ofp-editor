@@ -39,7 +39,7 @@ iD.BackgroundSource.Bing = function(data, dispatch) {
     // http://msdn.microsoft.com/en-us/library/ff701701.aspx
 
     var bing = iD.BackgroundSource.template(data),
-        key = 'Arzdiw4nlOJzRwOz__qailc8NiR31Tt51dN2D7cm57NrnceZnCpgOkmJhNpGoppU', // Same as P2 and JOSM
+        key = 'Atkp1j5n2iDRkTlBtuwM63zz-GN0cInZY-B4xylrFpbJYXNO5NL-HXWMmm8_xo0t', // Same as P2 and JOSM
         url = 'http://dev.virtualearth.net/REST/v1/Imagery/Metadata/Aerial?include=ImageryProviders&key=' +
             key + '&jsonp={callback}',
         providers = [];
