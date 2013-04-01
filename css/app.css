@@ -1597,7 +1597,11 @@ img.wiki-image {
 }
 /* Overlay */
 .overlay-control {
-    top: 280px;
+    top: 380px;
+}
+
+.overlay-control button {
+    border-radius: 0 4px 4px 0;
 }
 
 .overlay-wrap {
@@ -1632,11 +1636,10 @@ img.wiki-image {
     padding:2px 4px;
     background:#eee;
 }
-
 /* Help */
 
 .help-control {
-    top: 280px;
+    top: 120px;
 }
 
 .help-control button {

@@ -185,7 +185,7 @@ iD.ui.Overlay = function(context) {
                     .call(field.reference);
 
                 //tell the overlay layer to update when this field changes
-                context.map().layers[2].setEvent(field.input);
+                context.map().layers[3].setEvent(field.input);
             });
 
             selection
@@ -254,7 +254,7 @@ iD.ui.Overlay = function(context) {
                     context.overlay = e.target.result;
 
                     //set the callback to get initial image attributes
-                    context.map().layers[2].setImageLoadedCallback(imageLoaded);
+                    context.map().layers[3].setImageLoadedCallback(imageLoaded);
 
                     //fire the event to tell the overlay background layer
                     var event = document.createEvent("UIEvents");
