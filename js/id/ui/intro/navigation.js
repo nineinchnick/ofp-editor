@@ -24,7 +24,7 @@ iD.ui.intro.navigation = function(context, reveal) {
     step.enter = function() {
 
         var map = { 
-            left: 0,
+            left: 30,
             top: 60,
             width: window.innerWidth - 400,
             height: window.innerHeight - 200
@@ -41,13 +41,19 @@ iD.ui.intro.navigation = function(context, reveal) {
         }, 400));
 
         function townhall() {
-            var hall = d3.select('.node.tag-amenity-townhall');
-            var box = iD.ui.intro.pointBox(context.projection(hall.datum().loc));
+            var hall = [-85.63645945147184, 41.942986488012565];
+            var point = context.projection(hall);
+
+            if (point[0] < 0 || point[0] > window.innerWidth - 200 ||
+                point[1] < 0 || point[1] > window.innerHeight) {
+                context.map().center(hall);
+                point = context.projection(hall);
+            }
+            var box = iD.ui.intro.pointBox(point);
             reveal(box, 'intro.navigation.select');
 
             context.map().on('move.intro', function() {
-                var hall = d3.select('.node.tag-amenity-townhall');
-                var box = iD.ui.intro.pointBox(context.projection(hall.datum().loc));
+                var box = iD.ui.intro.pointBox(context.projection(hall));
                 reveal(box, 'intro.navigation.select', 0);
             });
         }
@@ -56,9 +62,10 @@ iD.ui.intro.navigation = function(context, reveal) {
             if (mode.id !== 'select') return;
             context.on('enter.intro', null);
             context.map().on('move.intro', null);
-            set(function() { reveal('.header', 'intro.navigation.header'); }, 700);
-            set(function() { reveal('.tag-wrap', 'intro.navigation.pane'); }, 4000);
-            set(event.done, 7000);
+            set(function() {
+                reveal('.tag-pane', 'intro.navigation.pane');
+                context.on('exit.intro', event.done);
+            }, 700);
         }
 
     };
@@ -66,6 +73,7 @@ iD.ui.intro.navigation = function(context, reveal) {
     step.exit = function() {
         context.map().on('move.intro', null);
         context.on('enter.intro', null);
+        context.on('exit.intro', null);
         timeouts.forEach(window.clearTimeout);
     };
 

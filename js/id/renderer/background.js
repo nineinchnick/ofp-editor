@@ -1,9 +1,13 @@
-iD.Background = function() {
+iD.Background = function(backgroundType) {
+
+    backgroundType = backgroundType || 'layer';
+
     var tileSize = 256,
         tile = d3.geo.tile(),
         projection,
         cache = {},
         offset = [0, 0],
+        offsets = {},
         tileOrigin,
         z,
         transformProp = iD.util.prefixCSSProperty('Transform'),
@@ -135,6 +139,7 @@ iD.Background = function() {
     background.offset = function(_) {
         if (!arguments.length) return offset;
         offset = _;
+        if (source.data) offsets[source.data.name] = offset;
         return background;
     };
 
@@ -157,14 +162,13 @@ iD.Background = function() {
     };
 
     function setHash(source) {
-        var tag = source.data.sourcetag;
+        var tag = source.data && source.data.sourcetag;
         var q = iD.util.stringQs(location.hash.substring(1));
         if (tag) {
-            location.replace('#' + iD.util.qsString(_.assign(q, {
-                layer: tag
-            }), true));
+            q[backgroundType] = tag;
+            location.replace('#' + iD.util.qsString(q, true));
         } else {
-            location.replace('#' + iD.util.qsString(_.omit(q, 'layer'), true));
+            location.replace('#' + iD.util.qsString(_.omit(q, backgroundType), true));
         }
     }
 
@@ -173,6 +177,11 @@ iD.Background = function() {
     background.source = function(_) {
         if (!arguments.length) return source;
         source = _;
+        if (source.data) {
+            offset = offsets[source.data.name] = offsets[source.data.name] || [0, 0];
+        } else {
+            offset = [0, 0];
+        }
         cache = {};
         tile.scaleExtent((source.data && source.data.scaleExtent) || [1, 20]);
         setHash(source);

@@ -15,8 +15,7 @@
 
         <script src='js/lib/lodash.js'></script>
         <script src='js/lib/d3.v3.js'></script>
-        <script src='js/lib/sha.js'></script>
-        <script src='js/lib/ohauth.js'></script>
+        <script src='js/lib/osmauth.js'></script>
         <script src='js/lib/jxon.js'></script>
         <script src='js/lib/d3.typeahead.js'></script>
         <script src='js/lib/d3.combobox.js'></script>
@@ -35,7 +34,6 @@
 
         <script src='js/id/id.js'></script>
         <script src='js/id/util.js'></script>
-        <script src='js/id/oauth.js'></script>
         <script src='js/id/services/taginfo.js'></script>
 
         <script src='data/data_dev.js'></script>
@@ -85,6 +83,7 @@
         <script src='js/id/ui/restore.js'></script>
         <script src='js/id/ui/tag_reference.js'></script>
         <script src='js/id/ui/preset.js'></script>
+        <script src='js/id/ui/preset_icon.js'></script>
         <script src='js/id/ui/lasso.js'></script>
         <script src='js/id/ui/source_switch.js'></script>
         <script src='js/id/ui/toggle.js'></script>
@@ -188,18 +187,13 @@
         <script src='data/introGraph.js'></script>
     </head>
     <body>
-        <div id='iD'></div>
+        <div id='id-container'></div>
         <script>
-            var div = document.getElementById('iD');
-            if (!iD.detect().support) {
-                iD.unsupported(div);
-            } else {
-                iD.data.load(function() {
-                    id = iD();
-                    d3.select(div)
-                        .call(id.ui());
-                })
-            }
+            iD.data.load(function() {
+                id = iD();
+                d3.select("#id-container")
+                    .call(id.ui());
+            });
         </script>
     </body>
 </html>

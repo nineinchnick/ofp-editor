@@ -10,6 +10,8 @@ en:
           number: "123"
           street: Street
           city: City
+      admin_level: 
+        label: Admin Level
       aeroway: 
         label: Type
       amenity: 
@@ -315,11 +317,20 @@ en:
       barrier/wall: 
         name: Wall
         terms: ""
+      boundary/administrative: 
+        name: Administrative Boundary
+        terms: ""
       building: 
         name: Building
         terms: ""
+      building/apartments: 
+        name: Apartments
+        terms: ""
       building/entrance: 
         name: Entrance
+        terms: ""
+      building/house: 
+        name: House
         terms: ""
       entrance: 
         name: Entrance
@@ -531,8 +542,14 @@ en:
       man_made/survey_point: 
         name: Survey Point
         terms: ""
+      man_made/wastewater_plant: 
+        name: Wastewater Plant
+        terms: "sewage works,sewage treatment plant,water treatment plant,reclamation plant"
       man_made/water_tower: 
         name: Water Tower
+        terms: ""
+      man_made/water_works: 
+        name: Water Works
         terms: ""
       natural: 
         name: Natural

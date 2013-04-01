@@ -32,14 +32,11 @@ iD.ui.TagReference = function(entity, tag) {
     }
 
     tagReference.show = function() {
-        var spinner = wrap.append('img')
-            .attr('class', 'tag-reference-spinner')
-            .attr('src', 'img/loader-white.gif');
 
         var referenceBody = wrap.selectAll('.tag-reference-wrap')
             .data([this])
             .enter().append('div')
-            .attr('class', 'tag-reference-wrap')
+            .attr('class', 'tag-reference-wrap cf')
             .style('opacity', 0);
 
         function show() {
@@ -49,11 +46,6 @@ iD.ui.TagReference = function(entity, tag) {
         }
 
         taginfo.docs(tag, function(err, docs) {
-            spinner
-                .style('position', 'absolute')
-                .transition()
-                .style('opacity', 0)
-                .remove();
 
             if (!err && docs) {
                 docs = findLocal(docs);
@@ -72,6 +64,8 @@ iD.ui.TagReference = function(entity, tag) {
                     .attr('src', docs.image.thumb_url_prefix + "100" + docs.image.thumb_url_suffix)
                     .on('load', function() { show(); })
                     .on('error', function() { d3.select(this).remove(); show(); });
+            } else {
+                show();
             }
 
             referenceBody
@@ -86,11 +80,10 @@ iD.ui.TagReference = function(entity, tag) {
         });
 
         wrap.style('max-height', '0px')
-            .style('padding-top', '0px')
             .style('opacity', '0')
             .transition()
             .duration(200)
-            .style('padding-top', '20px')
+            .delay(100)
             .style('max-height', '200px')
             .style('opacity', '1');
 
@@ -101,7 +94,6 @@ iD.ui.TagReference = function(entity, tag) {
         wrap.transition()
             .duration(200)
             .style('max-height', '0px')
-            .style('padding-top', '0px')
             .style('opacity', '0');
 
         showing = false;

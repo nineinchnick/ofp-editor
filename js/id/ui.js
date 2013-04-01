@@ -42,9 +42,14 @@ iD.ui = function(context) {
             .attr('class', 'spinner')
             .call(iD.ui.Spinner(context));
 
+        container.append('idv')
+            .attr('class', 'attribution')
+            .attr('tabindex', -1)
+            .call(iD.ui.Attribution(context));
+
         container.append('div')
             .style('display', 'none')
-            .attr('class', 'help-wrap fillL col5');
+            .attr('class', 'help-wrap fillL col5 content');
 
         container.append('div')
             .attr('class', 'map-control zoombuttons')
@@ -69,11 +74,6 @@ iD.ui = function(context) {
         container.append('div')
             .style('display', 'none')
             .attr('class', 'inspector-wrap fr content col4');
-
-        container.append('idv')
-            .attr('class', 'attribution')
-            .attr('tabindex', -1)
-            .call(iD.ui.Attribution(context));
 
         var about = container.append('div')
             .attr('class','col12 about-block fillD');
