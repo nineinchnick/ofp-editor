@@ -9,10 +9,10 @@ iD.data = {
             path + 'data/discarded.json',
             path + 'data/imagery.json',
             path + 'data/keys.json',
-            path + 'data/presets/presets.json',
-            path + 'data/presets/defaults.json',
-            path + 'data/presets/categories.json',
-            path + 'data/presets/fields.json'
+            path + 'data/presets/floorplan-presets.json',
+            path + 'data/presets/floorplan-defaults.json',
+            path + 'data/presets/floorplan-categories.json',
+            path + 'data/presets/floorplan-fields.json'
             ], d3.json, function (err, data) {
 
             iD.data = {

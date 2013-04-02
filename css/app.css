@@ -846,7 +846,7 @@ button[disabled] .icon.nearby     { background-position: -340px -40px;}
 }
 
 .preset-icon-fill.tag-shop,
-.preset-icon-fill.tag-building {
+.preset-icon-fill.tag-room {
     background:transparent url(../img/sprite.png) no-repeat 0 -80px;
 }
 

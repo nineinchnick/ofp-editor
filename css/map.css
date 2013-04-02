@@ -185,11 +185,11 @@ path.fill.tag-natural-water {
     fill: #77d3de;
 }
 
-path.stroke.tag-building {
+path.stroke.tag-room {
     stroke: #e06e5f;
     stroke-width: 1;
 }
-path.fill.tag-building {
+path.fill.tag-room {
     fill: #e06e5f;
 }
 

@@ -1,0 +1,2752 @@
+{
+    "aeroway": {
+        "fields": [
+            "aeroway"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "line",
+            "area"
+        ],
+        "tags": {
+            "aeroway": "*"
+        },
+        "name": "Aeroway"
+    },
+    "aeroway/helipad": {
+        "icon": "heliport",
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "terms": [
+            "helicopter",
+            "helipad",
+            "heliport"
+        ],
+        "tags": {
+            "aeroway": "helipad"
+        },
+        "name": "Helipad"
+    },
+    "amenity": {
+        "fields": [
+            "amenity"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "*"
+        },
+        "name": "Amenity"
+    },
+    "amenity/bank": {
+        "icon": "bank",
+        "fields": [
+            "atm",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "coffer",
+            "countinghouse",
+            "credit union",
+            "depository",
+            "exchequer",
+            "fund",
+            "hoard",
+            "investment firm",
+            "repository",
+            "reserve",
+            "reservoir",
+            "safe",
+            "savings",
+            "stock",
+            "stockpile",
+            "store",
+            "storehouse",
+            "thrift",
+            "treasury",
+            "trust company",
+            "vault"
+        ],
+        "tags": {
+            "amenity": "bank"
+        },
+        "name": "Bank"
+    },
+    "amenity/bar": {
+        "icon": "bar",
+        "fields": [
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "bar"
+        },
+        "terms": [],
+        "name": "Bar"
+    },
+    "amenity/bench": {
+        "geometry": [
+            "point",
+            "vertex",
+            "line"
+        ],
+        "tags": {
+            "amenity": "bench"
+        },
+        "name": "Bench"
+    },
+    "amenity/bicycle_parking": {
+        "icon": "bicycle",
+        "fields": [
+            "bicycle_parking",
+            "capacity",
+            "operator"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "bicycle_parking"
+        },
+        "name": "Bicycle Parking"
+    },
+    "amenity/bicycle_rental": {
+        "icon": "bicycle",
+        "fields": [
+            "capacity",
+            "network",
+            "operator"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "bicycle_rental"
+        },
+        "name": "Bicycle Rental"
+    },
+    "amenity/cafe": {
+        "icon": "cafe",
+        "fields": [
+            "cuisine",
+            "internet_access",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "coffee",
+            "tea",
+            "coffee shop"
+        ],
+        "tags": {
+            "amenity": "cafe"
+        },
+        "name": "Cafe"
+    },
+    "amenity/cinema": {
+        "icon": "cinema",
+        "fields": [
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "big screen",
+            "bijou",
+            "cine",
+            "drive-in",
+            "film",
+            "flicks",
+            "motion pictures",
+            "movie house",
+            "movie theater",
+            "moving pictures",
+            "nabes",
+            "photoplay",
+            "picture show",
+            "pictures",
+            "playhouse",
+            "show",
+            "silver screen"
+        ],
+        "tags": {
+            "amenity": "cinema"
+        },
+        "name": "Cinema"
+    },
+    "amenity/courthouse": {
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "courthouse"
+        },
+        "name": "Courthouse"
+    },
+    "amenity/embassy": {
+        "geometry": [
+            "area",
+            "point"
+        ],
+        "tags": {
+            "amenity": "embassy"
+        },
+        "fields": [
+            "country"
+        ],
+        "icon": "embassy",
+        "name": "Embassy"
+    },
+    "amenity/fast_food": {
+        "icon": "fast-food",
+        "fields": [
+            "cuisine",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "fast_food"
+        },
+        "terms": [],
+        "name": "Fast Food"
+    },
+    "amenity/fire_station": {
+        "icon": "fire-station",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "fire_station"
+        },
+        "terms": [],
+        "name": "Fire Station"
+    },
+    "amenity/fuel": {
+        "icon": "fuel",
+        "fields": [
+            "operator",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "fuel"
+        },
+        "name": "Gas Station"
+    },
+    "amenity/hospital": {
+        "icon": "hospital",
+        "fields": [
+            "emergency",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "clinic",
+            "emergency room",
+            "health service",
+            "hospice",
+            "infirmary",
+            "institution",
+            "nursing home",
+            "rest home",
+            "sanatorium",
+            "sanitarium",
+            "sick bay",
+            "surgery",
+            "ward"
+        ],
+        "tags": {
+            "amenity": "hospital"
+        },
+        "name": "Hospital"
+    },
+    "amenity/library": {
+        "icon": "library",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "library"
+        },
+        "terms": [],
+        "name": "Library"
+    },
+    "amenity/marketplace": {
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "marketplace"
+        },
+        "name": "Marketplace"
+    },
+    "amenity/parking": {
+        "icon": "parking",
+        "fields": [
+            "fee",
+            "access",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "parking"
+        },
+        "terms": [],
+        "name": "Parking"
+    },
+    "amenity/pharmacy": {
+        "icon": "pharmacy",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "pharmacy"
+        },
+        "terms": [],
+        "name": "Pharmacy"
+    },
+    "amenity/place_of_worship": {
+        "icon": "place-of-worship",
+        "fields": [
+            "religion",
+            "denomination",
+            "building",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "abbey",
+            "basilica",
+            "bethel",
+            "cathedral",
+            "chancel",
+            "chantry",
+            "chapel",
+            "church",
+            "fold",
+            "house of God",
+            "house of prayer",
+            "house of worship",
+            "minster",
+            "mission",
+            "mosque",
+            "oratory",
+            "parish",
+            "sacellum",
+            "sanctuary",
+            "shrine",
+            "synagogue",
+            "tabernacle",
+            "temple"
+        ],
+        "tags": {
+            "amenity": "place_of_worship"
+        },
+        "name": "Place of Worship"
+    },
+    "amenity/place_of_worship/christian": {
+        "icon": "religious-christian",
+        "fields": [
+            "denomination",
+            "building",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "christian",
+            "abbey",
+            "basilica",
+            "bethel",
+            "cathedral",
+            "chancel",
+            "chantry",
+            "chapel",
+            "church",
+            "fold",
+            "house of God",
+            "house of prayer",
+            "house of worship",
+            "minster",
+            "mission",
+            "oratory",
+            "parish",
+            "sacellum",
+            "sanctuary",
+            "shrine",
+            "tabernacle",
+            "temple"
+        ],
+        "tags": {
+            "amenity": "place_of_worship",
+            "religion": "christian"
+        },
+        "name": "Church"
+    },
+    "amenity/place_of_worship/jewish": {
+        "icon": "religious-jewish",
+        "fields": [
+            "denomination",
+            "building",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "jewish",
+            "synagogue"
+        ],
+        "tags": {
+            "amenity": "place_of_worship",
+            "religion": "jewish"
+        },
+        "name": "Synagogue"
+    },
+    "amenity/place_of_worship/muslim": {
+        "icon": "religious-muslim",
+        "fields": [
+            "denomination",
+            "building",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "muslim",
+            "mosque"
+        ],
+        "tags": {
+            "amenity": "place_of_worship",
+            "religion": "muslim"
+        },
+        "name": "Mosque"
+    },
+    "amenity/police": {
+        "icon": "police",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "badge",
+            "bear",
+            "blue",
+            "bluecoat",
+            "bobby",
+            "boy scout",
+            "bull",
+            "constable",
+            "constabulary",
+            "cop",
+            "copper",
+            "corps",
+            "county mounty",
+            "detective",
+            "fed",
+            "flatfoot",
+            "force",
+            "fuzz",
+            "gendarme",
+            "gumshoe",
+            "heat",
+            "law",
+            "law enforcement",
+            "man",
+            "narc",
+            "officers",
+            "patrolman",
+            "police"
+        ],
+        "tags": {
+            "amenity": "police"
+        },
+        "name": "Police"
+    },
+    "amenity/post_box": {
+        "icon": "post",
+        "fields": [
+            "operator",
+            "collection_times"
+        ],
+        "geometry": [
+            "point",
+            "vertex"
+        ],
+        "tags": {
+            "amenity": "post_box"
+        },
+        "terms": [
+            "letter drop",
+            "letterbox",
+            "mail drop",
+            "mailbox",
+            "pillar box",
+            "postbox"
+        ],
+        "name": "Mailbox"
+    },
+    "amenity/post_office": {
+        "icon": "post",
+        "fields": [
+            "operator",
+            "collection_times"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "post_office"
+        },
+        "name": "Post Office"
+    },
+    "amenity/pub": {
+        "icon": "beer",
+        "fields": [
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "pub"
+        },
+        "terms": [],
+        "name": "Pub"
+    },
+    "amenity/restaurant": {
+        "icon": "restaurant",
+        "fields": [
+            "cuisine",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "bar",
+            "cafeteria",
+            "café",
+            "canteen",
+            "chophouse",
+            "coffee shop",
+            "diner",
+            "dining room",
+            "dive*",
+            "doughtnut shop",
+            "drive-in",
+            "eatery",
+            "eating house",
+            "eating place",
+            "fast-food place",
+            "greasy spoon",
+            "grill",
+            "hamburger stand",
+            "hashery",
+            "hideaway",
+            "hotdog stand",
+            "inn",
+            "joint*",
+            "luncheonette",
+            "lunchroom",
+            "night club",
+            "outlet*",
+            "pizzeria",
+            "saloon",
+            "soda fountain",
+            "watering hole"
+        ],
+        "tags": {
+            "amenity": "restaurant"
+        },
+        "name": "Restaurant"
+    },
+    "amenity/school": {
+        "icon": "school",
+        "fields": [
+            "operator",
+            "building",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "academy",
+            "alma mater",
+            "blackboard",
+            "college",
+            "department",
+            "discipline",
+            "establishment",
+            "faculty",
+            "hall",
+            "halls of ivy",
+            "institute",
+            "institution",
+            "jail*",
+            "schoolhouse",
+            "seminary",
+            "university"
+        ],
+        "tags": {
+            "amenity": "school"
+        },
+        "name": "School"
+    },
+    "amenity/swimming_pool": {
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "swimming_pool"
+        },
+        "icon": "swimming",
+        "searchable": false,
+        "name": "Swimming Pool"
+    },
+    "amenity/telephone": {
+        "geometry": [
+            "point",
+            "vertex"
+        ],
+        "tags": {
+            "amenity": "telephone"
+        },
+        "name": "Telephone"
+    },
+    "amenity/theatre": {
+        "icon": "theatre",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "theatre",
+            "performance",
+            "play",
+            "musical"
+        ],
+        "tags": {
+            "amenity": "theatre"
+        },
+        "name": "Theater"
+    },
+    "amenity/toilets": {
+        "fields": [
+            "operator",
+            "building"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [],
+        "tags": {
+            "amenity": "toilets"
+        },
+        "icon": "toilets",
+        "name": "Toilets"
+    },
+    "amenity/university": {
+        "icon": "college",
+        "fields": [
+            "operator",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "amenity": "university"
+        },
+        "terms": [],
+        "name": "University"
+    },
+    "barrier": {
+        "geometry": [
+            "point",
+            "vertex",
+            "line",
+            "area"
+        ],
+        "tags": {
+            "barrier": "*"
+        },
+        "fields": [
+            "barrier"
+        ],
+        "name": "Barrier"
+    },
+    "barrier/block": {
+        "geometry": [
+            "point",
+            "vertex"
+        ],
+        "tags": {
+            "barrier": "block"
+        },
+        "name": "Block"
+    },
+    "barrier/bollard": {
+        "geometry": [
+            "point",
+            "vertex",
+            "line"
+        ],
+        "tags": {
+            "barrier": "bollard"
+        },
+        "name": "Bollard"
+    },
+    "barrier/cycle_barrier": {
+        "geometry": [
+            "vertex"
+        ],
+        "tags": {
+            "barrier": "cycle_barrier"
+        },
+        "name": "Cycle Barrier"
+    },
+    "barrier/entrance": {
+        "geometry": [
+            "vertex"
+        ],
+        "tags": {
+            "barrier": "entrance"
+        },
+        "name": "Entrance"
+    },
+    "barrier/fence": {
+        "geometry": [
+            "line",
+            "area"
+        ],
+        "tags": {
+            "barrier": "fence"
+        },
+        "name": "Fence"
+    },
+    "barrier/gate": {
+        "geometry": [
+            "point",
+            "vertex",
+            "line"
+        ],
+        "tags": {
+            "barrier": "gate"
+        },
+        "name": "Gate"
+    },
+
+    "barrier/kissing_gate": {
+        "geometry": [
+            "vertex"
+        ],
+        "tags": {
+            "barrier": "kissing_gate"
+        },
+        "name": "Kissing Gate"
+    },
+    "barrier/lift_gate": {
+        "geometry": [
+            "point",
+            "vertex"
+        ],
+        "tags": {
+            "barrier": "lift_gate"
+        },
+        "name": "Lift Gate"
+    },
+    "barrier/retaining_wall": {
+        "geometry": [
+            "line",
+            "area"
+        ],
+        "tags": {
+            "barrier": "retaining_wall"
+        },
+        "name": "Retaining Wall"
+    },
+    "barrier/wall": {
+        "geometry": [
+            "line",
+            "area"
+        ],
+        "tags": {
+            "barrier": "wall"
+        },
+        "name": "Wall"
+    },
+    "boundary/administrative": {
+        "name": "Administrative Boundary",
+        "geometry": [
+            "line",
+            "area"
+        ],
+        "tags": {
+            "boundary": "administrative"
+        },
+        "fields": [
+            "admin_level"
+        ]
+    },
+    "building": {
+        "icon": "warehouse",
+        "fields": [
+            "building_yes",
+            "levels",
+            "address"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "building": "*"
+        },
+        "terms": [],
+        "name": "Building"
+    },
+    "building/apartments": {
+        "icon": "commercial",
+        "fields": [
+            "address",
+            "levels"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "building": "apartments"
+        },
+        "name": "Apartments"
+    },
+    "building/entrance": {
+        "geometry": [
+            "vertex"
+        ],
+        "tags": {
+            "building": "entrance"
+        },
+        "name": "Entrance",
+        "searchable": false
+    },
+    "building/house": {
+        "fields": [
+            "address",
+            "levels"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "building": "house"
+        },
+        "name": "House"
+    },
+    "entrance": {
+        "geometry": [
+            "vertex"
+        ],
+        "tags": {
+            "entrance": "*"
+        },
+        "fields": [
+            "entrance"
+        ],
+        "name": "Entrance"
+    },
+    "historic": {
+        "fields": [
+            "historic"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "historic": "*"
+        },
+        "name": "Historic Site"
+    },
+    "historic/archaeological_site": {
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "historic": "archaeological_site"
+        },
+        "name": "Archaeological Site"
+    },
+    "historic/memorial": {
+        "icon": "monument",
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "historic": "memorial"
+        },
+        "name": "Memorial"
+    },
+    "historic/monument": {
+        "icon": "monument",
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "historic": "monument"
+        },
+        "name": "Monument"
+    },
+    "historic/ruins": {
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "historic": "ruins"
+        },
+        "name": "Ruins"
+    },
+    "landuse": {
+        "fields": [
+            "landuse"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "landuse": "*"
+        },
+        "name": "Landuse"
+    },
+    "landuse/allotments": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "allotments"
+        },
+        "terms": [],
+        "name": "Allotments"
+    },
+    "landuse/basin": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "basin"
+        },
+        "terms": [],
+        "name": "Basin"
+    },
+    "landuse/commercial": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "commercial"
+        },
+        "terms": [],
+        "name": "Commercial"
+    },
+    "landuse/construction": {
+        "fields": [
+            "construction",
+            "operator"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "construction"
+        },
+        "terms": [],
+        "name": "Construction"
+    },
+    "landuse/farm": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "farm"
+        },
+        "terms": [],
+        "name": "Farm"
+    },
+    "landuse/farmyard": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "farmyard"
+        },
+        "terms": [],
+        "name": "Farmyard"
+    },
+    "landuse/forest": {
+        "fields": [
+            "wood"
+        ],
+        "icon": "park2",
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "forest"
+        },
+        "terms": [],
+        "name": "Forest"
+    },
+    "landuse/grass": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "grass"
+        },
+        "terms": [],
+        "name": "Grass"
+    },
+    "landuse/industrial": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "industrial"
+        },
+        "terms": [],
+        "name": "Industrial"
+    },
+    "landuse/residential": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "landuse": "residential"
+        },
+        "terms": [],
+        "name": "Residential"
+    },
+    "leisure": {
+        "fields": [
+            "leisure"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "leisure": "*"
+        },
+        "name": "Leisure"
+    },
+    "leisure/garden": {
+        "icon": "garden",
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "leisure": "garden"
+        },
+        "name": "Garden"
+    },
+    "leisure/park": {
+        "icon": "park",
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "terms": [
+            "esplanade",
+            "estate",
+            "forest",
+            "garden",
+            "grass",
+            "green",
+            "grounds",
+            "lawn",
+            "lot",
+            "meadow",
+            "parkland",
+            "place",
+            "playground",
+            "plaza",
+            "pleasure garden",
+            "recreation area",
+            "square",
+            "tract",
+            "village green",
+            "woodland"
+        ],
+        "tags": {
+            "leisure": "park"
+        },
+        "name": "Park"
+    },
+    "leisure/pitch": {
+        "icon": "pitch",
+        "fields": [
+            "sport",
+            "surface"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "pitch"
+        },
+        "terms": [],
+        "name": "Sport Pitch"
+    },
+    "leisure/pitch/american_football": {
+        "icon": "america-football",
+        "fields": [
+            "surface"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "pitch",
+            "sport": "american_football"
+        },
+        "terms": [],
+        "name": "American Football Field"
+    },
+    "leisure/pitch/baseball": {
+        "icon": "baseball",
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "pitch",
+            "sport": "baseball"
+        },
+        "terms": [],
+        "name": "Baseball Diamond"
+    },
+    "leisure/pitch/basketball": {
+        "icon": "basketball",
+        "fields": [
+            "surface"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "pitch",
+            "sport": "basketball"
+        },
+        "terms": [],
+        "name": "Basketball Court"
+    },
+    "leisure/pitch/soccer": {
+        "icon": "soccer",
+        "fields": [
+            "surface"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "pitch",
+            "sport": "soccer"
+        },
+        "terms": [],
+        "name": "Soccer Field"
+    },
+    "leisure/pitch/tennis": {
+        "icon": "tennis",
+        "fields": [
+            "surface"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "pitch",
+            "sport": "tennis"
+        },
+        "terms": [],
+        "name": "Tennis Court"
+    },
+    "leisure/playground": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "playground"
+        },
+        "name": "Playground"
+    },
+    "leisure/stadium": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "leisure": "stadium"
+        },
+        "fields": [
+            "sport"
+        ],
+        "name": "Stadium"
+    },
+    "leisure/swimming_pool": {
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "leisure": "swimming_pool"
+        },
+        "icon": "swimming",
+        "name": "Swimming Pool"
+    },
+    "other": {
+        "name": "Other",
+        "tags": {},
+        "geometry": [
+            "point",
+            "vertex",
+            "line",
+            "area"
+        ],
+        "fields": []
+    },
+    "other_area": {
+        "name": "Other",
+        "tags": {
+            "area": "yes"
+        },
+        "geometry": [
+            "area"
+        ],
+        "fields": []
+    },
+    "power": {
+        "geometry": [
+            "point",
+            "vertex",
+            "line",
+            "area"
+        ],
+        "tags": {
+            "power": "*"
+        },
+        "fields": [
+            "power"
+        ],
+        "name": "Power"
+    },
+    "power/generator": {
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "power": "generator"
+        },
+        "name": "Power Plant"
+    },
+    "power/line": {
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "power": "line"
+        },
+        "name": "Power Line",
+        "icon": "power-line"
+    },
+    "power/sub_station": {
+        "fields": [
+            "operator"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "power": "substation"
+        },
+        "name": "Substation"
+    },
+    "power/transformer": {
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "power": "transformer"
+        },
+        "name": "Transformer"
+    },
+    "railway": {
+        "fields": [
+            "railway"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "line",
+            "area"
+        ],
+        "tags": {
+            "railway": "*"
+        },
+        "name": "Railway"
+    },
+    "railway/abandoned": {
+        "icon": "railway-abandoned",
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "railway": "abandoned"
+        },
+        "fields": [
+            "structure"
+        ],
+        "terms": [],
+        "name": "Abandoned Railway"
+    },
+    "railway/disused": {
+        "icon": "railway-disused",
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "railway": "disused"
+        },
+        "fields": [
+            "structure"
+        ],
+        "terms": [],
+        "name": "Disused Railway"
+    },
+    "railway/level_crossing": {
+        "icon": "cross",
+        "geometry": [
+            "vertex"
+        ],
+        "tags": {
+            "railway": "level_crossing"
+        },
+        "terms": [
+            "crossing",
+            "railroad crossing",
+            "railway crossing",
+            "grade crossing",
+            "road through railroad",
+            "train crossing"
+        ],
+        "name": "Level Crossing"
+    },
+    "railway/monorail": {
+        "icon": "railway-monorail",
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "railway": "monorail"
+        },
+        "fields": [
+            "structure"
+        ],
+        "terms": [],
+        "name": "Monorail"
+    },
+    "railway/rail": {
+        "icon": "railway-rail",
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "railway": "rail"
+        },
+        "fields": [
+            "structure"
+        ],
+        "terms": [],
+        "name": "Rail"
+    },
+    "railway/subway": {
+        "icon": "railway-subway",
+        "fields": [
+            "structure"
+        ],
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "railway": "subway"
+        },
+        "terms": [],
+        "name": "Subway"
+    },
+    "railway/subway_entrance": {
+        "icon": "rail-underground",
+        "geometry": [
+            "point"
+        ],
+        "tags": {
+            "railway": "subway_entrance"
+        },
+        "terms": [],
+        "name": "Subway Entrance"
+    },
+    "railway/tram": {
+        "icon": "railway-light_rail",
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "railway": "tram"
+        },
+        "fields": [
+            "structure"
+        ],
+        "terms": [
+            "streetcar"
+        ],
+        "name": "Tram"
+    },
+    "shop": {
+        "icon": "shop",
+        "fields": [
+            "shop",
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "*"
+        },
+        "terms": [],
+        "name": "Shop"
+    },
+    "shop/alcohol": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "alcohol"
+        },
+        "name": "Liquor Store"
+    },
+    "shop/bakery": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "bakery"
+        },
+        "name": "Bakery"
+    },
+    "shop/beauty": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "beauty"
+        },
+        "name": "Beauty Shop"
+    },
+    "shop/beverages": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "beverages"
+        },
+        "name": "Beverage Store"
+    },
+    "shop/bicycle": {
+        "icon": "bicycle",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "bicycle"
+        },
+        "name": "Bicycle Shop"
+    },
+    "shop/books": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "books"
+        },
+        "name": "Bookstore"
+    },
+    "shop/boutique": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "boutique"
+        },
+        "name": "Boutique"
+    },
+    "shop/butcher": {
+        "icon": "slaughterhouse",
+        "fields": [
+            "building_area",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "terms": [],
+        "tags": {
+            "shop": "butcher"
+        },
+        "name": "Butcher"
+    },
+    "shop/car": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "car"
+        },
+        "name": "Car Dealership"
+    },
+    "shop/car_parts": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "car_parts"
+        },
+        "name": "Car Parts Store"
+    },
+    "shop/car_repair": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "car_repair"
+        },
+        "name": "Car Repair Shop"
+    },
+    "shop/chemist": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "chemist"
+        },
+        "name": "Chemist"
+    },
+    "shop/clothes": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "clothes"
+        },
+        "name": "Clothing Store"
+    },
+    "shop/computer": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "computer"
+        },
+        "name": "Computer Store"
+    },
+    "shop/confectionery": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "confectionery"
+        },
+        "name": "Confectionery"
+    },
+    "shop/convenience": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "convenience"
+        },
+        "name": "Convenience Store"
+    },
+    "shop/deli": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "deli"
+        },
+        "name": "Deli"
+    },
+    "shop/department_store": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "department_store"
+        },
+        "name": "Department Store"
+    },
+    "shop/doityourself": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "doityourself"
+        },
+        "name": "DIY Store"
+    },
+    "shop/dry_cleaning": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "dry_cleaning"
+        },
+        "name": "Dry Cleaners"
+    },
+    "shop/electronics": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "electronics"
+        },
+        "name": "Electronics Store"
+    },
+    "shop/fishmonger": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "fishmonger"
+        },
+        "name": "Fishmonger"
+    },
+    "shop/florist": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "florist"
+        },
+        "name": "Florist"
+    },
+    "shop/furniture": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "furniture"
+        },
+        "name": "Furniture Store"
+    },
+    "shop/garden_centre": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "garden_centre"
+        },
+        "name": "Garden Center"
+    },
+    "shop/gift": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "gift"
+        },
+        "name": "Gift Shop"
+    },
+    "shop/greengrocer": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "greengrocer"
+        },
+        "name": "Greengrocer"
+    },
+    "shop/hairdresser": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "hairdresser"
+        },
+        "name": "Hairdresser"
+    },
+    "shop/hardware": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "hardware"
+        },
+        "name": "Hardware Store"
+    },
+    "shop/hifi": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "hifi"
+        },
+        "name": "Hifi Store"
+    },
+    "shop/jewelry": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "jewelry"
+        },
+        "name": "Jeweler"
+    },
+    "shop/kiosk": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "shop": "kiosk"
+        },
+        "name": "Kiosk"
+    },
+    "shop/laundry": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "laundry"
+        },
+        "name": "Laundry"
+    },
+    "shop/mall": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "mall"
+        },
+        "name": "Mall"
+    },
+    "shop/mobile_phone": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "mobile_phone"
+        },
+        "name": "Mobile Phone Store"
+    },
+    "shop/motorcycle": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "motorcycle"
+        },
+        "name": "Motorcycle Dealership"
+    },
+    "shop/music": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "music"
+        },
+        "name": "Music Store"
+    },
+    "shop/newsagent": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "newsagent"
+        },
+        "name": "Newsagent"
+    },
+    "shop/optician": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "optician"
+        },
+        "name": "Optician"
+    },
+    "shop/outdoor": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "outdoor"
+        },
+        "name": "Outdoor Store"
+    },
+    "shop/pet": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "pet"
+        },
+        "name": "Pet Store"
+    },
+    "shop/shoes": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "shoes"
+        },
+        "name": "Shoe Store"
+    },
+    "shop/sports": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "sports"
+        },
+        "name": "Sporting Goods Store"
+    },
+    "shop/stationery": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "stationery"
+        },
+        "name": "Stationery Store"
+    },
+    "shop/supermarket": {
+        "icon": "grocery",
+        "fields": [
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "bazaar",
+            "boutique",
+            "chain",
+            "co-op",
+            "cut-rate store",
+            "discount store",
+            "five-and-dime",
+            "flea market",
+            "galleria",
+            "mall",
+            "mart",
+            "outlet",
+            "outlet store",
+            "shop",
+            "shopping center",
+            "shopping plaza",
+            "stand",
+            "store",
+            "supermarket",
+            "thrift shop"
+        ],
+        "tags": {
+            "shop": "supermarket"
+        },
+        "name": "Supermarket"
+    },
+    "shop/toys": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "toys"
+        },
+        "name": "Toy Store"
+    },
+    "shop/travel_agency": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "travel_agency"
+        },
+        "name": "Travel Agency"
+    },
+    "shop/tyres": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "tyres"
+        },
+        "name": "Tire Store"
+    },
+    "shop/vacant": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "vacant"
+        },
+        "name": "Vacant Shop"
+    },
+    "shop/variety_store": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "variety_store"
+        },
+        "name": "Variety Store"
+    },
+    "shop/video": {
+        "icon": "shop",
+        "fields": [
+            "address",
+            "opening_hours"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "shop": "video"
+        },
+        "name": "Video Store"
+    },
+    "tourism": {
+        "fields": [
+            "tourism"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "tourism": "*"
+        },
+        "name": "Tourism"
+    },
+    "tourism/artwork": {
+        "geometry": [
+            "point",
+            "vertex",
+            "line",
+            "area"
+        ],
+        "tags": {
+            "tourism": "artwork"
+        },
+        "name": "Artwork"
+    },
+    "tourism/attraction": {
+        "fields": [
+            "operator",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "tourism": "attraction"
+        },
+        "name": "Tourist Attraction"
+    },
+    "tourism/camp_site": {
+        "icon": "campsite",
+        "fields": [
+            "operator",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [],
+        "tags": {
+            "tourism": "camp_site"
+        },
+        "name": "Camp Site"
+    },
+    "tourism/hotel": {
+        "icon": "lodging",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [],
+        "tags": {
+            "tourism": "hotel"
+        },
+        "name": "Hotel"
+    },
+    "tourism/information": {
+        "fields": [
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "tourism": "information"
+        },
+        "name": "Information"
+    },
+    "tourism/motel": {
+        "icon": "lodging",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "tourism": "motel"
+        },
+        "name": "Motel"
+    },
+    "tourism/museum": {
+        "icon": "museum",
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "exhibition",
+            "exhibits archive",
+            "foundation",
+            "gallery",
+            "hall",
+            "institution",
+            "library",
+            "menagerie",
+            "repository",
+            "salon",
+            "storehouse",
+            "treasury",
+            "vault"
+        ],
+        "tags": {
+            "tourism": "museum"
+        },
+        "name": "Museum"
+    },
+    "tourism/picnic_site": {
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [],
+        "tags": {
+            "tourism": "picnic_site"
+        },
+        "name": "Picnic Site"
+    },
+    "tourism/theme_park": {
+        "fields": [
+            "operator",
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "tags": {
+            "tourism": "theme_park"
+        },
+        "name": "Theme Park"
+    },
+    "tourism/viewpoint": {
+        "geometry": [
+            "point",
+            "vertex"
+        ],
+        "tags": {
+            "tourism": "viewpoint"
+        },
+        "name": "Viewpoint"
+    },
+    "room": {
+        "icon": "building",
+        "fields": [
+            "name",
+            "room number"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "*"
+        },
+        "name": "Room"
+    },
+    "room/office": {
+        "icon": "commercial",
+        "fields": [
+            "name",
+            "room number"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "office"
+        },
+        "name": "Office"
+    },
+    "room/storage": {
+        "icon": "square",
+        "fields": [
+            "name",
+            "room number"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "storage"
+        },
+        "name": "Storage"
+    },
+    "room/conference": {
+        "icon": "minefield",
+        "fields": [
+            "name",
+            "room number"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "conference"
+        },
+        "name": "Conference / Classroom"
+    },
+    "room/restroom": {
+        "icon": "toilets",
+        "fields": [
+            "name",
+            "room number",
+            "wheelchair"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "restroom"
+        },
+        "name": "Restroom"
+    },
+    "room/serverroom": {
+        "icon": "square",
+        "fields": [
+            "name",
+            "room number"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "serverroom"
+        },
+        "name": "Server Room"
+    },
+    "room/lockers": {
+        "icon": "square",
+        "fields": [
+            "name",
+            "room number",
+            "wheelchair"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "lockers"
+        },
+        "name": "Locker Room"
+    },
+    "room/auditorium": {
+        "icon": "square",
+        "fields": [
+            "name",
+            "room number",
+            "wheelchair"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "auditorium"
+        },
+        "name": "Auditorium"
+    },
+    "room/utility": {
+        "icon": "danger",
+        "fields": [
+            "name",
+            "room number"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "utility"
+        },
+        "name": "Utility"
+    },
+    "room/bedroom": {
+        "icon": "motel",
+        "fields": [
+            "name",
+            "room number"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "room": "bedroom"
+        },
+        "name": "Bedroom"
+    },
+    "circulation": {
+        "icon": "path",
+        "fields": [
+            "name",
+            "wheelchair"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "circulation": "*"
+        },
+        "name": "Circulation"
+    },
+    "circulation/hallway": {
+        "icon": "path",
+        "fields": [
+            "name",
+            "wheelchair"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "circulation": "hallway"
+        },
+        "name": "Hallway"
+    },
+    "circulation/stairs": {
+        "icon": "path",
+        "fields": [
+            "name"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "circulation": "stairs"
+        },
+        "name": "Stairs"
+    },
+    "circulation/elevator": {
+        "icon": "path",
+        "fields": [
+            "name",
+            "wheelchair"
+        ],
+        "geometry": [
+            "area"
+        ],
+        "tags": {
+            "circulation": "elevator"
+        },
+        "name": "Elevator"
+    },
+    "path": {
+        "icon": "highway-path",
+        "fields": [
+            "name",
+            "wheelchair"
+        ],
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "path": "*"
+        },
+        "name": "Path"
+    },
+    "path/entrance": {
+        "icon": "star",
+        "fields": [
+            "name",
+            "wheelchair"
+        ],
+        "geometry": [
+            "point",
+            "vertex"
+        ],
+        "tags": {
+            "path": "entrance"
+        },
+        "name": "Entrance"
+    },
+    "path/doorway": {
+        "icon": "square-stroked",
+        "fields": [
+            "name",
+            "wheelchair"
+        ],
+        "geometry": [
+            "point",
+            "vertex"
+        ],
+        "tags": {
+            "path": "doorway"
+        },
+        "name": "Doorway"
+    }
+
+
+}

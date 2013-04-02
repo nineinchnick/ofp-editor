@@ -160,7 +160,7 @@ _.extend(iD.Way.prototype, {
 // values for the respective key.
 iD.Way.areaKeys = {
     area: {},
-    building: {},
+    room: {},
     leisure: {},
     tourism: {},
     ruins: {},

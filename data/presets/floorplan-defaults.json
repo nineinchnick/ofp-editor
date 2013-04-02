@@ -1,0 +1,28 @@
+{
+    "area": [
+        "room/office",
+        "room/storage",
+        "room/conference",
+        "room/restroom",
+        "room/utility",
+        "circulation/hallway",
+        "circulation/stairs",
+        "circulation/elevator",
+        "other_area"
+    ],
+    "line": [
+        "path",
+        "other"
+    ],
+    "point": [
+        "amenity",
+        "path/entrance",
+        "path/doorway",
+        "other"
+    ],
+    "vertex": [
+        "path/entrance",
+        "path/doorway",
+        "other"
+    ]
+}

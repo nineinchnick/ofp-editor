@@ -6,7 +6,7 @@ var request = require('request'),
     _ = require('../js/lib/lodash.js');
 
 var resources = ['core', 'presets'];
-var outfile = './data/locales.js';
+var outfile = './data/floorplan-locales.js';
 var api = 'http://www.transifex.com/api/2/';
 var project = api + 'project/id-editor/';
 
@@ -22,8 +22,8 @@ var project = api + 'project/id-editor/';
 
 var auth = JSON.parse(fs.readFileSync('./transifex.auth', 'utf8'));
 
-var sourceCore = yaml.load(fs.readFileSync('./data/core.yaml', 'utf8')),
-    sourcePresets = yaml.load(fs.readFileSync('./data/presets.yaml', 'utf8'));
+var sourceCore = yaml.load(fs.readFileSync('./data/floorplan-core.yaml', 'utf8')),
+    sourcePresets = yaml.load(fs.readFileSync('./data/floorplan-presets.yaml', 'utf8'));
 
 asyncMap(resources, getResource, function(err, locales) {
     if (err) return console.log(err);

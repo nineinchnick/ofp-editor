@@ -1,0 +1,30 @@
+[ {
+    "geometry": "line",
+    "id": "Rail",
+    "icon": "category-rail",
+    "members": [
+        "railway/rail",
+        "railway/subway",
+        "railway/tram",
+        "railway/monorail",
+        "railway/disused",
+        "railway/abandoned"
+    ]
+}, {
+    "geometry": "line",
+    "id": "Path",
+    "icon": "category-path",
+    "members": [
+        "path"
+    ]
+}, {
+    "geometry": "line",
+    "id": "Utilities",
+    "icon": "category-water",
+    "members": [
+        "waterway/river",
+        "waterway/stream",
+        "waterway/canal",
+        "waterway/ditch"
+    ]
+}]
