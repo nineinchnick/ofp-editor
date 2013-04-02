@@ -29,6 +29,11 @@
         "type": "number",
         "label": "Admin Level"
     },
+    "floor": {
+        "key": "floor",
+        "type": "number",
+        "label": "Floor"
+    },
     "aeroway": {
         "key": "aeroway",
         "type": "combo",

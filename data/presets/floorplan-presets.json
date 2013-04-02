@@ -1,6 +1,7 @@
 {
     "aeroway": {
         "fields": [
+            "floor",
             "aeroway"
         ],
         "geometry": [
@@ -32,6 +33,7 @@
     },
     "amenity": {
         "fields": [
+            "floor",
             "amenity"
         ],
         "geometry": [
@@ -47,6 +49,7 @@
     "amenity/bank": {
         "icon": "bank",
         "fields": [
+            "floor",
             "atm",
             "building_area",
             "address"
@@ -87,6 +90,7 @@
     "amenity/bar": {
         "icon": "bar",
         "fields": [
+            "floor",
             "building_area",
             "address"
         ],
@@ -115,6 +119,7 @@
     "amenity/bicycle_parking": {
         "icon": "bicycle",
         "fields": [
+            "floor",
             "bicycle_parking",
             "capacity",
             "operator"
@@ -132,6 +137,7 @@
     "amenity/bicycle_rental": {
         "icon": "bicycle",
         "fields": [
+            "floor",
             "capacity",
             "network",
             "operator"
@@ -149,6 +155,7 @@
     "amenity/cafe": {
         "icon": "cafe",
         "fields": [
+            "floor",
             "cuisine",
             "internet_access",
             "building_area",
@@ -172,6 +179,7 @@
     "amenity/cinema": {
         "icon": "cinema",
         "fields": [
+            "floor",
             "building_area",
             "address"
         ],
@@ -206,6 +214,7 @@
     },
     "amenity/courthouse": {
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -229,6 +238,7 @@
             "amenity": "embassy"
         },
         "fields": [
+            "floor",
             "country"
         ],
         "icon": "embassy",
@@ -237,6 +247,7 @@
     "amenity/fast_food": {
         "icon": "fast-food",
         "fields": [
+            "floor",
             "cuisine",
             "building_area",
             "address"
@@ -255,6 +266,7 @@
     "amenity/fire_station": {
         "icon": "fire-station",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -273,6 +285,7 @@
     "amenity/fuel": {
         "icon": "fuel",
         "fields": [
+            "floor",
             "operator",
             "address"
         ],
@@ -289,6 +302,7 @@
     "amenity/hospital": {
         "icon": "hospital",
         "fields": [
+            "floor",
             "emergency",
             "building_area",
             "address"
@@ -321,6 +335,7 @@
     "amenity/library": {
         "icon": "library",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -350,6 +365,7 @@
     "amenity/parking": {
         "icon": "parking",
         "fields": [
+            "floor",
             "fee",
             "access",
             "address"
@@ -368,6 +384,7 @@
     "amenity/pharmacy": {
         "icon": "pharmacy",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -386,6 +403,7 @@
     "amenity/place_of_worship": {
         "icon": "place-of-worship",
         "fields": [
+            "floor",
             "religion",
             "denomination",
             "building",
@@ -429,6 +447,7 @@
     "amenity/place_of_worship/christian": {
         "icon": "religious-christian",
         "fields": [
+            "floor",
             "denomination",
             "building",
             "address"
@@ -471,6 +490,7 @@
     "amenity/place_of_worship/jewish": {
         "icon": "religious-jewish",
         "fields": [
+            "floor",
             "denomination",
             "building",
             "address"
@@ -493,6 +513,7 @@
     "amenity/place_of_worship/muslim": {
         "icon": "religious-muslim",
         "fields": [
+            "floor",
             "denomination",
             "building",
             "address"
@@ -515,6 +536,7 @@
     "amenity/police": {
         "icon": "police",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -562,6 +584,7 @@
     "amenity/post_box": {
         "icon": "post",
         "fields": [
+            "floor",
             "operator",
             "collection_times"
         ],
@@ -601,6 +624,7 @@
     "amenity/pub": {
         "icon": "beer",
         "fields": [
+            "floor",
             "building_area",
             "address"
         ],
@@ -618,6 +642,7 @@
     "amenity/restaurant": {
         "icon": "restaurant",
         "fields": [
+            "floor",
             "cuisine",
             "building_area",
             "address"
@@ -668,6 +693,7 @@
     "amenity/school": {
         "icon": "school",
         "fields": [
+            "floor",
             "operator",
             "building",
             "address"
@@ -726,6 +752,7 @@
     "amenity/theatre": {
         "icon": "theatre",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -748,6 +775,7 @@
     },
     "amenity/toilets": {
         "fields": [
+            "floor",
             "operator",
             "building"
         ],
@@ -766,6 +794,7 @@
     "amenity/university": {
         "icon": "college",
         "fields": [
+            "floor",
             "operator",
             "address"
         ],
@@ -791,6 +820,7 @@
             "barrier": "*"
         },
         "fields": [
+            "floor",
             "barrier"
         ],
         "name": "Barrier"
@@ -815,15 +845,6 @@
             "barrier": "bollard"
         },
         "name": "Bollard"
-    },
-    "barrier/cycle_barrier": {
-        "geometry": [
-            "vertex"
-        ],
-        "tags": {
-            "barrier": "cycle_barrier"
-        },
-        "name": "Cycle Barrier"
     },
     "barrier/entrance": {
         "geometry": [
@@ -895,89 +916,9 @@
         },
         "name": "Wall"
     },
-    "boundary/administrative": {
-        "name": "Administrative Boundary",
-        "geometry": [
-            "line",
-            "area"
-        ],
-        "tags": {
-            "boundary": "administrative"
-        },
-        "fields": [
-            "admin_level"
-        ]
-    },
-    "building": {
-        "icon": "warehouse",
-        "fields": [
-            "building_yes",
-            "levels",
-            "address"
-        ],
-        "geometry": [
-            "area"
-        ],
-        "tags": {
-            "building": "*"
-        },
-        "terms": [],
-        "name": "Building"
-    },
-    "building/apartments": {
-        "icon": "commercial",
-        "fields": [
-            "address",
-            "levels"
-        ],
-        "geometry": [
-            "point",
-            "vertex",
-            "area"
-        ],
-        "tags": {
-            "building": "apartments"
-        },
-        "name": "Apartments"
-    },
-    "building/entrance": {
-        "geometry": [
-            "vertex"
-        ],
-        "tags": {
-            "building": "entrance"
-        },
-        "name": "Entrance",
-        "searchable": false
-    },
-    "building/house": {
-        "fields": [
-            "address",
-            "levels"
-        ],
-        "geometry": [
-            "point",
-            "area"
-        ],
-        "tags": {
-            "building": "house"
-        },
-        "name": "House"
-    },
-    "entrance": {
-        "geometry": [
-            "vertex"
-        ],
-        "tags": {
-            "entrance": "*"
-        },
-        "fields": [
-            "entrance"
-        ],
-        "name": "Entrance"
-    },
     "historic": {
         "fields": [
+            "floor",
             "historic"
         ],
         "geometry": [
@@ -1038,6 +979,7 @@
     },
     "landuse": {
         "fields": [
+            "floor",
             "landuse"
         ],
         "geometry": [
@@ -1085,6 +1027,7 @@
     },
     "landuse/construction": {
         "fields": [
+            "floor",
             "construction",
             "operator"
         ],
@@ -1170,6 +1113,7 @@
     },
     "leisure": {
         "fields": [
+            "floor",
             "leisure"
         ],
         "geometry": [
@@ -1230,6 +1174,7 @@
     "leisure/pitch": {
         "icon": "pitch",
         "fields": [
+            "floor",
             "sport",
             "surface"
         ],
@@ -1246,6 +1191,7 @@
     "leisure/pitch/american_football": {
         "icon": "america-football",
         "fields": [
+            "floor",
             "surface"
         ],
         "geometry": [
@@ -1291,6 +1237,7 @@
     "leisure/pitch/soccer": {
         "icon": "soccer",
         "fields": [
+            "floor",
             "surface"
         ],
         "geometry": [
@@ -1307,6 +1254,7 @@
     "leisure/pitch/tennis": {
         "icon": "tennis",
         "fields": [
+            "floor",
             "surface"
         ],
         "geometry": [
@@ -1339,6 +1287,7 @@
             "leisure": "stadium"
         },
         "fields": [
+            "floor",
             "sport"
         ],
         "name": "Stadium"
@@ -1364,7 +1313,9 @@
             "line",
             "area"
         ],
-        "fields": []
+        "fields": [
+            "floor"
+        ]
     },
     "other_area": {
         "name": "Other",
@@ -1374,7 +1325,9 @@
         "geometry": [
             "area"
         ],
-        "fields": []
+        "fields": [
+            "floor"
+        ]
     },
     "power": {
         "geometry": [
@@ -1387,6 +1340,7 @@
             "power": "*"
         },
         "fields": [
+            "floor",
             "power"
         ],
         "name": "Power"
@@ -1414,6 +1368,7 @@
     },
     "power/sub_station": {
         "fields": [
+            "floor",
             "operator"
         ],
         "geometry": [
@@ -1438,6 +1393,7 @@
     },
     "railway": {
         "fields": [
+            "floor",
             "railway"
         ],
         "geometry": [
@@ -1460,6 +1416,7 @@
             "railway": "abandoned"
         },
         "fields": [
+            "floor",
             "structure"
         ],
         "terms": [],
@@ -1474,6 +1431,7 @@
             "railway": "disused"
         },
         "fields": [
+            "floor",
             "structure"
         ],
         "terms": [],
@@ -1506,6 +1464,7 @@
             "railway": "monorail"
         },
         "fields": [
+            "floor",
             "structure"
         ],
         "terms": [],
@@ -1520,6 +1479,7 @@
             "railway": "rail"
         },
         "fields": [
+            "floor",
             "structure"
         ],
         "terms": [],
@@ -1528,6 +1488,7 @@
     "railway/subway": {
         "icon": "railway-subway",
         "fields": [
+            "floor",
             "structure"
         ],
         "geometry": [
@@ -1559,6 +1520,7 @@
             "railway": "tram"
         },
         "fields": [
+            "floor",
             "structure"
         ],
         "terms": [
@@ -1569,6 +1531,7 @@
     "shop": {
         "icon": "shop",
         "fields": [
+            "floor",
             "shop",
             "address",
             "opening_hours"
@@ -1585,6 +1548,7 @@
     "shop/alcohol": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1599,6 +1563,7 @@
     "shop/bakery": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1613,6 +1578,7 @@
     "shop/beauty": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1627,6 +1593,7 @@
     "shop/beverages": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1641,6 +1608,7 @@
     "shop/bicycle": {
         "icon": "bicycle",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1655,6 +1623,7 @@
     "shop/books": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1669,6 +1638,7 @@
     "shop/boutique": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1683,6 +1653,7 @@
     "shop/butcher": {
         "icon": "slaughterhouse",
         "fields": [
+            "floor",
             "building_area",
             "opening_hours"
         ],
@@ -1698,6 +1669,7 @@
     "shop/car": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1712,6 +1684,7 @@
     "shop/car_parts": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1726,6 +1699,7 @@
     "shop/car_repair": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1740,6 +1714,7 @@
     "shop/chemist": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1754,6 +1729,7 @@
     "shop/clothes": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1768,6 +1744,7 @@
     "shop/computer": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1782,6 +1759,7 @@
     "shop/confectionery": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1796,6 +1774,7 @@
     "shop/convenience": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1810,6 +1789,7 @@
     "shop/deli": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1824,6 +1804,7 @@
     "shop/department_store": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1838,6 +1819,7 @@
     "shop/doityourself": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1852,6 +1834,7 @@
     "shop/dry_cleaning": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1866,6 +1849,7 @@
     "shop/electronics": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1880,6 +1864,7 @@
     "shop/fishmonger": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1894,6 +1879,7 @@
     "shop/florist": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1908,6 +1894,7 @@
     "shop/furniture": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1922,6 +1909,7 @@
     "shop/garden_centre": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1936,6 +1924,7 @@
     "shop/gift": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1950,6 +1939,7 @@
     "shop/greengrocer": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1964,6 +1954,7 @@
     "shop/hairdresser": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1978,6 +1969,7 @@
     "shop/hardware": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -1992,6 +1984,7 @@
     "shop/hifi": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2006,6 +1999,7 @@
     "shop/jewelry": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2020,6 +2014,7 @@
     "shop/kiosk": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2036,6 +2031,7 @@
     "shop/laundry": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2050,6 +2046,7 @@
     "shop/mall": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2064,6 +2061,7 @@
     "shop/mobile_phone": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2078,6 +2076,7 @@
     "shop/motorcycle": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2092,6 +2091,7 @@
     "shop/music": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2106,6 +2106,7 @@
     "shop/newsagent": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2120,6 +2121,7 @@
     "shop/optician": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2134,6 +2136,7 @@
     "shop/outdoor": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2148,6 +2151,7 @@
     "shop/pet": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2162,6 +2166,7 @@
     "shop/shoes": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2176,6 +2181,7 @@
     "shop/sports": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2190,6 +2196,7 @@
     "shop/stationery": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2204,6 +2211,7 @@
     "shop/supermarket": {
         "icon": "grocery",
         "fields": [
+            "floor",
             "address"
         ],
         "geometry": [
@@ -2241,6 +2249,7 @@
     "shop/toys": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2255,6 +2264,7 @@
     "shop/travel_agency": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2269,6 +2279,7 @@
     "shop/tyres": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2283,6 +2294,7 @@
     "shop/vacant": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2297,6 +2309,7 @@
     "shop/variety_store": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2311,6 +2324,7 @@
     "shop/video": {
         "icon": "shop",
         "fields": [
+            "floor",
             "address",
             "opening_hours"
         ],
@@ -2324,6 +2338,7 @@
     },
     "tourism": {
         "fields": [
+            "floor",
             "tourism"
         ],
         "geometry": [
@@ -2350,6 +2365,7 @@
     },
     "tourism/attraction": {
         "fields": [
+            "floor",
             "operator",
             "address"
         ],
@@ -2366,6 +2382,7 @@
     "tourism/camp_site": {
         "icon": "campsite",
         "fields": [
+            "floor",
             "operator",
             "address"
         ],
@@ -2383,6 +2400,7 @@
     "tourism/hotel": {
         "icon": "lodging",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -2400,6 +2418,7 @@
     },
     "tourism/information": {
         "fields": [
+            "floor",
             "building_area",
             "address"
         ],
@@ -2416,6 +2435,7 @@
     "tourism/motel": {
         "icon": "lodging",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -2433,6 +2453,7 @@
     "tourism/museum": {
         "icon": "museum",
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -2464,6 +2485,7 @@
     },
     "tourism/picnic_site": {
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -2481,6 +2503,7 @@
     },
     "tourism/theme_park": {
         "fields": [
+            "floor",
             "operator",
             "building_area",
             "address"
@@ -2496,6 +2519,10 @@
         "name": "Theme Park"
     },
     "tourism/viewpoint": {
+        "fields": [
+            "floor",
+            "name"
+        ],
         "geometry": [
             "point",
             "vertex"
@@ -2508,6 +2535,7 @@
     "room": {
         "icon": "building",
         "fields": [
+            "floor",
             "name",
             "room number"
         ],
@@ -2522,6 +2550,7 @@
     "room/office": {
         "icon": "commercial",
         "fields": [
+            "floor",
             "name",
             "room number"
         ],
@@ -2536,6 +2565,7 @@
     "room/storage": {
         "icon": "square",
         "fields": [
+            "floor",
             "name",
             "room number"
         ],
@@ -2550,6 +2580,7 @@
     "room/conference": {
         "icon": "minefield",
         "fields": [
+            "floor",
             "name",
             "room number"
         ],
@@ -2564,6 +2595,7 @@
     "room/restroom": {
         "icon": "toilets",
         "fields": [
+            "floor",
             "name",
             "room number",
             "wheelchair"
@@ -2579,6 +2611,7 @@
     "room/serverroom": {
         "icon": "square",
         "fields": [
+            "floor",
             "name",
             "room number"
         ],
@@ -2593,6 +2626,7 @@
     "room/lockers": {
         "icon": "square",
         "fields": [
+            "floor",
             "name",
             "room number",
             "wheelchair"
@@ -2608,6 +2642,7 @@
     "room/auditorium": {
         "icon": "square",
         "fields": [
+            "floor",
             "name",
             "room number",
             "wheelchair"
@@ -2623,6 +2658,7 @@
     "room/utility": {
         "icon": "danger",
         "fields": [
+            "floor",
             "name",
             "room number"
         ],
@@ -2637,6 +2673,7 @@
     "room/bedroom": {
         "icon": "motel",
         "fields": [
+            "floor",
             "name",
             "room number"
         ],
@@ -2651,6 +2688,7 @@
     "circulation": {
         "icon": "path",
         "fields": [
+            "floor",
             "name",
             "wheelchair"
         ],
@@ -2665,6 +2703,7 @@
     "circulation/hallway": {
         "icon": "path",
         "fields": [
+            "floor",
             "name",
             "wheelchair"
         ],
@@ -2679,6 +2718,7 @@
     "circulation/stairs": {
         "icon": "path",
         "fields": [
+            "floor",
             "name"
         ],
         "geometry": [
@@ -2692,6 +2732,7 @@
     "circulation/elevator": {
         "icon": "path",
         "fields": [
+            "floor",
             "name",
             "wheelchair"
         ],
@@ -2706,6 +2747,7 @@
     "path": {
         "icon": "highway-path",
         "fields": [
+            "floor",
             "name",
             "wheelchair"
         ],
@@ -2720,6 +2762,7 @@
     "path/entrance": {
         "icon": "star",
         "fields": [
+            "floor",
             "name",
             "wheelchair"
         ],
@@ -2735,6 +2778,7 @@
     "path/doorway": {
         "icon": "square-stroked",
         "fields": [
+            "floor",
             "name",
             "wheelchair"
         ],

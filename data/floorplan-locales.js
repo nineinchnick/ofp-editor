@@ -522,7 +522,12 @@ locale.en = {
                 "label": "Type"
             },
             "wheelchair": {
-                "label": "Wheelchair Access"
+                "label": "Wheelchair Access",
+                "options": {
+                    "yes": "yes",
+                    "limited": "limited",
+                    "no": "no"
+                }
             },
             "wikipedia": {
                 "label": "Wikipedia"
