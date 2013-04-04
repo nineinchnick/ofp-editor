@@ -21,13 +21,15 @@ iD.data = {
                 deprecated: data[0],
                 discarded: data[1],
                 imagery: data[2],
-                keys: data[3],
+                wikipedia: data[3],
+                keys: data[4],
                 presets: {
-                    presets: data[4],
-                    defaults: data[5],
-                    categories: data[6],
-                    fields: data[7]
-                }
+                    presets: data[5],
+                    defaults: data[6],
+                    categories: data[7],
+                    fields: data[8]
+                },
+                imperial: data[9]
             };
 
             callback();
