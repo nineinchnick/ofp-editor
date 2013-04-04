@@ -4,7 +4,14 @@ iD.modes.Select = function(context, selection, initial) {
         button: 'browse'
     };
 
-    var inspector = iD.ui.Inspector(context, singular()),
+    // Selecting non-multipolygon relations is not supported
+    selection = selection.filter(function(d) {
+        return context.entity(d).geometry(context.graph()) !== 'relation';
+    });
+
+    if (!selection.length) return iD.modes.Browse(context);
+
+    var inspector = singular() && iD.ui.Inspector(context, singular()),
         keybinding = d3.keybinding('select'),
         timeout = null,
         behaviors = [
@@ -131,10 +138,15 @@ iD.modes.Select = function(context, selection, initial) {
         d3.select(document)
             .call(keybinding);
 
-        context.surface()
-            .selectAll("*")
-            .filter(selected)
-            .classed('selected', true);
+        function selectElements() {
+            context.surface()
+                .selectAll("*")
+                .filter(selected)
+                .classed('selected', true);
+        }
+
+        context.map().on('drawn.select', selectElements);
+        selectElements();
 
         radialMenu = iD.ui.RadialMenu(operations);
         var show = d3.event && !initial;
@@ -156,7 +168,7 @@ iD.modes.Select = function(context, selection, initial) {
     mode.exit = function() {
         if (timeout) window.clearTimeout(timeout);
 
-        wrap.call(inspector.close);
+        if (inspector) wrap.call(inspector.close);
 
         behaviors.forEach(function(behavior) {
             context.uninstall(behavior);
@@ -176,6 +188,8 @@ iD.modes.Select = function(context, selection, initial) {
             .on('dblclick.select', null)
             .selectAll(".selected")
             .classed('selected', false);
+
+        context.map().on('drawn.select', null);
     };
 
     return mode;

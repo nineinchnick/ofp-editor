@@ -8,11 +8,13 @@ iD.data = {
             path + 'data/deprecated.json',
             path + 'data/discarded.json',
             path + 'data/imagery.json',
+            path + 'data/wikipedia.json',
             path + 'data/keys.json',
             path + 'data/presets/floorplan-presets.json',
             path + 'data/presets/floorplan-defaults.json',
             path + 'data/presets/floorplan-categories.json',
-            path + 'data/presets/floorplan-fields.json'
+            path + 'data/presets/floorplan-fields.json',
+            path + 'data/imperial.json'
             ], d3.json, function (err, data) {
 
             iD.data = {

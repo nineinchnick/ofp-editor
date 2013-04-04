@@ -1,11 +1,11 @@
 iD.Map = function(context) {
     var dimensions = [1, 1],
         dispatch = d3.dispatch('move', 'drawn'),
-        projection = d3.geo.mercator().scale(1024),
+        projection = d3.geo.mercator().scale(512 / Math.PI),
         roundedProjection = iD.svg.RoundProjection(projection),
         zoom = d3.behavior.zoom()
             .translate(projection.translate())
-            .scale(projection.scale())
+            .scale(projection.scale() * 2 * Math.PI)
             .scaleExtent([1024, 256 * Math.pow(2, 24)])
             .on('zoom', zoomPan),
         dblclickEnabled = true,
@@ -119,7 +119,7 @@ iD.Map = function(context) {
     function zoomPan() {
         if (d3.event && d3.event.sourceEvent.type === 'dblclick') {
             if (!dblclickEnabled) {
-                zoom.scale(projection.scale())
+                zoom.scale(projection.scale() * 2 * Math.PI)
                     .translate(projection.translate());
                 return d3.event.sourceEvent.preventDefault();
             }
@@ -128,13 +128,13 @@ iD.Map = function(context) {
         if (Math.log(d3.event.scale / Math.LN2 - 8) < minzoom + 1) {
             iD.ui.flash(context.container())
                 .select('.content')
-                .text('Cannot zoom out further in current mode.');
+                .text(t('cannot_zoom'));
             return setZoom(16, true);
         }
 
         projection
             .translate(d3.event.translate)
-            .scale(d3.event.scale);
+            .scale(d3.event.scale / (2 * Math.PI));
 
         var ascale = d3.event.scale;
         var bscale = transformStart[0];
@@ -203,7 +203,7 @@ iD.Map = function(context) {
         }
 
         transformStart = [
-            projection.scale(),
+            projection.scale() * 2 * Math.PI,
             projection.translate().slice()];
 
         return map;
@@ -217,13 +217,13 @@ iD.Map = function(context) {
 
     function pointLocation(p) {
         var translate = projection.translate(),
-            scale = projection.scale();
+            scale = projection.scale() * 2 * Math.PI;
         return [(p[0] - translate[0]) / scale, (p[1] - translate[1]) / scale];
     }
 
     function locationPoint(l) {
         var translate = projection.translate(),
-            scale = projection.scale();
+            scale = projection.scale() * 2 * Math.PI;
         return [l[0] * scale + translate[0], l[1] * scale + translate[1]];
     }
 
@@ -249,8 +249,8 @@ iD.Map = function(context) {
             center = pxCenter(),
             l = pointLocation(center);
         scale = Math.max(1024, Math.min(256 * Math.pow(2, 24), scale));
-        projection.scale(scale);
-        zoom.scale(projection.scale());
+        projection.scale(scale / (2 * Math.PI));
+        zoom.scale(scale);
         var t = projection.translate();
         l = locationPoint(l);
         t[0] += center[0] - l[0];
@@ -313,7 +313,7 @@ iD.Map = function(context) {
 
     map.zoom = function(z) {
         if (!arguments.length) {
-            return Math.max(Math.log(projection.scale()) / Math.LN2 - 8, 0);
+            return Math.max(Math.log(projection.scale() * 2 * Math.PI) / Math.LN2 - 8, 0);
         }
 
         if (setZoom(z)) {

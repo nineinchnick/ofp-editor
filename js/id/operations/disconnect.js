@@ -1,14 +1,21 @@
 iD.operations.Disconnect = function(selection, context) {
-    var entityId = selection[0],
+    var vertices = _.filter(selection, function vertex(entityId) {
+        return context.geometry(entityId) === 'vertex'
+    });
+
+    var entityId = vertices[0],
         action = iD.actions.Disconnect(entityId);
+
+    if (selection.length > 1) {
+        action.limitWays(_.without(selection, entityId));
+    }
 
     var operation = function() {
         context.perform(action, t('operations.disconnect.annotation'));
     };
 
     operation.available = function() {
-        return selection.length === 1 &&
-            context.geometry(entityId) === 'vertex';
+        return vertices.length === 1;
     };
 
     operation.disabled = function() {

@@ -23,12 +23,14 @@
                 "combo",
                 "defaultcheck",
                 "text",
+                "maxspeed",
                 "number",
                 "tel",
                 "email",
                 "url",
                 "radio",
-                "textarea"
+                "textarea",
+                "wikipedia"
             ],
             "required": true
         },
