@@ -3,20 +3,21 @@
 <head>
     <meta charset='utf-8'>
     <title>Mocha Tests</title>
-    <link rel="stylesheet" href="lib/mocha.css">
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css">
+    <link rel="stylesheet" href="css/map.css">
 </head>
 <body>
     <div id="mocha"></div>
 
-    <script src="lib/mocha.js"></script>
-    <script src="lib/chai.js"></script>
-    <script src="lib/sinon.js"></script>
-    <script src="lib/sinon-chai.js"></script>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
+    <script src="../node_modules/sinon/pkg/sinon.js"></script>
+    <script src="../node_modules/sinon-chai/lib/sinon-chai.js"></script>
+    <script src="../node_modules/happen/src/happen.js"></script>
     <script src="lib/bind-shim.js"></script>
-    <script src="lib/happen.js"></script>
 
     <!-- include source files here... -->
-    <script src='../iD.min.js'></script>
+    <script src='../dist/iD.min.js'></script>
 
     <script src="spec/spec_helpers.js"></script>
 
@@ -44,6 +45,7 @@
 
     <script src="spec/geo/extent.js"></script>
 
+    <script src="spec/core/connection.js"></script>
     <script src="spec/core/graph.js"></script>
     <script src="spec/core/entity.js"></script>
     <script src="spec/core/node.js"></script>
@@ -73,12 +75,9 @@
     <script src="spec/ui/confirm.js"></script>
     <script src="spec/ui/cmd.js"></script>
 
-    <script src="spec/connection.js"></script>
     <script src="spec/geo.js"></script>
-    <script src="spec/oauth.js"></script>
     <script src="spec/taginfo.js"></script>
     <script src="spec/util.js"></script>
-    <script src="spec/translation.js"></script>
 
     <script src="spec/behavior/hash.js"></script>
     <script src="spec/behavior/hover.js"></script>

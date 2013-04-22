@@ -77,11 +77,21 @@ iD.modes.DragNode = function(context) {
         return d3.event.sourceEvent.target.__data__ || {};
     }
 
+    // via https://gist.github.com/shawnbot/4166283
+    function childOf(p, c) {
+        if (p === c) return false;
+        while (c && c !== p) c = c.parentNode;
+        return c === p;
+    }
+
     function move(entity) {
         if (cancelled) return;
         d3.event.sourceEvent.stopPropagation();
 
-        var nudge = edge(d3.event.point, context.map().size());
+        var nudge = childOf(context.container().node(),
+            d3.event.sourceEvent.toElement) &&
+            edge(d3.event.point, context.map().size());
+
         if (nudge) startNudge(nudge);
         else stopNudge();
 
@@ -107,8 +117,7 @@ iD.modes.DragNode = function(context) {
         if (d.type === 'way') {
             var choice = iD.geo.chooseIndex(d, d3.mouse(context.surface().node()), context);
             context.replace(
-                iD.actions.MoveNode(entity.id, choice.loc),
-                iD.actions.AddVertex(d.id, entity.id, choice.index),
+                iD.actions.AddMidpoint({ loc: choice.loc, edge: [d.nodes[choice.index - 1], d.nodes[choice.index]] }, entity),
                 connectAnnotation(d));
 
         } else if (d.type === 'node' && d.id !== entity.id) {

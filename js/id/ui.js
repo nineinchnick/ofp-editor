@@ -63,9 +63,11 @@ iD.ui = function(context) {
             .attr('class', 'map-control zoombuttons')
             .call(iD.ui.Zoom(context));
 
-        container.append('div')
-            .attr('class', 'map-control geocode-control')
-            .call(iD.ui.Geocoder(context));
+        if (!context.embed()) {
+            container.append('div')
+                .attr('class', 'map-control geocode-control')
+                .call(iD.ui.Geocoder(context));
+        }
 
         container.append('div')
             .attr('class', 'map-control background-control')
@@ -91,8 +93,14 @@ iD.ui = function(context) {
             .attr('class','col12 about-block fillD');
 
         about.append('div')
-            .attr('class', 'account')
-            .call(iD.ui.Account(context));
+            .attr('class', 'api-status')
+            .call(iD.ui.Status(context));
+
+        if (!context.embed()) {
+            about.append('div')
+                .attr('class', 'account')
+                .call(iD.ui.Account(context));
+        }
 
         var linkList = about.append('ul')
             .attr('id', 'about')
@@ -109,12 +117,8 @@ iD.ui = function(context) {
             .append('a')
             .attr('target', '_blank')
             .attr('tabindex', -1)
-            .attr('href', 'https://help.openfloorplan.org/questions/ask/')
+            .attr('href', 'https://github.com/kriscarle/iD/issues')
             .text(t('report_a_bug'));
-
-        linkList.append('li')
-            .attr('class', 'source-switch')
-            .call(iD.ui.SourceSwitch(context));
 
         linkList.append('li')
             .attr('class', 'user-list')
@@ -144,7 +148,8 @@ iD.ui = function(context) {
             .on('←', pan([pa, 0]))
             .on('↑', pan([0, pa]))
             .on('→', pan([-pa, 0]))
-            .on('↓', pan([0, -pa]));
+            .on('↓', pan([0, -pa]))
+            .on('M', function() { context.toggleFullscreen(); });
 
         d3.select(document)
             .call(keybinding);
@@ -156,6 +161,17 @@ iD.ui = function(context) {
             .call(iD.ui.Splash(context))
             .call(iD.ui.Restore(context));
 
+        var authenticating = iD.ui.Loading(context)
+            .message(t('loading_auth'));
+
+        context.connection()
+            .on('authenticating.ui', function() {
+                context.container()
+                    .call(authenticating);
+            })
+            .on('authenticated.ui', function() {
+                authenticating.close();
+            });
     };
 };
 

@@ -1,8 +1,11 @@
 {
     "icon": "parking",
     "fields": [
+        "parking",
+        "capacity",
         "fee",
-        "access",
+        "supervised",
+        "park_ride",
         "address"
     ],
     "geometry": [

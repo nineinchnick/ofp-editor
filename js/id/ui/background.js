@@ -140,15 +140,22 @@ iD.ui.Background = function(context) {
         }
 
         function clickNudge(d) {
-            var interval = window.setInterval(nudge, 100);
+
+            var timeout = window.setTimeout(function() {
+                    interval = window.setInterval(nudge, 100);
+                }, 500),
+                interval;
 
             d3.select(this).on('mouseup', function() {
                 window.clearInterval(interval);
+                window.clearTimeout(timeout);
                 nudge();
             });
 
             function nudge() {
                 context.background().nudge(d[1], context.map().zoom());
+                var offset = context.background().offset();
+                resetButton.classed('disabled', offset[0] === 0 && offset[1] === 0);
                 context.redraw();
             }
         }
@@ -285,30 +292,36 @@ iD.ui.Background = function(context) {
             .classed('expanded', false)
             .on('click', function() {
                 var exp = d3.select(this).classed('expanded');
-                nudge_container.style('display', exp ? 'none' : 'block');
+                nudgeContainer.style('display', exp ? 'none' : 'block');
                 d3.select(this).classed('expanded', !exp);
                 d3.event.preventDefault();
             });
 
-        var nudge_container = adjustments
+        var nudgeContainer = adjustments
             .append('div')
-            .attr('class', 'nudge-container')
+            .attr('class', 'nudge-container cf')
             .style('display', 'none');
 
-        nudge_container.selectAll('button')
+        nudgeContainer.selectAll('button')
             .data(directions).enter()
             .append('button')
             .attr('class', function(d) { return d[0] + ' nudge'; })
-            .text(function(d) { return d[0]; })
             .on('mousedown', clickNudge);
 
-        nudge_container.append('button')
-            .text(t('background.reset'))
-            .attr('class', 'reset')
-            .on('click', function() {
+        var resetButton = nudgeContainer.append('button')
+            .attr('class', 'reset disabled')
+            .on('click', function () {
                 context.background().offset([0, 0]);
+                resetButton.classed('disabled', true);
                 context.redraw();
             });
+
+        resetButton.append('div')
+            .attr('class', 'icon undo');
+
+        resetButton.call(bootstrap.tooltip()
+            .title(t('background.reset'))
+            .placement('right'));
 
         context.map()
             .on('move.background-update', _.debounce(update, 1000));

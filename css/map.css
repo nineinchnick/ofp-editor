@@ -597,13 +597,12 @@ path.casing.tag-highway-steps {
 
 /* aeroways */
 
-path.shadow.tag-aeroway-runway {
-    stroke-width: 20;
-}
-
 path.stroke.tag-aeroway-taxiway {
     stroke: #805C80;
     stroke-width: 4;
+}
+path.shadow.tag-aeroway-runway {
+    stroke-width: 20;
 }
 path.stroke.tag-aeroway-runway {
     stroke: #fff;
@@ -615,6 +614,10 @@ path.casing.tag-aeroway-runway {
     stroke-width: 10;
     stroke: #000;
     stroke-linecap: square;
+}
+path.fill.tag-aeroway-runway {
+    fill: #000;
+    fill-opacity: 0.6;
 }
 path.stroke.tag-aeroway-apron {
     stroke: #805C80;
@@ -860,47 +863,92 @@ text.point {
 /* Cursors */
 
 #map:hover {
-    cursor: url(../img/cursor-grab.png) 9 9, auto;
+    cursor: auto; /* Opera */
+    cursor: url(img/cursor-grab.png) 9 9, auto; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-grab.png) 1x,
+        url(img/cursor-grab2x.png) 2x
+        ) 9 9, auto;
 }
 
 #map:active {
-    cursor: url(../img/cursor-grabbing.png) 9 9, auto;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-grabbing.png) 9 9, auto; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-grabbing.png) 1x,
+        url(img/cursor-grabbing2x.png) 2x
+        ) 9 9, auto;
 }
 
-.mode-browse #surface .point,
-.mode-select #surface .point {
-    cursor: url(../img/cursor-select-point.png), pointer;
+.mode-browse .point,
+.mode-select .point {
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-point.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-point.png) 1x,
+        url(img/cursor-select-point2x.png) 2x
+        ), pointer;
 }
 
-.mode-select #surface .vertex,
-.mode-browse #surface .vertex {
-    cursor: url(../img/cursor-select-vertex.png), pointer;
+.mode-select .vertex,
+.mode-browse .vertex {
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-vertex.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-vertex.png) 1x,
+        url(img/cursor-select-vertex2x.png) 2x
+        ), pointer;
 }
 
-.mode-browse #surface .line,
-.mode-select #surface .line {
-    cursor: url(../img/cursor-select-line.png), pointer;
+.mode-browse .line,
+.mode-select .line {
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-line.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-line.png) 1x,
+        url(img/cursor-select-line2x.png) 2x
+        ), pointer;
 }
 
-.mode-select #surface .area,
-.mode-browse #surface .area {
-    cursor: url(../img/cursor-select-area.png), pointer;
+.mode-select .area,
+.mode-browse .area {
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-area.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-area.png) 1x,
+        url(img/cursor-select-area2x.png) 2x
+        ), pointer;
 }
 
-.mode-select #surface .midpoint,
-.mode-browse #surface .midpoint {
-    cursor: url(../img/cursor-select-split.png), pointer;
+.mode-select .midpoint,
+.mode-browse .midpoint {
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-split.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-split.png) 1x,
+        url(img/cursor-select-split2x.png) 2x
+        ), pointer;
 }
 
 .mode-select .behavior-multiselect .point,
 .mode-select .behavior-multiselect .vertex,
 .mode-select .behavior-multiselect .line,
 .mode-select .behavior-multiselect .area {
-    cursor: url(../img/cursor-select-add.png), pointer;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-add.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-add.png) 1x,
+        url(img/cursor-select-add2x.png) 2x
+        ), pointer;
 }
 
 .mode-select .behavior-multiselect .selected {
-    cursor: url(../img/cursor-select-remove.png), pointer;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-remove.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-remove.png) 1x,
+        url(img/cursor-select-remove2x.png) 2x
+        ), pointer;
 }
 
 #map .point:active,
@@ -909,7 +957,12 @@ text.point {
 #map .area:active,
 #map .midpoint:active,
 #map .mode-select .selected {
-    cursor: url(../img/cursor-select-acting.png), pointer;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-acting.png), pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-select-acting.png) 1x,
+        url(img/cursor-select-acting2x.png) 2x
+        ), pointer;
 }
 
 .mode-draw-line #map:hover,
@@ -917,8 +970,12 @@ text.point {
 .mode-add-line  #map:hover,
 .mode-add-area  #map:hover,
 .mode-drag-node #map:hover {
-    cursor: crosshair;
-    cursor: url(../img/cursor-draw.png) 9 9, crosshair;
+    cursor: crosshair; /* Opera */
+    cursor: url(img/cursor-draw.png) 9 9, crosshair; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-draw.png) 1x,
+        url(img/cursor-draw2x.png) 2x
+        ) 9 9, crosshair;
 }
 
 .mode-draw-line .behavior-hover .way,
@@ -926,8 +983,12 @@ text.point {
 .mode-add-line  .behavior-hover .way,
 .mode-add-area  .behavior-hover .way,
 .mode-drag-node .behavior-hover .way {
-    cursor: crosshair;
-    cursor: url(../img/cursor-draw-connect-line.png) 9 9, crosshair;
+    cursor: crosshair; /* Opera */
+    cursor: url(img/cursor-draw-connect-line.png) 9 9, crosshair; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-draw-connect-line.png) 1x,
+        url(img/cursor-draw-connect-line2x.png) 2x
+        ) 9 9, crosshair;
 }
 
 .mode-draw-line .behavior-hover .vertex,
@@ -935,20 +996,24 @@ text.point {
 .mode-add-line  .behavior-hover .vertex,
 .mode-add-area  .behavior-hover .vertex,
 .mode-drag-node .behavior-hover .vertex {
-    cursor: crosshair;
-    cursor: url(../img/cursor-draw-connect-vertex.png) 9 9, crosshair;
+    cursor: crosshair; /* Opera */
+    cursor: url(img/cursor-draw-connect-vertex.png) 9 9, crosshair; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-draw-connect-vertex.png) 1x,
+        url(img/cursor-draw-connect-vertex2x.png) 2x
+        ) 9 9, crosshair;
 }
 
-.mode-add-point #map:hover {
-    cursor: crosshair;
-    cursor: url(../img/cursor-draw.png) 9 9, crosshair;
-}
-
+.mode-add-point #map:hover,
 .lasso #map:hover,
 .lasso .way,
 .lasso .vertex {
-    cursor: crosshair;
-    cursor: url(../img/cursor-draw.png) 9 9, crosshair;
+    cursor: crosshair; /* Opera */
+    cursor: url(img/cursor-draw.png) 9 9, crosshair; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-draw.png) 1x,
+        url(img/cursor-draw2x.png) 2x
+        ) 9 9, crosshair;
 }
 
 .lasso #map {

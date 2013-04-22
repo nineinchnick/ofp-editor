@@ -47,7 +47,7 @@ body {
     background: black;
 }
 
-div, textarea, input, form, span, ul, li, ol, a, button, h1, h2, h3, h4, h5, p, img {
+div, textarea, label, input, form, span, ul, li, ol, a, button, h1, h2, h3, h4, h5, p, img {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -58,9 +58,17 @@ a, button, input, textarea {
     -webkit-touch-callout:none;
 }
 
-a, button {
-    cursor: pointer;
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
+a,
+button,
+.checkselect label:hover,
+.opacity-options li,
+.radial-menu-item {
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-pointer.png) 6 1, pointer; /* FF */
+    cursor: -webkit-image-set(
+        url(img/cursor-pointer.png) 1x,
+        url(img/cursor-pointer2x.png) 2x
+        ) 6 1, pointer;
 }
 
 h2 {
@@ -219,11 +227,9 @@ ul.toggle-list {
 
 ul.toggle-list li a {
     position: relative;
-    padding: 5px 10px;
+    padding: 5px 10px 5px 25px;
     display:block;
     border-top: 1px solid #ccc;
-    white-space:nowrap;
-    text-overflow:ellipsis;
 }
 
 ul.toggle-list li:first-child a {
@@ -256,6 +262,28 @@ ul.link-list li:last-child {
     padding-left: 0;
 }
 
+.toggle-list a::before {
+    content: "";
+    display: inline-block;
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    margin-right: 10px;
+    border: 1px solid #CCC;
+    position: absolute;
+    left: 5px;
+    top: 8px;
+}
+
+.toggle-list a:hover::before {
+    box-shadow: inset 0 0 0 2px white;
+}
+
+.toggle-list a.selected::before {
+    background: #7092ff;
+    box-shadow: inset 0 0 0 2px white;
+}
+
 /* Utility Classes
 ------------------------------------------------------- */
 .fillL {
@@ -264,7 +292,7 @@ ul.link-list li:last-child {
 }
 
 .fillL2 {
-    background: #f7f7f7 url(../img/background-pattern-1.png) repeat;
+    background: #f7f7f7 url(img/background-pattern-1.png) repeat;
     color: #333;
 }
 
@@ -297,7 +325,7 @@ a.hide {
 }
 
 .loading {
-    background: url(../img/loader_bg.gif);
+    background: url(img/loader_bg.gif);
     background-size:5px 5px;
 }
 
@@ -345,11 +373,6 @@ button {
 button:focus,
 button:hover {
     background-color: #ececec;
-}
-
-button.active {
-    cursor: pointer;
-    cursor: url(../img/cursor-pointing.png) 6 1, pointer;
 }
 
 button[disabled],
@@ -410,6 +433,7 @@ button.action {
     background: #7092ff;
 }
 
+button.action:focus,
 button.action:hover {
     background: #597BE7;
 }
@@ -457,7 +481,7 @@ button.save.has-count .count::before {
   vertical-align:top;
   width:20px;
   height:20px;
-  background:transparent url(../img/sprite.png) no-repeat 0 0;
+  background:transparent url(img/sprite.svg) no-repeat 0 0;
   text-indent:-9999px;
   overflow:hidden;
   }
@@ -853,23 +877,26 @@ a:hover .icon.out-link   { background-position: -500px -14px;}
     top: 30px;
 }
 
-.preset-icon-fill.area {
+.preset-icon-fill.icon-area {
     cursor: inherit;
     height: 45px;
     width: 45px;
     margin: auto;
     position: absolute;
     left: 0; right: 0; top: 19px;
-    background:transparent url(../img/sprite.png) no-repeat -240px -80px;
+    background:transparent url(img/sprite.svg) no-repeat -240px -80px;
 }
 
 .preset-icon-fill.tag-shop,
+.preset-icon-fill.tag-building {
+    background:transparent url(img/sprite.svg) no-repeat 0 -80px;
+}
 .preset-icon-fill.tag-room {
     background:transparent url(../img/sprite.png) no-repeat 0 -80px;
 }
 
 .preset-icon-fill.tag-natural-water {
-    background:transparent url(../img/sprite.png) no-repeat -60px -80px;
+    background:transparent url(img/sprite.svg) no-repeat -60px -80px;
 }
 
 .preset-icon-fill.tag-landuse,
@@ -877,11 +904,11 @@ a:hover .icon.out-link   { background-position: -500px -14px;}
 .preset-icon-fill.tag-natural-tree,
 .preset-icon-fill.tag-natural-grassland,
 .preset-icon-fill.tag-leisure-park {
-    background:transparent url(../img/sprite.png) no-repeat -120px -80px;
+    background:transparent url(img/sprite.svg) no-repeat -120px -80px;
 }
 
 .preset-icon-fill.tag-amenity-parking {
-    background:transparent url(../img/sprite.png) no-repeat -180px -80px;
+    background:transparent url(img/sprite.svg) no-repeat -180px -80px;
 }
 
 /* preset form basics */
@@ -961,7 +988,7 @@ a:hover .icon.out-link   { background-position: -500px -14px;}
     height: 65px;
 }
 
-.form-field-name input {
+.form-field-name input.localized-main {
     height: 35px;
     font-size: 18px;
     font-weight: bold;
@@ -1029,6 +1056,30 @@ button.preset-add-field:nth-last-child(8) ~ button.preset-add-field {
     padding: 0 10px;
 }
 
+/* preset form access */
+
+.preset-input-wrap li {
+    border-bottom: 1px solid #CCC;
+}
+.preset-input-wrap li:last-child {
+    border-bottom: 0;
+}
+
+.preset-input-wrap .label {
+    background: #F6F6F6;
+    padding: 5px;
+}
+
+.preset-input-access-wrap input {
+    border-radius: 0;
+    border-width: 0;
+    border-left-width: 1px;
+}
+
+.preset-input-wrap li:last-child input {
+    border-bottom-right-radius: 4px;
+}
+
 /* preset form numbers */
 
 input[type=number] {
@@ -1093,8 +1144,6 @@ input[type=number] {
 }
 
 .checkselect label:hover {
-    cursor: pointer;
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
     background: #f1f1f1;
 }
 
@@ -1115,22 +1164,38 @@ input[type=number] {
 
 /* Preset form radio button */
 
-
-.radio-wrap {
-    display: block;
-    overflow: hidden;
-    border-radius: 0 0 4px 4px;
-}
-
 .radio-wrap button {
+    position: relative;
     text-align: left;
     font-weight: normal;
-    padding: 2px 5px;
     height: 30px;
     border-radius: 0;
     border-bottom: 1px solid #CCC;
     color: #7092FF;
     width: 100%;
+    padding-left: 25px;
+}
+
+.radio-wrap button::before {
+    content: "";
+    display: inline-block;
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    margin-right: 10px;
+    border: 1px solid #CCC;
+    position: absolute;
+    left: 5px;
+    top: 8px;
+}
+
+.radio-wrap button:hover::before {
+    box-shadow: inset 0 0 0 2px white;
+}
+
+.radio-wrap button.active::before {
+    background: #7092ff;
+    box-shadow: inset 0 0 0 2px white;
 }
 
 .radio-wrap button:last-child {
@@ -1139,6 +1204,62 @@ input[type=number] {
 
 .radio-wrap button.active {
     background-color: #E8EBFF !important;
+}
+
+.radio-wrap button.remove {
+    border-radius: 0 0 3px 3px;
+}
+.radio-wrap button.remove .icon {
+    position: absolute;
+    left: 2px;
+}
+
+.radio-wrap button.remove::before {
+    content: none;
+}
+
+.form-field .localized-main {
+    width: 90%;
+    border-radius: 0 0 0 4px;
+}
+
+.form-field .localized-add {
+    width: 10%;
+    height: 35px;
+    border-radius: 0 0 4px 0;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    vertical-align: top;
+}
+
+.form-field .localized-wrap .entry .localized-lang {
+    border-top: none;
+    border-right: none;
+    border-radius: 0;
+    width: 30%;
+}
+
+.form-field .localized-wrap .entry .localized-value {
+    border-top: none;
+    border-radius: 0;
+    width: 60%;
+}
+
+.form-field .localized-wrap .entry .localized-remove {
+    height: 30px;
+    border-radius: 0;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    vertical-align: top;
+    width: 10%;
+}
+
+.form-field .localized-wrap .entry:last-child .localized-lang {
+    border-radius: 0 0 0 4px;
+}
+
+.form-field .localized-wrap .entry:last-child .localized-remove {
+    border-radius: 0 0 4px 0;
 }
 
 .form-field .wiki-lang {
@@ -1174,7 +1295,7 @@ input[type=number] {
 
 #preset-input-maxspeed {
     border-right: none;
-    border-radius: 0;
+    border-radius: 0 0 0 4px;
     width: 80%;
 }
 
@@ -1187,7 +1308,8 @@ input[type=number] {
     float: right;
     padding: 5px;
     text-align: center;
-
+    color: #A9A9A9;
+    font-weight: bold;
 }
 
 /* Preset form address */
@@ -1197,7 +1319,7 @@ input[type=number] {
 }
 
 .form-field .addr-number {
-    width: 20%;
+    width: 33%;
     border-left: 0;
     border-right: 0;
     border-bottom: 0;
@@ -1205,19 +1327,26 @@ input[type=number] {
 }
 
 .form-field .addr-street {
-    width: 80%;
+    width: 66%;
     border-right: 0;
     border-bottom: 0;
     border-radius: 0;
 }
 
 .form-field .addr-city {
+    width: 66%;
     border-left: 0;
     border-right: 0;
     border-bottom: 0;
     border-radius: 0 0 4px 4px;
 }
 
+.form-field .addr-postcode {
+    width: 33%;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0 0 4px 0;
+}
 /* combobox dropdown */
 
 div.combobox {
@@ -1234,7 +1363,6 @@ div.combobox {
 }
 
 .combobox a {
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
     display: block;
     padding: 5px 10px;
     border-top:1px solid #ccc;
@@ -1256,31 +1384,9 @@ div.combobox {
     margin-left: -20px;
     margin-right: 10px;
     display:inline-block;
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
     border-top: 5px solid #ccc;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-}
-
-.rowselect .item {
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
-}
-
-.rowselect .item label:hover{
-    background-color: #ececec;
-}
-
-.rowselect .item label {
-    padding: 5px;
-    width: 100%;
-    cursor: pointer;
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
-    display: block;
-    text-align: center;
-}
-
-.rowselect .item div {
-    text-align: center;
 }
 
 /* tag editor */
@@ -1290,7 +1396,6 @@ div.combobox {
 }
 
 .tag-list {
-    padding-top: 20px;
     margin-right: 40px;
 }
 
@@ -1309,7 +1414,6 @@ div.combobox {
 
 .tag-row input.key {
     background-color: #f6f6f6;
-    font-weight: bold;
 }
 
 .tag-row input.value {
@@ -1409,8 +1513,8 @@ div.combobox {
 
 .additional-tags div.tag-help {
     float: left;
-    width: 33.3333%;
-    width: -webkit-calc(100% - 40px);
+    width: 100%;
+    width: -webkit-calc(100% + 40px);
     width: calc(100% + 40px);
 }
 
@@ -1454,7 +1558,7 @@ img.wiki-image {
     position: fixed;
     left: 30px;
     display: block;
-    padding: 10px;
+    padding: 10px 10px 0 10px;
 }
 
 /* Zoomer */
@@ -1484,21 +1588,16 @@ img.wiki-image {
 
 .nudge-container {
     border-top: 1px solid #CCC;
-    margin: 10px -10px -10px -10px;
+    margin: 0 -10px;
 }
 
-.background-control .adjustments button {
-    background: white;
-    text-transform: uppercase;
-    border-color: #CCC;
-}
-
-.background-control .adjustments button:hover {
-    background:#ececec;
+.background-control .adjustments button:last-child {
+    border: 0;
 }
 
 .hide-toggle {
-    padding-left: 12px;
+    display: block;
+    padding: 0 0 10px 12px;
     position: relative;
 }
 
@@ -1509,7 +1608,7 @@ img.wiki-image {
     height: 0;
     width: 0;
     left: 0;
-    top: 4px;
+    top: 5px;
     border-top:  4px solid transparent;
     border-bottom:  4px solid transparent;
     border-left:  8px solid #7092ff;
@@ -1522,12 +1621,12 @@ img.wiki-image {
     border-left:  4px solid transparent;
 }
 
-.background-control .nudge {
-    text-indent: -9999px;
-    overflow: hidden;
-    width:16.6666%;
+.background-control .nudge-container button {
+    float: left;
+    display: block;
+    width:20%;
     border-radius: 0;
-    border-right: 1px solid rgba(0, 0, 0, .5);
+    border-right: 1px solid #CCC;
     position: relative;
 }
 
@@ -1565,17 +1664,8 @@ img.wiki-image {
     border-top:  5px solid #222;
 }
 
-.background-control .nudge:first-child {
-    border-radius: 4px 0 0 4px;
-}
-
-.background-control .reset {
-    width: 33.3333%;
-    border-radius: 0 4px 4px 0;
-}
-
 .opacity-options {
-    background: url(../img/background-pattern-opacity.png) 0 0 repeat;
+    background: url(img/background-pattern-opacity.png) 0 0 repeat;
     height:20px;
     width:62px;
     position: absolute;
@@ -1588,8 +1678,6 @@ img.wiki-image {
     height: 100%;
     display: block;
     float: left;
-    cursor: pointer;
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
 }
 
 .opacity-options li .select-box{
@@ -1605,6 +1693,7 @@ img.wiki-image {
     background: rgba(89, 123, 231, .5);
     opacity: .5;
 }
+
 .background-control li.selected:hover .select-box,
 .background-control li.selected .select-box {
     opacity: 1;
@@ -1898,6 +1987,18 @@ img.wiki-image {
     content: ', ';
 }
 
+/* API Status */
+
+.api-status {
+    float: left;
+}
+
+.api-status.offline,
+.api-status.readonly {
+    background: red;
+    padding: 5px 10px;
+}
+
 /* Account Information */
 
 .account {
@@ -1992,7 +2093,7 @@ img.wiki-image {
     width: 100px;
     margin: auto;
     margin-bottom: 10px;
-    background:transparent url(../img/sprite.png) no-repeat 0 -220px;
+    background:transparent url(img/sprite.svg) no-repeat 0 -220px;
 }
 
 .modal-actions :first-child {
@@ -2312,8 +2413,6 @@ img.wiki-image {
 
 .radial-menu-item {
     fill: white;
-    cursor: pointer;
-    cursor: url(../img/cursor-pointer.png) 6 1, pointer;
 }
 
 .radial-menu-item:hover {
@@ -2349,26 +2448,6 @@ img.wiki-image {
     #bar .icon.icon-pre-text { margin-right: 0;}
     /* override hide for save button */
     #bar .save .label { display: block;}
-}
-
-@media only screen and (max-height: 840px) {
-}
-
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
-  only screen and (-o-min-device-pixel-ratio: 3/2),
-  only screen and (min--moz-device-pixel-ratio: 1.5),
-  only screen and (min-device-pixel-ratio: 1.5) {
-  .intro-points-add .tooltip-inner::before,
-  .intro-areas-add .tooltip-inner::before,
-  .intro-lines-add .tooltip-inner::before,
-  .walkthrough a:before,
-  .preset-icon-fill.area,
-  .modal-actions button:before,
-  .map-control .icon,
-  .button-wrap .icon {
-    background-image: url(../img/sprite2x.png);
-    background-size: 600px 560px;
-  }
 }
 
 /* Scrollbars
@@ -2474,7 +2553,7 @@ img.wiki-image {
     content: "";
     height: 80px;
     width: 200px;
-    background:transparent url(../img/sprite.png) no-repeat 0 -320px;
+    background:transparent url(img/sprite.svg) no-repeat 0 -320px;
 }
 
 .intro-areas-add .tooltip-inner::before {
@@ -2494,7 +2573,6 @@ img.wiki-image {
 .huge-modal-button .illustration {
     height: 100px;
     width: 100px;
-    background: rgba(0, 0, 0, 0) url(../img/sprite.png) no-repeat -301px -220px;
+    background: rgba(0, 0, 0, 0) url(img/sprite.svg) no-repeat -301px -220px;
     margin: auto;
 }
-

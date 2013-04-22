@@ -14,7 +14,8 @@ iD.data = {
             path + 'data/presets/floorplan-defaults.json',
             path + 'data/presets/floorplan-categories.json',
             path + 'data/presets/floorplan-fields.json',
-            path + 'data/imperial.json'
+            path + 'data/imperial.json',
+            path + 'data/maki-sprite.json'
             ], d3.json, function (err, data) {
 
             iD.data = {
@@ -29,7 +30,8 @@ iD.data = {
                     categories: data[7],
                     fields: data[8]
                 },
-                imperial: data[9]
+                imperial: data[9],
+                maki: data[10]
             };
 
             callback();

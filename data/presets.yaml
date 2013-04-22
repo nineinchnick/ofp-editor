@@ -1,8 +1,44 @@
 en: 
   presets: 
+    categories: 
+      "category-landuse": 
+        name: Land Use
+      "category-path": 
+        name: Path
+      "category-rail": 
+        name: Rail
+      "category-road": 
+        name: Road
+      "category-water": 
+        name: Water
     fields: 
       access: 
         label: Access
+        types: 
+          access: General
+          foot: Foot
+          motor_vehicle: Motor Vehicles
+          bicycle: Bicycles
+          horse: Horses
+        options: 
+          yes: 
+            title: Allowed
+            description: Access permitted by law; a right of way
+          no: 
+            title: Prohibited
+            description: Access not permitted to the general public
+          permissive: 
+            title: Permissive
+            description: Access permitted until such time as the owner revokes the permission
+          private: 
+            title: Private
+            description: Access permitted only with permission of the owner on an individual basis
+          designated: 
+            title: Designated
+            description: Access permitted according to signs or specific local laws
+          destination: 
+            title: Destination
+            description: Access permitted only to reach a destination
       address: 
         label: Address
         placeholders: 
@@ -10,6 +46,7 @@ en:
           number: "123"
           street: Street
           city: City
+          postcode: Postal code
       admin_level: 
         label: Admin Level
       aeroway: 
@@ -30,6 +67,13 @@ en:
         label: Building
       capacity: 
         label: Capacity
+      cardinal_direction: 
+        label: Direction
+      clock_direction: 
+        label: Direction
+        options: 
+          clockwise: Clockwise
+          anticlockwise: Counterclockwise
       collection_times: 
         label: Collection Times
       construction: 
@@ -58,6 +102,8 @@ en:
         label: Type
       historic: 
         label: Type
+      incline: 
+        label: Incline
       internet_access: 
         label: Internet Access
         options: 
@@ -68,6 +114,8 @@ en:
           terminal: Terminal
       landuse: 
         label: Type
+      lanes: 
+        label: Lanes
       layer: 
         label: Layer
       leisure: 
@@ -96,6 +144,10 @@ en:
         label: Hours
       operator: 
         label: Operator
+      park_ride: 
+        label: Park and Ride
+      parking: 
+        label: Type
       phone: 
         label: Phone
       place: 
@@ -116,6 +168,8 @@ en:
           hindu: Hindu
           shinto: Shinto
           taoist: Taoist
+      sac_scale: 
+        label: Path Difficulty
       service: 
         label: Type
       shelter: 
@@ -133,10 +187,16 @@ en:
           tunnel: Tunnel
           embankment: Embankment
           cutting: Cutting
+      supervised: 
+        label: Supervised
       surface: 
         label: Surface
       tourism: 
         label: Type
+      tracktype: 
+        label: Type
+      trail_visibility: 
+        label: Trail Visibility
       water: 
         label: Type
       waterway: 
@@ -182,6 +242,9 @@ en:
       amenity/cafe: 
         name: Cafe
         terms: "coffee,tea,coffee shop"
+      amenity/car_wash: 
+        name: Car Wash
+        terms: ""
       amenity/cinema: 
         name: Cinema
         terms: "big screen,bijou,cine,drive-in,film,flicks,motion pictures,movie house,movie theater,moving pictures,nabes,photoplay,picture show,pictures,playhouse,show,silver screen"
@@ -196,6 +259,9 @@ en:
         terms: ""
       amenity/fire_station: 
         name: Fire Station
+        terms: ""
+      amenity/fountain: 
+        name: Fountain
         terms: ""
       amenity/fuel: 
         name: Gas Station
@@ -266,6 +332,9 @@ en:
       amenity/university: 
         name: University
         terms: ""
+      amenity/waste_basket: 
+        name: Waste Basket
+        terms: "rubbish bin,litter bin,trash can,garbage can"
       barrier: 
         name: Barrier
         terms: ""
@@ -332,6 +401,9 @@ en:
       building/house: 
         name: House
         terms: ""
+      emergency/phone: 
+        name: Emergency Phone
+        terms: ""
       entrance: 
         name: Entrance
         terms: ""
@@ -353,14 +425,26 @@ en:
       highway/footway: 
         name: Foot Path
         terms: "beaten path,boulevard,clearing,course,cut*,drag*,footpath,highway,lane,line,orbit,passage,pathway,rail,rails,road,roadway,route,street,thoroughfare,trackway,trail,trajectory,walk"
+      highway/living_street: 
+        name: Living Street
+        terms: ""
+      highway/mini_roundabout: 
+        name: "Mini-Roundabout"
+        terms: ""
       highway/motorway: 
         name: Motorway
+        terms: ""
+      highway/motorway_junction: 
+        name: Motorway Junction
         terms: ""
       highway/motorway_link: 
         name: Motorway Link
         terms: "ramp,on ramp,off ramp"
       highway/path: 
         name: Path
+        terms: ""
+      highway/pedestrian: 
+        name: Pedestrian
         terms: ""
       highway/primary: 
         name: Primary Road
@@ -482,6 +566,9 @@ en:
       landuse/residential: 
         name: Residential
         terms: ""
+      landuse/retail: 
+        name: Retail
+        terms: ""
       landuse/vineyard: 
         name: Vineyard
         terms: ""
@@ -517,6 +604,9 @@ en:
         terms: ""
       leisure/pitch/tennis: 
         name: Tennis Court
+        terms: ""
+      leisure/pitch/volleyball: 
+        name: Volleyball Court
         terms: ""
       leisure/playground: 
         name: Playground
@@ -617,14 +707,23 @@ en:
       place: 
         name: Place
         terms: ""
+      place/city: 
+        name: City
+        terms: ""
       place/hamlet: 
         name: Hamlet
         terms: ""
       place/island: 
         name: Island
         terms: "archipelago,atoll,bar,cay,isle,islet,key,reef"
+      place/isolated_dwelling: 
+        name: Isolated Dwelling
+        terms: ""
       place/locality: 
         name: Locality
+        terms: ""
+      place/town: 
+        name: Town
         terms: ""
       place/village: 
         name: Village
@@ -664,6 +763,9 @@ en:
         terms: "crossing,railroad crossing,railway crossing,grade crossing,road through railroad,train crossing"
       railway/monorail: 
         name: Monorail
+        terms: ""
+      railway/platform: 
+        name: Railway Platform
         terms: ""
       railway/rail: 
         name: Rail

@@ -43,9 +43,23 @@ function validate(file, instance, schema) {
 }
 
 var translations = {
+    categories: {},
     fields: {},
     presets: {}
 };
+
+function generateCategories() {
+    var categories = {};
+    glob.sync(__dirname + '/data/presets/categories/*.json').forEach(function(file) {
+        var field = read(file),
+            id = 'category-' + path.basename(file, '.json');
+
+        translations.categories[id] = {name: field.name};
+
+        categories[id] = field;
+    });
+    fs.writeFileSync('data/presets/categories.json', stringify(categories));
+}
 
 function generateFields() {
     var fields = {};
@@ -86,6 +100,7 @@ function generatePresets() {
     fs.writeFileSync('data/presets.yaml', YAML.dump({en: {presets: translations}}));
 }
 
+generateCategories();
 generateFields();
 generatePresets();
 
@@ -101,7 +116,8 @@ fs.writeFileSync('data/data.js', 'iD.data = ' + stringify({
         categories: rp('categories.json'),
         fields: rp('fields.json')
     },
-    imperial: r('imperial.json')
+    imperial: r('imperial.json'),
+    maki: r('maki-sprite.json')
 }) + ';');
 
 // Push changes from data/core.yaml into data/locales.js
@@ -109,4 +125,4 @@ var core = YAML.load(fs.readFileSync('data/core.yaml', 'utf8'));
 var presets = YAML.load(fs.readFileSync('data/presets.yaml', 'utf8'));
 var en = _.merge(core, presets);
 var out = 'locale.en = ' + stringify(en.en) + ';';
-fs.writeFileSync('data/locales.js', fs.readFileSync('data/locales.js', 'utf8').replace(/locale.en =[^;]*;/, out));
+fs.writeFileSync('data/locales/en.js', out);

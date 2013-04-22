@@ -1,6 +1,6 @@
-iD.js
-iD.min.js
-build
+dist/iD.js
+dist/iD.min.js
+dist/iD.css
 transifex.auth
 node_modules
 workspace.xml

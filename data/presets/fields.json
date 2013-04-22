@@ -1,8 +1,49 @@
 {
     "access": {
-        "key": "access",
-        "type": "combo",
-        "label": "Access"
+        "keys": [
+            "access",
+            "foot",
+            "motor_vehicle",
+            "bicycle",
+            "horse"
+        ],
+        "type": "access",
+        "label": "Access",
+        "strings": {
+            "types": {
+                "access": "General",
+                "foot": "Foot",
+                "motor_vehicle": "Motor Vehicles",
+                "bicycle": "Bicycles",
+                "horse": "Horses"
+            },
+            "options": {
+                "yes": {
+                    "title": "Allowed",
+                    "description": "Access permitted by law; a right of way"
+                },
+                "no": {
+                    "title": "Prohibited",
+                    "description": "Access not permitted to the general public"
+                },
+                "permissive": {
+                    "title": "Permissive",
+                    "description": "Access permitted until such time as the owner revokes the permission"
+                },
+                "private": {
+                    "title": "Private",
+                    "description": "Access permitted only with permission of the owner on an individual basis"
+                },
+                "designated": {
+                    "title": "Designated",
+                    "description": "Access permitted according to signs or specific local laws"
+                },
+                "destination": {
+                    "title": "Destination",
+                    "description": "Access permitted only to reach a destination"
+                }
+            }
+        }
     },
     "address": {
         "type": "address",
@@ -10,7 +51,8 @@
             "addr:housename",
             "addr:housenumber",
             "addr:street",
-            "addr:city"
+            "addr:city",
+            "addr:postcode"
         ],
         "icon": "address",
         "universal": true,
@@ -20,7 +62,8 @@
                 "housename": "Housename",
                 "number": "123",
                 "street": "Street",
-                "city": "City"
+                "city": "City",
+                "postcode": "Postal code"
             }
         }
     },
@@ -76,6 +119,43 @@
         "key": "capacity",
         "type": "text",
         "label": "Capacity"
+    },
+    "cardinal_direction": {
+        "key": "direction",
+        "type": "combo",
+        "options": [
+            "N",
+            "E",
+            "S",
+            "W",
+            "NE",
+            "SE",
+            "SW",
+            "NNE",
+            "ENE",
+            "ESE",
+            "SSE",
+            "SSW",
+            "WSW",
+            "WNW",
+            "NNW"
+        ],
+        "label": "Direction"
+    },
+    "clock_direction": {
+        "key": "direction",
+        "type": "combo",
+        "options": [
+            "clockwise",
+            "anticlockwise"
+        ],
+        "label": "Direction",
+        "strings": {
+            "options": {
+                "clockwise": "Clockwise",
+                "anticlockwise": "Counterclockwise"
+            }
+        }
     },
     "collection_times": {
         "key": "collection_times",
@@ -150,6 +230,11 @@
         "type": "combo",
         "label": "Type"
     },
+    "incline": {
+        "key": "incline",
+        "type": "combo",
+        "label": "Incline"
+    },
     "internet_access": {
         "key": "internet_access",
         "type": "combo",
@@ -175,6 +260,11 @@
         "key": "landuse",
         "type": "combo",
         "label": "Type"
+    },
+    "lanes": {
+        "key": "lanes",
+        "type": "number",
+        "label": "Lanes"
     },
     "layer": {
         "key": "layer",
@@ -203,7 +293,7 @@
     },
     "name": {
         "key": "name",
-        "type": "text",
+        "type": "localized",
         "label": "Name"
     },
     "natural": {
@@ -248,6 +338,25 @@
         "key": "operator",
         "type": "text",
         "label": "Operator"
+    },
+    "park_ride": {
+        "key": "park_ride",
+        "type": "check",
+        "label": "Park and Ride"
+    },
+    "parking": {
+        "key": "parking",
+        "type": "combo",
+        "options": [
+            "surface",
+            "multi-storey",
+            "underground",
+            "sheds",
+            "carports",
+            "garage_boxes",
+            "lane"
+        ],
+        "label": "Type"
     },
     "phone": {
         "key": "phone",
@@ -301,6 +410,11 @@
             }
         }
     },
+    "sac_scale": {
+        "key": "sac_scale",
+        "type": "combo",
+        "label": "Path Difficulty"
+    },
     "service": {
         "key": "service",
         "type": "combo",
@@ -353,6 +467,11 @@
             }
         }
     },
+    "supervised": {
+        "key": "supervised",
+        "type": "check",
+        "label": "Supervised"
+    },
     "surface": {
         "key": "surface",
         "type": "combo",
@@ -362,6 +481,16 @@
         "key": "tourism",
         "type": "combo",
         "label": "Type"
+    },
+    "tracktype": {
+        "key": "tracktype",
+        "type": "combo",
+        "label": "Type"
+    },
+    "trail_visibility": {
+        "key": "trail_visibility",
+        "type": "combo",
+        "label": "Trail Visibility"
     },
     "water": {
         "key": "water",

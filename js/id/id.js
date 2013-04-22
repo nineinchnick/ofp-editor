@@ -18,20 +18,22 @@ window.iD = function () {
     };
 
     var history = iD.History(context),
-        dispatch = d3.dispatch('enter', 'exit', 'enterFloor', 'exitFloor'),
+        dispatch = d3.dispatch('enter', 'exit', 'toggleFullscreen', 'enterFloor', 'exitFloor'),
         mode,
         floor,
         container,
         ui = iD.ui(context),
-        map = iD.Map(context);
-
-    // the connection requires .storage() to be available on calling.
-    var connection = iD.Connection(context)
-        .keys(iD.data.keys);
+        map = iD.Map(context),
+        connection = iD.Connection();
 
     connection.on('load.context', function loadContext(err, result) {
         history.merge(result);
     });
+
+    context.preauth = function(options) {
+        connection.switch(options);
+        return context;
+    };
 
     /* Straight accessors. Avoid using these if you can. */
     context.ui = function() { return ui; };
@@ -152,7 +154,14 @@ window.iD = function () {
     context.overlay = null;
 
     var q = iD.util.stringQs(location.hash.substring(1)), detected = false;
-    if (q.layer) {
+    if (q.layer && q.layer.indexOf('custom:') === 0) {
+        context.layers()[0]
+           .source(iD.BackgroundSource.template({
+                template: q.layer.replace(/^custom:/, ''),
+                name: 'Custom'
+            }));
+        detected = true;
+    } else if (q.layer) {
         context.layers()[0]
            .source(_.find(backgroundSources, function(l) {
                if (l.data.sourcetag === q.layer) {
@@ -168,6 +177,25 @@ window.iD = function () {
                 return l.data.name === 'Bing aerial imagery';
             }));
     }
+
+    var embed = false;
+    context.embed = function(_) {
+        if (!arguments.length) return embed;
+        embed = _;
+        return context;
+    };
+
+    var imagePath = 'img/';
+    context.imagePath = function(_) {
+        if (!arguments.length) return imagePath;
+        if (/\.(png|gif|svg)$/.test(_)) return imagePath + _;
+        imagePath = _;
+        return context;
+    };
+
+    context.toggleFullscreen = function() {
+        dispatch.toggleFullscreen();
+    };
 
     return d3.rebind(context, dispatch, 'on');
 };

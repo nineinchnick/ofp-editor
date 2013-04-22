@@ -49,11 +49,13 @@ iD.Map = function(context) {
                 if (resetTransform()) redraw();
             })
             .attr('id', 'surface')
-            .call(iD.svg.Surface());
+            .call(iD.svg.Surface(context));
 
         map.size(selection.size());
         map.surface = surface;
         map.layersurface = layergroup;
+
+        labels.supersurface(supersurface);
 
         supersurface
             .call(tail);
@@ -321,6 +323,12 @@ iD.Map = function(context) {
         }
 
         return redraw();
+    };
+
+    map.zoomTo = function(entity) {
+        var extent = entity.extent(context.graph()),
+            zoom = map.extentZoom(extent);
+        map.centerZoom(extent.center(), zoom);
     };
 
     map.centerZoom = function(loc, z) {

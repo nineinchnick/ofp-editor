@@ -1,6 +1,7 @@
 iD.ui.Inspector = function(context, entity) {
     var tagEditor,
-        id = entity.id;
+        id = entity.id,
+        newFeature = false;
 
     function changeTags(tags) {
         var entity = context.entity(id);
@@ -48,6 +49,7 @@ iD.ui.Inspector = function(context, entity) {
             .classed('pane tag-pane', true);
 
         var presetGrid = iD.ui.PresetGrid(context, entity)
+            .newFeature(newFeature)
             .on('close', browse)
             .on('choose', function(preset) {
                 var right = panewrap.style('right').indexOf('%') > 0 ? '0%' : '0px';
@@ -73,9 +75,9 @@ iD.ui.Inspector = function(context, entity) {
                 presetLayer.call(presetGrid, preset);
             });
 
-        var initial = entity.isNew() && _.without(Object.keys(entity.tags), 'area').length === 0;
+        var tagless = _.without(Object.keys(entity.tags), 'area').length === 0;
 
-        if (initial) {
+        if (tagless) {
             panewrap.style('right', '-100%');
             presetLayer.call(presetGrid);
         } else {
@@ -102,6 +104,11 @@ iD.ui.Inspector = function(context, entity) {
     }
 
     inspector.close = function(selection) {
+
+        // Blur focused element so that tag changes are dispatched
+        // See #1295
+        document.activeElement.blur();
+
         selection.transition()
             .style('right', '-500px')
             .each('end', function() {
@@ -116,6 +123,12 @@ iD.ui.Inspector = function(context, entity) {
 
         context.history()
             .on('change.inspector', null);
+    };
+
+    inspector.newFeature = function(_) {
+        if (!arguments.length) return newFeature;
+        newFeature = _;
+        return inspector;
     };
 
     return inspector;

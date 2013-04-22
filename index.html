@@ -6,7 +6,8 @@
         <link rel='stylesheet' href='css/reset.css'>
         <link rel='stylesheet' href='css/map.css'>
         <link rel='stylesheet' href='css/app.css'>
-        <link rel='stylesheet' href='css/feature-icons.css'>
+        <link rel='stylesheet' href='css/line-presets.css'>
+        <link rel='stylesheet' href='css/maki-sprite.css'>
 
         <!-- mobile devices -->
         <meta name='viewport' content='initial-scale=1.0 maximum-scale=1.0'>
@@ -90,6 +91,7 @@
         <script src='js/id/ui/preset_icon.js'></script>
         <script src='js/id/ui/lasso.js'></script>
         <script src='js/id/ui/source_switch.js'></script>
+        <script src='js/id/ui/status.js'></script>
         <script src='js/id/ui/toggle.js'></script>
         <script src='js/id/ui/undo_redo.js'></script>
         <script src='js/id/ui/zoom.js'></script>
@@ -98,11 +100,13 @@
         <script src='js/id/ui/tag_editor.js'></script>
         <script src='js/id/ui/tail.js'></script>
 
+        <script src='js/id/ui/preset/access.js'></script>
         <script src='js/id/ui/preset/address.js'></script>
         <script src='js/id/ui/preset/check.js'></script>
         <script src='js/id/ui/preset/combo.js'></script>
         <script src='js/id/ui/preset/defaultcheck.js'></script>
         <script src='js/id/ui/preset/input.js'></script>
+        <script src='js/id/ui/preset/localized.js'></script>
         <script src='js/id/ui/preset/maxspeed.js'></script>
         <script src='js/id/ui/preset/radio.js'></script>
         <script src='js/id/ui/preset/textarea.js'></script>
@@ -177,6 +181,7 @@
         <script src='js/id/operations/reverse.js'></script>
         <script src='js/id/operations/split.js'></script>
 
+        <script src='js/id/core/connection.js'></script>
         <script src='js/id/core/difference.js'></script>
         <script src='js/id/core/entity.js'></script>
         <script src='js/id/core/graph.js'></script>
@@ -192,7 +197,6 @@
         <script src='js/id/presets/collection.js'></script>
         <script src='js/id/presets/field.js'></script>
 
-        <script src='js/id/connection.js'></script>
         <script src='js/id/validate.js'></script>
 
         <script src='js/lib/locale.js'></script>
@@ -202,10 +206,30 @@
     <body>
         <div id='id-container'></div>
         <script>
+            // Adding a canary for https://app.getsentry.com/id/id/group/5138888/
+            if (Object.defineProperty) {
+                var windowFocus = window.focus;
+                Object.defineProperty(window, 'focus', {
+                    get: function() {
+                        return windowFocus;
+                    },
+
+                    set: function() {
+                        throw new Error("tried to overwrite window.focus");
+                    }
+                });
+            }
+
             iD.data.load(function() {
-                id = iD();
+                id = iD().imagePath('css/img/');
+
                 d3.select("#id-container")
                     .call(id.ui());
+
+                d3.select("#about").insert('li', '.user-list')
+                    .attr('class', 'source-switch')
+                    .call(iD.ui.SourceSwitch(id)
+                        .keys(iD.data.keys));
             });
         </script>
     </body>

@@ -10,11 +10,11 @@ iD.ui.Success = function(connection) {
 
         var m = '';
         if (changeset.comment) {
-            m = '"' + changeset.comment.substring(0, 20) + '" ';
+            m = changeset.comment.substring(0, 130);
         }
 
-        var message = (m || 'Edited OSM!') +
-            connection.changesetUrl(changeset.id);
+        var message = (m || 'Edited OSM!') + ' ' +
+            connection.changesetURL(changeset.id);
 
         var links = body.append('div').attr('class','modal-actions cf');
 
@@ -22,7 +22,7 @@ iD.ui.Success = function(connection) {
             .attr('class','col6 osm')
             .attr('target', '_blank')
             .attr('href', function() {
-                return connection.changesetUrl(changeset.id);
+                return connection.changesetURL(changeset.id);
             })
             .text(t('view_on_osm'));
 
@@ -42,7 +42,8 @@ iD.ui.Success = function(connection) {
             .on('click.save', function() {
                 event.cancel();
             })
-            .append('span').attr('class','label').text('Okay');
+            .text('Okay')
+            .node().focus();
     }
 
     return d3.rebind(success, event, 'on');

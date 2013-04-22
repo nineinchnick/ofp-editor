@@ -98,7 +98,7 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
         return function(graph) {
             if (isArea) {
                 return graph
-                    .replace(way.removeNode(end.id).addNode(newNode.id, index))
+                    .replace(way.addNode(newNode.id, index))
                     .remove(end);
 
             } else {
@@ -113,6 +113,11 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
 
     // Accept the current position of the temporary node and continue drawing.
     drawWay.add = function(loc) {
+
+        // prevent duplicate nodes
+        var last = context.entity(way.nodes[way.nodes.length - (isArea ? 2 : 1)]);
+        if (last && last.loc[0] === loc[0] && last.loc[1] === loc[1]) return;
+
         var newNode = iD.Node({loc: loc});
 
         context.replace(
@@ -125,12 +130,11 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
     };
 
     // Connect the way to an existing way.
-    drawWay.addWay = function(way, loc, wayIndex) {
-        var newNode = iD.Node({loc: loc});
+    drawWay.addWay = function(loc, edge) {
+        var newNode = iD.Node({ loc: loc });
 
         context.perform(
-            iD.actions.AddEntity(newNode),
-            iD.actions.AddVertex(way.id, newNode.id, wayIndex),
+            iD.actions.AddMidpoint({ loc: loc, edge: edge}, newNode),
             ReplaceTemporaryNode(newNode),
             annotation);
 
@@ -164,7 +168,7 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
 
         var way = context.entity(wayId);
         if (way) {
-            context.enter(iD.modes.Select(context, [way.id], true));
+            context.enter(iD.modes.Select(context, [way.id]).newFeature(true));
         } else {
             context.enter(iD.modes.Browse(context));
         }

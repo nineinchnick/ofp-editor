@@ -7,7 +7,7 @@ iD.ui.Commit = function(context) {
         for (var i = 0; i < d.length; i++) {
             var desc = {
                 name: d[i].tags.name || presets.match(d[i], context.graph()).name(),
-                type: d[i].type,
+                geometry: d[i].geometry(context.graph()),
                 count: 1,
                 tagText: iD.util.tagText(d[i])
             };
@@ -64,7 +64,8 @@ iD.ui.Commit = function(context) {
         userLink.append('a')
             .attr('class','user-info')
             .text(user.display_name)
-            .attr('href', connection.url() + '/user/' + user.display_name)
+            .attr('href', connection.userURL(user.display_name))
+            .attr('tabindex', -1)
             .attr('target', '_blank');
 
         saveSection.append('p')
@@ -135,7 +136,7 @@ iD.ui.Commit = function(context) {
 
         li.append('strong')
             .text(function(d) {
-                return (d.count > 1) ? d.type + 's ' : d.type + ' ';
+                return d.geometry + ' ';
             });
 
         li.append('span')

@@ -1,4 +1,4 @@
-iD.modes.Select = function(context, selection, initial) {
+iD.modes.Select = function(context, selection) {
     var mode = {
         id: 'select',
         button: 'browse'
@@ -11,15 +11,16 @@ iD.modes.Select = function(context, selection, initial) {
 
     if (!selection.length) return iD.modes.Browse(context);
 
-    var inspector = singular() && iD.ui.Inspector(context, singular()),
-        keybinding = d3.keybinding('select'),
+    var keybinding = d3.keybinding('select'),
         timeout = null,
         behaviors = [
             iD.behavior.Hover(),
             iD.behavior.Select(context),
             iD.behavior.Lasso(context),
             iD.modes.DragNode(context).behavior],
-        radialMenu;
+        inspector,
+        radialMenu,
+        newFeature = false;
 
     var wrap = context.container()
         .select('.inspector-wrap');
@@ -51,8 +52,19 @@ iD.modes.Select = function(context, selection, initial) {
     };
 
     mode.reselect = function() {
+        var surfaceNode = context.surface().node();
+        if (surfaceNode.focus) { // FF doesn't support it
+            surfaceNode.focus();
+        }
+
         positionMenu();
         showMenu();
+    };
+
+    mode.newFeature = function(_) {
+        if (!arguments.length) return newFeature;
+        newFeature = _;
+        return mode;
     };
 
     mode.enter = function() {
@@ -85,6 +97,9 @@ iD.modes.Select = function(context, selection, initial) {
         }), true));
 
         if (singular()) {
+            inspector = iD.ui.Inspector(context, singular())
+                .newFeature(newFeature);
+
             wrap.call(inspector);
         }
 
@@ -129,8 +144,7 @@ iD.modes.Select = function(context, selection, initial) {
         function selected(entity) {
             if (!entity) return false;
             if (selection.indexOf(entity.id) >= 0) return true;
-            return d3.select(this).classed('stroke') &&
-                _.any(context.graph().parentRelations(entity), function(parent) {
+            return _.any(context.graph().parentRelations(entity), function(parent) {
                     return selection.indexOf(parent.id) >= 0;
                 });
         }
@@ -149,7 +163,7 @@ iD.modes.Select = function(context, selection, initial) {
         selectElements();
 
         radialMenu = iD.ui.RadialMenu(operations);
-        var show = d3.event && !initial;
+        var show = d3.event && !newFeature;
 
         if (show) {
             positionMenu();

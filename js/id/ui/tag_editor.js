@@ -36,8 +36,6 @@ iD.ui.TagEditor = function(context, entity) {
             .append('span')
             .attr('class', 'icon back');
 
-        var icon = preset.icon || (geometry === 'line' ? 'other-line' : 'marker-stroked');
-
         messagewrap.append('h3')
             .attr('class', 'inspector-inner')
             .text(t('inspector.editing_feature', { feature: preset.name() }));
@@ -76,7 +74,7 @@ iD.ui.TagEditor = function(context, entity) {
             var osmLink = tageditorpreset.append('div')
                 .attr('class', 'col12 inspector-inner')
                 .append('a')
-                .attr('href', 'http:/localhost:3000/browse/' + entity.type + '/' + entity.osmId())
+                .attr('href', context.connection().entityURL(entity))
                 .attr('target', '_blank');
 
             osmLink.append('span')
@@ -92,7 +90,8 @@ iD.ui.TagEditor = function(context, entity) {
     function clean(o) {
         var out = {};
         for (var k in o) {
-            if (o[k] && o[k] !== '') out[k] = o[k];
+            var v = o[k].trim();
+            if (v) out[k] = v;
         }
         return out;
     }

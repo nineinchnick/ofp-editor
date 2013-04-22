@@ -1,10 +1,4 @@
-iD.svg.Surface = function() {
-    function findStylesheet(name) {
-        return _.find(document.styleSheets, function(stylesheet) {
-            return stylesheet.href && stylesheet.href.indexOf(name) > 0;
-        });
-    }
-
+iD.svg.Surface = function(context) {
     function autosize(image) {
         var img = document.createElement('img');
         img.src = image.attr('xlink:href');
@@ -16,22 +10,19 @@ iD.svg.Surface = function() {
         };
     }
 
-    function sprites(stylesheetName, selectorRegexp) {
+    function sprites(selectorRegexp) {
         var sprites = [];
 
-        var stylesheet = findStylesheet(stylesheetName);
-        if (!stylesheet) {
-            return sprites;
-        }
-
-        _.forEach(stylesheet.cssRules, function(rule) {
-            var klass = rule.selectorText,
-                match = klass && klass.match(selectorRegexp);
-            if (match) {
-                var id = match[1].replace('feature', 'maki');
-                match = rule.style.backgroundPosition.match(/(-?\d+)px (-?\d+)px/);
-                sprites.push({id: id, x: match[1], y: match[2]});
-            }
+        _.forEach(document.styleSheets, function(stylesheet) {
+            _.forEach(stylesheet.cssRules, function(rule) {
+                var klass = rule.selectorText,
+                    match = klass && klass.match(selectorRegexp);
+                if (match) {
+                    var id = match[1];
+                    match = rule.style.backgroundPosition.match(/(-?\d+)px (-?\d+)px/);
+                    sprites.push({id: id, x: match[1], y: match[2]});
+                }
+            });
         });
 
         return sprites;
@@ -88,7 +79,7 @@ iD.svg.Surface = function() {
                 width: 32,
                 height: 32
             })
-            .attr('xlink:href', function(d) { return 'img/pattern/' + d[1] + '.png'; });
+            .attr('xlink:href', function(d) { return context.imagePath('pattern/' + d[1] + '.png'); });
 
         defs.selectAll()
             .data([12, 18, 20])
@@ -102,11 +93,11 @@ iD.svg.Surface = function() {
 
         defs.append('image')
             .attr('id', 'sprite')
-            .attr('xlink:href', 'img/sprite.png')
+            .attr('xlink:href', context.imagePath('sprite.svg'))
             .call(autosize);
 
         defs.selectAll()
-            .data(sprites("app.css", /^\.(icon-operation-[a-z0-9-]+)$/))
+            .data(sprites(/^\.(icon-operation-[a-z0-9-]+)$/))
             .enter().append('use')
             .attr('id', function(d) { return d.id; })
             .attr('transform', function(d) { return "translate(" + d.x + "," + d.y + ")"; })
@@ -114,14 +105,14 @@ iD.svg.Surface = function() {
 
         defs.append('image')
             .attr('id', 'maki-sprite')
-            .attr('xlink:href', 'img/feature-icons.png')
+            .attr('xlink:href', context.imagePath('maki-sprite.png'))
             .call(autosize);
 
         defs.selectAll()
-            .data(sprites("feature-icons.css", /^\.(feature-[a-z0-9-]+-(12|18))$/))
+            .data(iD.data.maki.images)
             .enter().append('use')
-            .attr('id', function(d) { return d.id; })
-            .attr('transform', function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+            .attr('id', function(d) { return 'maki-' + d.name; })
+            .attr('transform', function(d) { return "translate(-" + d.positionX + ",-" + d.positionY + ")"; })
             .attr('xlink:href', '#maki-sprite');
 
         var layers = selection.selectAll('.layer')
