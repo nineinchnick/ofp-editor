@@ -26,6 +26,33 @@ locale.en = {
             "tail": "Click to add more points to the line. Click on other lines to connect to them, and double-click to end the line."
         }
     },
+    "floors": {
+        "basement": {
+            "title": "B",
+            "description": "Basement",
+            "tail": "Click on the map to start drawing contents for this floor"
+        },
+        "first": {
+            "title": "1",
+            "description": "First",
+            "tail": "Click on the map to start drawing contents for this floor"
+        },
+        "second": {
+            "title": "2",
+            "description": "Second",
+            "tail": "Click on the map to start drawing contents for this floor"
+        },
+        "third": {
+            "title": "3",
+            "description": "Third",
+            "tail": "Click on the map to start drawing contents for this floor"
+        },
+        "other": {
+            "title": "Other",
+            "description": "Other",
+            "tail": "Click on the map to start drawing contents for this floor"
+        }
+    },
     "operations": {
         "add": {
             "annotation": {
@@ -390,6 +417,9 @@ locale.en = {
             },
             "fee": {
                 "label": "Fee"
+            },
+            "floor": {
+                "label": "Floor"
             },
             "highway": {
                 "label": "Type"

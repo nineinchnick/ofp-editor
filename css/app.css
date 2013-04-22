@@ -204,6 +204,8 @@ table.tags, table.tags td, table.tags th {
 .col11   { float:left; width:91.6666%; }
 .col12   { float:left; width:100.0000%; }
 
+.col-floor    { float:left; width:20.0000%; min-width: 50px; }
+
 /* UI Lists
 ------------------------------------------------------- */
 
@@ -379,6 +381,16 @@ button.minor {
 
 .button-wrap button:only-child { width: 100%;}
 .button-wrap:last-of-type { padding-right: 0;}
+
+.button-floor {
+    display: inline-block;
+    padding-right:10px;
+    padding-left:60px;
+    margin: 0;
+}
+
+.button-floor button:only-child { width: 100%;}
+.button-floor:last-of-type { padding-right: 0;}
 
 .joined button {
     border-radius:0;
@@ -2485,3 +2497,4 @@ img.wiki-image {
     background: rgba(0, 0, 0, 0) url(../img/sprite.png) no-repeat -301px -220px;
     margin: auto;
 }
+

@@ -38,6 +38,10 @@ iD.ui = function(context) {
             .attr('class', 'button-wrap col1')
             .call(iD.ui.Save(context));
 
+        limiter.append('div')
+            .attr('class', 'button-floor joined')
+            .call(iD.ui.Floors(context), limiter);
+
         bar.append('div')
             .attr('class', 'spinner')
             .call(iD.ui.Spinner(context));
@@ -146,6 +150,7 @@ iD.ui = function(context) {
             .call(keybinding);
 
         context.enter(iD.modes.Browse(context));
+        context.enterFloor(iD.floors.First(context));
 
         context.container()
             .call(iD.ui.Splash(context))

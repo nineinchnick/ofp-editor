@@ -18,8 +18,9 @@ window.iD = function () {
     };
 
     var history = iD.History(context),
-        dispatch = d3.dispatch('enter', 'exit'),
+        dispatch = d3.dispatch('enter', 'exit', 'enterFloor', 'exitFloor'),
         mode,
+        floor,
         container,
         ui = iD.ui(context),
         map = iD.Map(context);
@@ -79,6 +80,24 @@ window.iD = function () {
         } else {
             return [];
         }
+    };
+
+    /* Floors */
+    context.enterFloor = function(newFloor) {
+
+        if (floor) {
+            floor.exitFloor();
+            dispatch.exitFloor(floor);
+        }
+
+        floor = newFloor;
+        floor.enterFloor();
+        dispatch.enterFloor(floor);
+
+    };
+
+    context.floor = function() {
+        return floor;
     };
 
     /* Behaviors */
@@ -153,7 +172,7 @@ window.iD = function () {
     return d3.rebind(context, dispatch, 'on');
 };
 
-iD.version = '0.0.0-beta1';
+iD.version = 'OFP 0.0.0-beta1';
 
 iD.detect = function() {
     var browser = {};

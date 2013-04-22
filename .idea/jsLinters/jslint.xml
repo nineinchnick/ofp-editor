@@ -5,7 +5,7 @@
     <option indent="4" />
     <option maxerr="50" />
     <option nomen="true" />
-    <option predef="d3,iD,t" />
+    <option predef="d3,iD,t,bootstrap,_" />
     <option sloppy="true" />
     <option anon="true" />
   </component>
