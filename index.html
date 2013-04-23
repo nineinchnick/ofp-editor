@@ -200,7 +200,6 @@
         <script src='js/id/validate.js'></script>
 
         <script src='js/lib/locale.js'></script>
-        <script src='data/floorplan-locales.js'></script>
         <script src='data/introGraph.js'></script>
     </head>
     <body>
@@ -221,15 +220,22 @@
             }
 
             iD.data.load(function() {
-                id = iD().imagePath('css/img/');
+                id = iD().assetPath('dist/');
 
-                d3.select("#id-container")
+                d3.select('#id-container')
                     .call(id.ui());
 
-                d3.select("#about").insert('li', '.user-list')
+                d3.select('#about').insert('li', '.user-list')
                     .attr('class', 'source-switch')
                     .call(iD.ui.SourceSwitch(id)
-                        .keys(iD.data.keys));
+                        .keys([
+                            {
+                                "url": "http://localhost:3000",
+                                "oauth_consumer_key": "EMNLFsAJ7SscoDwM9Pu4cua67iIgHkDsBMJ4979R",
+                                "oauth_secret": "9oMcXzoat8sis6aoW1p2drbEbhOwWAyi3T5auZ5r",
+                                "oauth_signature_method": "HMAC-SHA1"
+                            }
+                        ]));
             });
         </script>
     </body>

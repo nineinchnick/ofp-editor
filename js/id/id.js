@@ -1,7 +1,6 @@
 window.iD = function () {
-    locale
-        .current('en')
-        .current(iD.detect().locale);
+    locale.en = iD.data.en;
+    locale.current('en');
 
     var context = {},
         storage;
@@ -35,8 +34,31 @@ window.iD = function () {
         return context;
     };
 
+    context.ui = function() {
+        return function(container) {
+            context.container(container);
+
+            var detectedLocale = iD.detect().locale;
+
+            if (iD.data.locales.indexOf(detectedLocale) === -1) {
+                detectedLocale = detectedLocale.split('-')[0];
+            }
+
+            if (detectedLocale !== 'en' && iD.data.locales.indexOf(detectedLocale) !== -1) {
+                d3.json(context.assetPath() + 'locales/' + detectedLocale + '.json', function(err, result) {
+                    locale[detectedLocale] = result;
+                    locale.current(detectedLocale);
+                    container.call(ui);
+                });
+            } else {
+                container.call(ui);
+            }
+
+            return ui;
+        }
+    };
+
     /* Straight accessors. Avoid using these if you can. */
-    context.ui = function() { return ui; };
     context.connection = function() { return connection; };
     context.history = function() { return history; };
     context.map = function() { return map; };
@@ -185,12 +207,15 @@ window.iD = function () {
         return context;
     };
 
-    var imagePath = 'img/';
-    context.imagePath = function(_) {
-        if (!arguments.length) return imagePath;
-        if (/\.(png|gif|svg)$/.test(_)) return imagePath + _;
-        imagePath = _;
+    var assetPath = '';
+    context.assetPath = function(_) {
+        if (!arguments.length) return assetPath;
+        assetPath = _;
         return context;
+    };
+
+    context.imagePath = function(_) {
+        return assetPath + 'img/' + _;
     };
 
     context.toggleFullscreen = function() {

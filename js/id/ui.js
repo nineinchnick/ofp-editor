@@ -55,35 +55,39 @@ iD.ui = function(context) {
             .style('display', 'none')
             .attr('class', 'help-wrap fillL col5 content');
 
-		container.append('div')
-			.style('display', 'none')
-			.attr('class', 'overlay-wrap fillL col5');
-
         container.append('div')
+            .style('display', 'none')
+            .attr('class', 'overlay-wrap fillL col5');
+
+        var controls = bar.append('div')
+            .attr('class', 'map-controls');
+
+        controls.append('div')
+            .attr('class', 'map-control background-control')
+            .call(iD.ui.Background(context));
+
+        controls.append('div')
+            .attr('class', 'map-control help-control')
+            .call(iD.ui.Help(context));
+
+        controls.append('div')
             .attr('class', 'map-control zoombuttons')
             .call(iD.ui.Zoom(context));
 
         if (!context.embed()) {
-            container.append('div')
+            controls.append('div')
                 .attr('class', 'map-control geocode-control')
                 .call(iD.ui.Geocoder(context));
         }
 
-        container.append('div')
-            .attr('class', 'map-control background-control')
-            .call(iD.ui.Background(context));
-
-        container.append('div')
+        controls.append('div')
             .attr('class', 'map-control geolocate-control')
             .call(iD.ui.Geolocate(map));
 
-	    container.append('div')
-		    .attr('class', 'map-control overlay-control')
-		    .call(iD.ui.Overlay(context));
+        controls.append('div')
+            .attr('class', 'map-control overlay-control')
+            .call(iD.ui.Overlay(context));
 
-        container.append('div')
-            .attr('class', 'map-control help-control')
-            .call(iD.ui.Help(context));
 
         container.append('div')
             .style('display', 'none')

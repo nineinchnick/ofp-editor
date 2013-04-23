@@ -1,7 +1,0 @@
-{
-    "http://localhost:3000": {
-        "oauth_consumer_key": "EMNLFsAJ7SscoDwM9Pu4cua67iIgHkDsBMJ4979R",
-        "oauth_secret": "9oMcXzoat8sis6aoW1p2drbEbhOwWAyi3T5auZ5r",
-        "oauth_signature_method": "HMAC-SHA1"
-    }
-}

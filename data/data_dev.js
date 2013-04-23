@@ -9,13 +9,14 @@ iD.data = {
             path + 'data/discarded.json',
             path + 'data/imagery.json',
             path + 'data/wikipedia.json',
-            path + 'data/keys.json',
             path + 'data/presets/floorplan-presets.json',
             path + 'data/presets/floorplan-defaults.json',
             path + 'data/presets/floorplan-categories.json',
             path + 'data/presets/floorplan-fields.json',
             path + 'data/imperial.json',
-            path + 'data/maki-sprite.json'
+            path + 'data/maki-sprite.json',
+            path + 'data/locales.json',
+            path + 'dist/locales/en.json'
             ], d3.json, function (err, data) {
 
             iD.data = {
@@ -23,15 +24,16 @@ iD.data = {
                 discarded: data[1],
                 imagery: data[2],
                 wikipedia: data[3],
-                keys: data[4],
                 presets: {
-                    presets: data[5],
-                    defaults: data[6],
-                    categories: data[7],
-                    fields: data[8]
+                    presets: data[4],
+                    defaults: data[5],
+                    categories: data[6],
+                    fields: data[7]
                 },
-                imperial: data[9],
-                maki: data[10]
+                imperial: data[8],
+                maki: data[9],
+                locales: data[10],
+                en: data[11]
             };
 
             callback();

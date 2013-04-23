@@ -7,9 +7,9 @@ iD.Connection = function(context) {
         inflight = {},
         loadedTiles = {},
         oauth = osmAuth({
-            url: 'http://www.openstreetmap.org',
-            oauth_consumer_key: '5A043yRSEugj4DJ5TljuapfnrflWDte8jTOcWLlT',
-            oauth_secret: 'aB3jKq1TRsCOUrfOIZ6oQMEDmv2ptV76PA54NGLL',
+            url: 'http://localhost:3000',
+            oauth_consumer_key: 'EMNLFsAJ7SscoDwM9Pu4cua67iIgHkDsBMJ4979R',
+            oauth_secret: '9oMcXzoat8sis6aoW1p2drbEbhOwWAyi3T5auZ5r',
             loading: authenticating,
             done: authenticated
         }),
