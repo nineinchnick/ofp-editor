@@ -333,6 +333,9 @@ iD.svg.Labels = function(projection, context) {
             var font_size = font_sizes[k];
             for (i = 0; i < labelable[k].length; i ++) {
                 entity = labelable[k][i];
+
+                if(entity.tags.floor !== context.floor().value) continue;
+
                 var width = name(entity) && textWidth(name(entity), font_size),
                     p;
                 if (entity.geometry(graph) === 'point') {

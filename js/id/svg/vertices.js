@@ -152,6 +152,8 @@ iD.svg.Vertices = function(projection, context) {
         for (var i = 0; i < entities.length; i++) {
             var entity = entities[i];
 
+            if(entity.tags.floor !== context.floor().value) continue;
+
             if (entity.geometry(graph) !== 'vertex')
                 continue;
 

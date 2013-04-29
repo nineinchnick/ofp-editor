@@ -1,4 +1,4 @@
-iD.svg.Areas = function(projection) {
+iD.svg.Areas = function(projection, context) {
     // For fixing up rendering of multipolygons with tags on the outer member.
     // https://github.com/systemed/iD/issues/613
     function isSimpleMultipolygonOuterMember(entity, graph) {
@@ -60,6 +60,9 @@ iD.svg.Areas = function(projection) {
 
         for (var i = 0; i < entities.length; i++) {
             var entity = entities[i];
+
+            if (entity.tags.floor !== context.floor().value) continue;
+
             if (entity.geometry(graph) !== 'area') continue;
 
             if (multipolygon = isSimpleMultipolygonOuterMember(entity, graph)) {

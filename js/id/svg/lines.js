@@ -1,4 +1,4 @@
-iD.svg.Lines = function(projection) {
+iD.svg.Lines = function(projection, context) {
 
     var highway_stack = {
         motorway: 0,
@@ -96,10 +96,12 @@ iD.svg.Lines = function(projection) {
         for (var i = 0; i < entities.length; i++) {
             var entity = entities[i],
                 outer = simpleMultipolygonOuterMember(entity, graph);
-            if (outer) {
-                lines.push(entity.mergeTags(outer.tags));
-            } else if (entity.geometry(graph) === 'line') {
-                lines.push(entity);
+            if(entity.tags.floor === context.floor().value){
+                if (outer) {
+                    lines.push(entity.mergeTags(outer.tags));
+                } else if (entity.geometry(graph) === 'line') {
+                    lines.push(entity);
+                }
             }
         }
 
