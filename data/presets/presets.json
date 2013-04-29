@@ -194,6 +194,9 @@
         "tags": {
             "amenity": "car_wash"
         },
+        "fields": [
+            "building_area"
+        ],
         "name": "Car Wash"
     },
     "amenity/cinema": {
@@ -256,7 +259,8 @@
             "amenity": "embassy"
         },
         "fields": [
-            "country"
+            "country",
+            "building_area"
         ],
         "icon": "embassy",
         "name": "Embassy"
@@ -311,7 +315,8 @@
         "icon": "fuel",
         "fields": [
             "operator",
-            "address"
+            "address",
+            "building_yes"
         ],
         "geometry": [
             "point",
@@ -397,6 +402,9 @@
         "tags": {
             "amenity": "marketplace"
         },
+        "fields": [
+            "building"
+        ],
         "name": "Marketplace"
     },
     "amenity/parking": {
@@ -485,7 +493,7 @@
         "icon": "religious-christian",
         "fields": [
             "denomination",
-            "building",
+            "building_yes",
             "address"
         ],
         "geometry": [
@@ -527,7 +535,7 @@
         "icon": "religious-jewish",
         "fields": [
             "denomination",
-            "building",
+            "building_yes",
             "address"
         ],
         "geometry": [
@@ -549,7 +557,7 @@
         "icon": "religious-muslim",
         "fields": [
             "denomination",
-            "building",
+            "building_yes",
             "address"
         ],
         "geometry": [
@@ -641,7 +649,8 @@
         "icon": "post",
         "fields": [
             "operator",
-            "collection_times"
+            "collection_times",
+            "building_area"
         ],
         "geometry": [
             "point",
@@ -1555,6 +1564,86 @@
         },
         "terms": [],
         "name": "Service Road"
+    },
+    "highway/service/alley": {
+        "icon": "highway-service",
+        "fields": [
+            "oneway",
+            "access",
+            "surface"
+        ],
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "highway": "service",
+            "service": "alley"
+        },
+        "name": "Alley"
+    },
+    "highway/service/drive-through": {
+        "icon": "highway-service",
+        "fields": [
+            "oneway",
+            "access",
+            "surface"
+        ],
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "highway": "service",
+            "service": "drive-through"
+        },
+        "name": "Drive-Through"
+    },
+    "highway/service/driveway": {
+        "icon": "highway-service",
+        "fields": [
+            "oneway",
+            "access",
+            "surface"
+        ],
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "highway": "service",
+            "service": "driveway"
+        },
+        "name": "Driveway"
+    },
+    "highway/service/emergency_access": {
+        "icon": "highway-service",
+        "fields": [
+            "oneway",
+            "access",
+            "surface"
+        ],
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "highway": "service",
+            "service": "emergency_access"
+        },
+        "name": "Emergency Access"
+    },
+    "highway/service/parking_aisle": {
+        "icon": "highway-service",
+        "fields": [
+            "oneway",
+            "access",
+            "surface"
+        ],
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "highway": "service",
+            "service": "parking_aisle"
+        },
+        "name": "Parking Aisle"
     },
     "highway/steps": {
         "fields": [
@@ -2628,7 +2717,8 @@
             "point",
             "vertex",
             "line",
-            "area"
+            "area",
+            "relation"
         ],
         "fields": []
     },
@@ -2996,6 +3086,7 @@
         "icon": "alcohol-shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3006,12 +3097,16 @@
         "tags": {
             "shop": "alcohol"
         },
+        "terms": [
+            "alcohol"
+        ],
         "name": "Liquor Store"
     },
     "shop/bakery": {
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3028,6 +3123,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3044,6 +3140,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3060,6 +3157,7 @@
         "icon": "bicycle",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3076,6 +3174,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3092,6 +3191,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3125,6 +3225,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3141,6 +3242,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3157,6 +3259,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3173,6 +3276,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3189,6 +3293,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3205,6 +3310,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3221,6 +3327,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3237,6 +3344,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3253,6 +3361,7 @@
         "icon": "restaurant",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3269,6 +3378,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3285,6 +3395,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3301,6 +3412,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3317,6 +3429,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3333,6 +3446,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3349,6 +3463,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3365,6 +3480,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3381,6 +3497,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3397,6 +3514,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3413,6 +3531,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3429,6 +3548,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3445,6 +3565,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3461,6 +3582,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3477,6 +3599,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3493,6 +3616,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3509,6 +3633,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3525,6 +3650,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3541,6 +3667,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3557,6 +3684,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3573,6 +3701,7 @@
         "icon": "music",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3589,6 +3718,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3605,6 +3735,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3621,6 +3752,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3637,6 +3769,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3653,6 +3786,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3669,6 +3803,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3685,6 +3820,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3740,6 +3876,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3756,6 +3893,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3772,6 +3910,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3788,6 +3927,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3804,6 +3944,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [
@@ -3820,6 +3961,7 @@
         "icon": "shop",
         "fields": [
             "address",
+            "building_area",
             "opening_hours"
         ],
         "geometry": [

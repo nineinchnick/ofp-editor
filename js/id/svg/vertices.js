@@ -6,24 +6,55 @@ iD.svg.Vertices = function(projection, context) {
         fill:   [1,    1.5,   1.5,  1.5]
     };
 
-    return function drawVertices(surface, graph, entities, filter, zoom) {
-        var vertices = [];
+    var hover;
 
-        for (var i = 0; i < entities.length; i++) {
-            var entity = entities[i];
-            if (entity.geometry(graph) === 'vertex') {
-                vertices.push(entity);
+    function siblingAndChildVertices(ids, graph) {
+        var vertices = {};
+
+        function addChildVertices(entity) {
+            var i;
+            if (entity.type === 'way') {
+                for (i = 0; i < entity.nodes.length; i++) {
+                    vertices[entity.nodes[i]] = graph.entity(entity.nodes[i]);
+                }
+            } else if (entity.type === 'relation') {
+                for (i = 0; i < entity.members.length; i++) {
+                    var member = context.hasEntity(entity.members[i].id);
+                    if (member) {
+                        addChildVertices(member);
+                    }
+                }
+            } else {
+                vertices[entity.id] = entity;
             }
         }
 
-        if (vertices.length > 2000) {
-            return surface.select('.layer-hit').selectAll('g.vertex').remove();
+        function addSiblingAndChildVertices(id) {
+            var entity = context.hasEntity(id);
+            if (entity && entity.type === 'node') {
+                vertices[entity.id] = entity;
+                context.graph().parentWays(entity).forEach(function(entity) {
+                    addChildVertices(entity);
+                });
+            } else if (entity) {
+                addChildVertices(entity);
+            }
         }
 
-        var groups = surface.select('.layer-hit').selectAll('g.vertex')
-            .filter(filter)
-            .data(vertices, iD.Entity.key);
+        ids.forEach(function(id) {
+            addSiblingAndChildVertices(id, 'vertex-selected');
+        });
 
+        return vertices;
+    }
+
+    function isIntersection(entity, graph) {
+        return graph.parentWays(entity).filter(function (parent) {
+            return parent.geometry(graph) === 'line';
+        }).length > 1;
+    }
+
+    function draw(groups, graph, zoom) {
         var group = groups.enter()
             .insert('g', ':first-child')
             .attr('class', 'node vertex');
@@ -112,5 +143,49 @@ iD.svg.Vertices = function(projection, context) {
 
         groups.exit()
             .remove();
+    }
+
+    function drawVertices(surface, graph, entities, filter, zoom) {
+        var selected = siblingAndChildVertices(context.selection(), graph),
+            vertices = [];
+
+        for (var i = 0; i < entities.length; i++) {
+            var entity = entities[i];
+
+            if (entity.geometry(graph) !== 'vertex')
+                continue;
+
+            if (entity.id in selected ||
+                entity.hasInterestingTags() ||
+                isIntersection(entity, graph)) {
+                vertices.push(entity)
+            }
+        }
+
+        surface.select('.layer-hit').selectAll('g.vertex.vertex-persistent')
+            .filter(filter)
+            .data(vertices, iD.Entity.key)
+            .call(draw, graph, zoom)
+            .classed('vertex-persistent', true);
+
+        drawHover(surface, graph, zoom);
+    }
+
+    function drawHover(surface, graph, zoom) {
+        var hovered = hover ? siblingAndChildVertices([hover.id], graph) : {};
+
+        surface.select('.layer-hit').selectAll('g.vertex.vertex-hover')
+            .data(d3.values(hovered), iD.Entity.key)
+            .call(draw, graph, zoom)
+            .classed('vertex-hover', true);
+    }
+
+    drawVertices.drawHover = function(surface, graph, _, zoom) {
+        if (hover !== _) {
+            hover = _;
+            drawHover(surface, graph, zoom);
+        }
     };
+
+    return drawVertices;
 };

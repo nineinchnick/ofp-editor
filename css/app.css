@@ -554,34 +554,12 @@ button[disabled] .icon.layers     { background-position: -300px -40px;}
 button[disabled] .icon.avatar     { background-position: -320px -40px;}
 button[disabled] .icon.nearby     { background-position: -340px -40px;}
 
-.icon-operation-delete        { background-position: 0 -140px;}
-.icon-operation-circularize   { background-position: -20px -140px;}
-.icon-operation-straighten    { background-position: -40px -140px;}
-.icon-operation-split         { background-position: -60px -140px;}
-.icon-operation-disconnect    { background-position: -80px -140px;}
-.icon-operation-reverse       { background-position: -100px -140px;}
-.icon-operation-move          { background-position: -120px -140px;}
-.icon-operation-merge         { background-position: -140px -140px;}
-.icon-operation-orthogonalize { background-position: -160px -140px;}
-.icon-operation-rotate        { background-position: -180px -140px;}
-.icon-operation-simplify      { background-position: -200px -140px;}
-
-.icon-operation-disabled-delete        { background-position: 0 -160px;}
-.icon-operation-disabled-circularize   { background-position: -20px -160px;}
-.icon-operation-disabled-straighten    { background-position: -40px -160px;}
-.icon-operation-disabled-split         { background-position: -60px -160px;}
-.icon-operation-disabled-disconnect    { background-position: -80px -160px;}
-.icon-operation-disabled-reverse       { background-position: -100px -160px;}
-.icon-operation-disabled-move          { background-position: -120px -160px;}
-.icon-operation-disabled-merge         { background-position: -140px -160px;}
-.icon-operation-disabled-orthogonalize { background-position: -160px -160px;}
-.icon-operation-disabled-rotate        { background-position: -180px -160px;}
-.icon-operation-disabled-simplify      { background-position: -200px -160px;}
-
 /* Out link is special */
 
 .icon.out-link   { height: 14px; width: 14px; background-position: -500px 0;}
 a:hover .icon.out-link   { background-position: -500px -14px;}
+
+.icon.plus-dark    { background-position: -240px -40px;}
 
 /* Universal preset icons */
 
@@ -1519,11 +1497,11 @@ div.combobox {
 }
 
 img.wiki-image {
-    float: left;
+    float: right;
     width: 33.3333%;
     width: -webkit-calc(33.3333% - 10px);
     width: calc(33.3333% - 10px);
-    margin-right: 20px;
+    margin-left: 20px;
     border-radius: 4px;
     max-height: 200px;
 }
@@ -1902,12 +1880,7 @@ img.wiki-image {
     background:#000;
 }
 
-#surface, #layer-g, .layer-layer {
-    position:absolute;
-    top:0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+#supersurface {
     transform-origin:0 0;
     -ms-transform-origin:0 0;
     -webkit-transform-origin:0 0;
@@ -1919,8 +1892,8 @@ img.wiki-image {
     user-select: none;
 }
 
-#surface {
-  position: static;
+#surface, #layer-g, .layer-layer {
+    position: absolute;
 }
 
 /* About Section
@@ -2093,11 +2066,11 @@ img.wiki-image {
 ------------------------------------------------------- */
 
 .modal-actions .restore:before {
-    background-position: -400px -220px;
+    background-position: -500px -220px;
 }
 
 .modal-actions .reset:before {
-    background-position: -500px -220px;
+    background-position: -600px -220px;
 }
 
 /* Success Modal
@@ -2107,16 +2080,24 @@ img.wiki-image {
     background-position: -100px -220px;
 }
 
+.modal-actions .facebook {
+    border-left: 1px solid #ccc;
+}
+
+.modal-actions .facebook:before {
+    background-position: -200px -220px;
+}
+
 /* Splash Modal
 ------------------------------------------------------- */
 
 .modal-actions .walkthrough:before,
 .walkthrough a:before {
-    background-position: -200px -220px;
+    background-position: -300px -220px;
 }
 
 .modal-actions .start:before {
-    background-position: -300px -220px;
+    background-position: -400px -220px;
 }
 
 /* Commit Modal

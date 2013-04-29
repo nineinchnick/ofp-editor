@@ -10,22 +10,20 @@ iD.svg.Surface = function(context) {
         };
     }
 
-    function sprites(selectorRegexp) {
-        var sprites = [];
+    function SpriteDefinition(id, href, data) {
+        return function(defs) {
+            defs.append('image')
+                .attr('id', id)
+                .attr('xlink:href', href)
+                .call(autosize);
 
-        _.forEach(document.styleSheets, function(stylesheet) {
-            _.forEach(stylesheet.cssRules, function(rule) {
-                var klass = rule.selectorText,
-                    match = klass && klass.match(selectorRegexp);
-                if (match) {
-                    var id = match[1];
-                    match = rule.style.backgroundPosition.match(/(-?\d+)px (-?\d+)px/);
-                    sprites.push({id: id, x: match[1], y: match[2]});
-                }
-            });
-        });
-
-        return sprites;
+            defs.selectAll()
+                .data(data)
+                .enter().append('use')
+                .attr('id', function(d) { return d.key; })
+                .attr('transform', function(d) { return "translate(-" + d.value[0] + ",-" + d.value[1] + ")"; })
+                .attr('xlink:href', '#' + id);
+        };
     }
 
     return function drawSurface(selection) {
@@ -36,12 +34,13 @@ iD.svg.Surface = function(context) {
                 id: 'oneway-marker',
                 viewBox: '0 0 10 10',
                 refY: 2.5,
+                refX: 5,
                 markerWidth: 2,
                 markerHeight: 2,
                 orient: 'auto'
             })
             .append('path')
-            .attr('d', 'M 0 0 L 5 2.5 L 0 5 z');
+            .attr('d', 'M 5 3 L 0 3 L 0 2 L 5 2 L 5 0 L 10 2.5 L 5 5 z');
 
         var patterns = defs.selectAll('pattern')
             .data([
@@ -91,32 +90,27 @@ iD.svg.Surface = function(context) {
             .attr('width', function(d) { return d; })
             .attr('height', function(d) { return d; });
 
-        defs.append('image')
-            .attr('id', 'sprite')
-            .attr('xlink:href', context.imagePath('sprite.svg'))
-            .call(autosize);
+        var maki = [];
+        _.forEach(iD.data.featureIcons, function(dimensions, name) {
+            if (dimensions['12'] && dimensions['18'] && dimensions['24']) {
+                maki.push({key: 'maki-' + name + '-12', value: dimensions['12']});
+                maki.push({key: 'maki-' + name + '-18', value: dimensions['18']});
+                maki.push({key: 'maki-' + name + '-24', value: dimensions['24']});
+            }
+        });
 
-        defs.selectAll()
-            .data(sprites(/^\.(icon-operation-[a-z0-9-]+)$/))
-            .enter().append('use')
-            .attr('id', function(d) { return d.id; })
-            .attr('transform', function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-            .attr('xlink:href', '#sprite');
+        defs.call(SpriteDefinition(
+            'sprite',
+            context.imagePath('sprite.svg'),
+            d3.entries(iD.data.operations)));
 
-        defs.append('image')
-            .attr('id', 'maki-sprite')
-            .attr('xlink:href', context.imagePath('maki-sprite.png'))
-            .call(autosize);
-
-        defs.selectAll()
-            .data(iD.data.maki.images)
-            .enter().append('use')
-            .attr('id', function(d) { return 'maki-' + d.name; })
-            .attr('transform', function(d) { return "translate(-" + d.positionX + ",-" + d.positionY + ")"; })
-            .attr('xlink:href', '#maki-sprite');
+        defs.call(SpriteDefinition(
+            'maki-sprite',
+            context.imagePath('maki-sprite.png'),
+            maki));
 
         var layers = selection.selectAll('.layer')
-            .data(['fill', 'shadow', 'casing', 'stroke', 'text', 'hit', 'halo', 'label']);
+            .data(['fill', 'shadow', 'casing', 'stroke', 'oneway', 'hit', 'halo', 'label']);
 
         layers.enter().append('g')
             .attr('class', function(d) { return 'layer layer-' + d; });

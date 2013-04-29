@@ -226,7 +226,7 @@
         "new_tag": "New tag",
         "view_on_osm": "View on OpenFloorPlan.org",
         "editing_feature": "Editing {feature}",
-        "additional": "Additional tags",
+        "all_tags": "All tags",
         "choose": "Select feature type",
         "results": "{n} results for {search}",
         "reference": "View on OpenFloorPlan Wiki",
@@ -1003,6 +1003,26 @@
                 "name": "Service Road",
                 "terms": ""
             },
+            "highway/service/alley": {
+                "name": "Alley",
+                "terms": ""
+            },
+            "highway/service/drive-through": {
+                "name": "Drive-Through",
+                "terms": ""
+            },
+            "highway/service/driveway": {
+                "name": "Driveway",
+                "terms": ""
+            },
+            "highway/service/emergency_access": {
+                "name": "Emergency Access",
+                "terms": ""
+            },
+            "highway/service/parking_aisle": {
+                "name": "Parking Aisle",
+                "terms": ""
+            },
             "highway/steps": {
                 "name": "Steps",
                 "terms": "stairs,staircase"
@@ -1429,7 +1449,7 @@
             },
             "shop/alcohol": {
                 "name": "Liquor Store",
-                "terms": ""
+                "terms": "alcohol"
             },
             "shop/bakery": {
                 "name": "Bakery",

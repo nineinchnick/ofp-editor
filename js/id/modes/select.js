@@ -4,13 +4,6 @@ iD.modes.Select = function(context, selection) {
         button: 'browse'
     };
 
-    // Selecting non-multipolygon relations is not supported
-    selection = selection.filter(function(d) {
-        return context.entity(d).geometry(context.graph()) !== 'relation';
-    });
-
-    if (!selection.length) return iD.modes.Browse(context);
-
     var keybinding = d3.keybinding('select'),
         timeout = null,
         behaviors = [
@@ -20,7 +13,8 @@ iD.modes.Select = function(context, selection) {
             iD.modes.DragNode(context).behavior],
         inspector,
         radialMenu,
-        newFeature = false;
+        newFeature = false,
+        suppressMenu = false;
 
     var wrap = context.container()
         .select('.inspector-wrap');
@@ -67,6 +61,12 @@ iD.modes.Select = function(context, selection) {
         return mode;
     };
 
+    mode.suppressMenu = function(_) {
+        if (!arguments.length) return suppressMenu;
+        suppressMenu = _;
+        return mode;
+    };
+
     mode.enter = function() {
         behaviors.forEach(function(behavior) {
             context.install(behavior);
@@ -91,10 +91,16 @@ iD.modes.Select = function(context, selection) {
             });
         });
 
-        var q = iD.util.stringQs(location.hash.substring(1));
-        location.replace('#' + iD.util.qsString(_.assign(q, {
-            id: selection.join(',')
-        }), true));
+        var notNew = selection.filter(function(id) {
+            return !context.entity(id).isNew();
+        });
+
+        if (notNew.length) {
+            var q = iD.util.stringQs(location.hash.substring(1));
+            location.replace('#' + iD.util.qsString(_.assign(q, {
+                id: notNew.join(',')
+            }), true));
+        }
 
         if (singular()) {
             inspector = iD.ui.Inspector(context, singular())
@@ -110,7 +116,7 @@ iD.modes.Select = function(context, selection) {
         function update() {
             context.surface().call(radialMenu.close);
 
-            if (_.any(selection, function(id) { return !context.entity(id); })) {
+            if (_.any(selection, function(id) { return !context.hasEntity(id); })) {
                 // Exit mode if selected entity gets undone
                 context.enter(iD.modes.Browse(context));
             }
@@ -163,7 +169,7 @@ iD.modes.Select = function(context, selection) {
         selectElements();
 
         radialMenu = iD.ui.RadialMenu(operations);
-        var show = d3.event && !newFeature;
+        var show = d3.event && !suppressMenu;
 
         if (show) {
             positionMenu();

@@ -31,8 +31,16 @@ iD.Graph = function(other, mutable) {
 };
 
 iD.Graph.prototype = {
-    entity: function(id) {
+    hasEntity: function(id) {
         return this.entities[id];
+    },
+
+    entity: function(id) {
+        var entity = this.entities[id];
+        if (!entity) {
+            throw new Error('entity ' + id + ' not found');
+        }
+        return entity;
     },
 
     transient: function(entity, key, fn) {

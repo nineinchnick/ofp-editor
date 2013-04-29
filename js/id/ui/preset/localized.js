@@ -19,7 +19,7 @@ iD.ui.preset.localized = function(field, context) {
             .attr('class', 'localized-add')
             .on('click', addBlank)
             .append('span')
-            .attr('class', 'icon');
+            .attr('class', 'icon plus-dark');
 
         localizedInputs = selection.append('div')
             .attr('class', 'localized-wrap');
@@ -34,7 +34,7 @@ iD.ui.preset.localized = function(field, context) {
 
     function change() {
         var t = {};
-        t[field.key] = d3.select(this).property('value'),
+        t[field.key] = d3.select(this).property('value');
         event.change(t);
     }
 

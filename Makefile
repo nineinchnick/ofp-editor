@@ -71,7 +71,7 @@ dist/iD.min.js: dist/iD.js Makefile
 	node_modules/.bin/uglifyjs $< -c -m -o $@
 
 dist/iD.css: css/*.css
-	cat css/reset.css css/map.css css/app.css css/line-presets.css css/maki-sprite.css > $@
+	cat css/reset.css css/map.css css/app.css css/feature-icons.css > $@
 
 node_modules/.install: package.json
 	npm install && touch node_modules/.install
@@ -108,3 +108,4 @@ D3_FILES = \
 
 js/lib/d3.v3.js: $(D3_FILES)
 	node_modules/.bin/smash $(D3_FILES) > $@
+	@echo 'd3 rebuild. Please reapply 7e2485d and e0d6337'

@@ -6,8 +6,7 @@
         <link rel='stylesheet' href='css/reset.css'>
         <link rel='stylesheet' href='css/map.css'>
         <link rel='stylesheet' href='css/app.css'>
-        <link rel='stylesheet' href='css/line-presets.css'>
-        <link rel='stylesheet' href='css/maki-sprite.css'>
+        <link rel='stylesheet' href='css/feature-icons.css'>
 
         <!-- mobile devices -->
         <meta name='viewport' content='initial-scale=1.0 maximum-scale=1.0'>
@@ -205,20 +204,6 @@
     <body>
         <div id='id-container'></div>
         <script>
-            // Adding a canary for https://app.getsentry.com/id/id/group/5138888/
-            if (Object.defineProperty) {
-                var windowFocus = window.focus;
-                Object.defineProperty(window, 'focus', {
-                    get: function() {
-                        return windowFocus;
-                    },
-
-                    set: function() {
-                        throw new Error("tried to overwrite window.focus");
-                    }
-                });
-            }
-
             iD.data.load(function() {
                 id = iD().assetPath('dist/');
 

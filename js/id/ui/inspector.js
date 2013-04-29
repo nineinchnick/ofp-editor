@@ -4,7 +4,7 @@ iD.ui.Inspector = function(context, entity) {
         newFeature = false;
 
     function changeTags(tags) {
-        var entity = context.entity(id);
+        var entity = context.hasEntity(id);
         if (entity && !_.isEqual(entity.tags, tags)) {
             context.perform(
                 iD.actions.ChangeTags(entity.id, tags),
@@ -14,13 +14,6 @@ iD.ui.Inspector = function(context, entity) {
 
     function browse() {
         context.enter(iD.modes.Browse(context));
-    }
-
-    function update() {
-        var entity = context.entity(id);
-        if (entity) {
-            tagEditor.tags(entity.tags);
-        }
     }
 
     function inspector(selection) {
@@ -49,7 +42,7 @@ iD.ui.Inspector = function(context, entity) {
             .classed('pane tag-pane', true);
 
         var presetGrid = iD.ui.PresetGrid(context, entity)
-            .newFeature(newFeature)
+            .autofocus(newFeature)
             .on('close', browse)
             .on('choose', function(preset) {
                 var right = panewrap.style('right').indexOf('%') > 0 ? '0%' : '0px';
@@ -61,7 +54,6 @@ iD.ui.Inspector = function(context, entity) {
             });
 
         tagEditor = iD.ui.TagEditor(context, entity)
-            .tags(entity.tags)
             .on('changeTags', changeTags)
             .on('close', browse)
             .on('choose', function(preset) {
@@ -72,6 +64,7 @@ iD.ui.Inspector = function(context, entity) {
                     .transition()
                     .style('right', right);
 
+                presetGrid.autofocus(true);
                 presetLayer.call(presetGrid, preset);
             });
 
@@ -98,16 +91,10 @@ iD.ui.Inspector = function(context, entity) {
                 context.map().centerEase(context.projection.invert([center, mapSize[1]/2]));
             }
         }
-
-        context.history()
-            .on('change.inspector', update);
     }
 
     inspector.close = function(selection) {
-
-        // Blur focused element so that tag changes are dispatched
-        // See #1295
-        document.activeElement.blur();
+        tagEditor.close();
 
         selection.transition()
             .style('right', '-500px')
@@ -116,13 +103,6 @@ iD.ui.Inspector = function(context, entity) {
                     .style('display', 'none')
                     .html('');
             });
-
-        // Firefox incorrectly implements blur, so typeahead elements
-        // are not correctly removed. Remove any stragglers manually.
-        d3.selectAll('div.typeahead').remove();
-
-        context.history()
-            .on('change.inspector', null);
     };
 
     inspector.newFeature = function(_) {

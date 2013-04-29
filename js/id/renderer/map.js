@@ -22,22 +22,26 @@ iD.Map = function(context) {
         vertices = iD.svg.Vertices(roundedProjection, context),
         lines = iD.svg.Lines(projection),
         areas = iD.svg.Areas(roundedProjection),
-        midpoints = iD.svg.Midpoints(roundedProjection),
+        midpoints = iD.svg.Midpoints(roundedProjection, context),
         labels = iD.svg.Labels(roundedProjection, context),
         tail = iD.ui.Tail(),
-        surface, layergroup;
+        supersurface, surface, layergroup;
 
     function map(selection) {
         context.history()
             .on('change.map', redraw);
 
+        context.on('select.map', function() {
+            redraw();
+        });
+
         selection.call(zoom);
 
-        layergroup = selection.append('div')
-            .attr('id', 'layer-g');
+        supersurface = selection.append('div')
+            .attr('id', 'supersurface');
 
-        var supersurface = selection.append('div')
-            .style('position', 'absolute');
+        layergroup = supersurface.append('div')
+            .attr('id', 'layer-g');
 
         surface = supersurface.append('svg')
             .on('mousedown.zoom', function() {
@@ -50,6 +54,20 @@ iD.Map = function(context) {
             })
             .attr('id', 'surface')
             .call(iD.svg.Surface(context));
+
+        surface.on('mouseover.vertices', function() {
+            if (map.editable() && !isTransformed()) {
+                var hover = d3.event.target.__data__;
+                surface.call(vertices.drawHover, context.graph(), hover, map.zoom());
+            }
+        });
+
+        surface.on('mouseout.vertices', function() {
+            if (map.editable() && !isTransformed()) {
+                var hover = d3.event.relatedTarget && d3.event.relatedTarget.__data__;
+                surface.call(vertices.drawHover, context.graph(), hover, map.zoom());
+            }
+        });
 
         map.size(selection.size());
         map.surface = surface;
@@ -106,7 +124,7 @@ iD.Map = function(context) {
             surface
                 .call(points, graph, all, filter)
                 .call(vertices, graph, all, filter, map.zoom())
-                .call(lines, graph, all, filter, dimensions)
+                .call(lines, graph, all, filter)
                 .call(areas, graph, all, filter)
                 .call(midpoints, graph, all, filter, extent)
                 .call(labels, graph, all, filter, dimensions, !difference);
@@ -147,20 +165,24 @@ iD.Map = function(context) {
 
         var transform =
             'scale(' + scale + ')' +
-            'translate(' + tX + 'px,' + tY + 'px) ';
+            (iD.detect().opera ?
+                'translate(' + tX + 'px,' + tY + 'px)' :
+                'translate3d(' + tX + 'px,' + tY + 'px, 0)');
 
-        layergroup.style(transformProp, transform);
-        surface.style(transformProp, transform);
+        supersurface.style(transformProp, transform);
         queueRedraw();
 
         dispatch.move(map);
     }
 
+    function isTransformed() {
+        var prop = supersurface.style(transformProp);
+        return prop && prop !== 'none';
+    }
+
     function resetTransform() {
-        var prop = surface.node().style[transformProp];
-        if (!prop || prop === 'none') return false;
-        surface.node().style[transformProp] = '';
-        layergroup.node().style[transformProp] = '';
+        if (!isTransformed()) return false;
+        supersurface.style(transformProp, '');
         return true;
     }
 

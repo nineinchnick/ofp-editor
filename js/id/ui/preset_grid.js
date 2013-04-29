@@ -3,13 +3,13 @@ iD.ui.PresetGrid = function(context, entity) {
         defaultLimit = 9,
         currentlyDrawn = 9,
         presets,
-        newFeature = false;
+        autofocus = false;
 
     function presetgrid(selection, preset) {
 
         selection.html('');
 
-        presets = context.presets().matchGeometry(entity, context.graph());
+        presets = context.presets().matchGeometry(entity.geometry(context.graph()));
 
         var messagewrap = selection.append('div')
             .attr('class', 'header fillL cf');
@@ -103,7 +103,7 @@ iD.ui.PresetGrid = function(context, entity) {
         searchwrap.append('span')
             .attr('class', 'icon search');
 
-        if (newFeature) {
+        if (autofocus) {
             search.node().focus();
         }
 
@@ -246,9 +246,9 @@ iD.ui.PresetGrid = function(context, entity) {
         }
     }
 
-    presetgrid.newFeature = function(_) {
-        if (!arguments.length) return newFeature;
-        newFeature = _;
+    presetgrid.autofocus = function(_) {
+        if (!arguments.length) return autofocus;
+        autofocus = _;
         return presetgrid;
     };
 

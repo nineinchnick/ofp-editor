@@ -17,7 +17,7 @@ window.iD = function () {
     };
 
     var history = iD.History(context),
-        dispatch = d3.dispatch('enter', 'exit', 'toggleFullscreen', 'enterFloor', 'exitFloor'),
+        dispatch = d3.dispatch('enter', 'exit', 'select', 'toggleFullscreen', 'enterFloor', 'exitFloor'),
         mode,
         floor,
         container,
@@ -40,11 +40,11 @@ window.iD = function () {
 
             var detectedLocale = iD.detect().locale;
 
-            if (iD.data.locales.indexOf(detectedLocale) === -1) {
+            if (detectedLocale && iD.data.locales.indexOf(detectedLocale) === -1) {
                 detectedLocale = detectedLocale.split('-')[0];
             }
 
-            if (detectedLocale !== 'en' && iD.data.locales.indexOf(detectedLocale) !== -1) {
+            if (detectedLocale && detectedLocale !== 'en' && iD.data.locales.indexOf(detectedLocale) !== -1) {
                 d3.json(context.assetPath() + 'locales/' + detectedLocale + '.json', function(err, result) {
                     locale[detectedLocale] = result;
                     locale.current(detectedLocale);
@@ -74,6 +74,10 @@ window.iD = function () {
     context.intersects = history.intersects;
 
     /* Graph */
+    context.hasEntity = function(id) {
+        return history.graph().hasEntity(id);
+    };
+
     context.entity = function(id) {
         return history.graph().entity(id);
     };
@@ -84,6 +88,8 @@ window.iD = function () {
 
     /* Modes */
     context.enter = function(newMode) {
+        var s0 = context.selection();
+
         if (mode) {
             mode.exit();
             dispatch.exit(mode);
@@ -92,6 +98,9 @@ window.iD = function () {
         mode = newMode;
         mode.enter();
         dispatch.enter(mode);
+
+        var s1 = context.selection();
+        dispatch.select(s1, s0);
     };
 
     context.mode = function() {
@@ -99,7 +108,7 @@ window.iD = function () {
     };
 
     context.selection = function() {
-        if (mode.id === 'select') {
+        if (mode && mode.selection) {
             return mode.selection();
         } else {
             return [];
