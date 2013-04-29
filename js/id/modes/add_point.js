@@ -16,6 +16,8 @@ iD.modes.AddPoint = function(context) {
     function add(loc) {
         var node = iD.Node({loc: loc});
 
+        node.setFloor(context);
+
         context.perform(
             iD.actions.AddEntity(node),
             t('operations.add.annotation.point'));

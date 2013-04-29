@@ -2,6 +2,7 @@ iD.floors.Second = function(context) {
     var floor = {
         button: 'floor-second',
         id: 'floor-second',
+        value: "2",
         title: t('floors.second.title'),
         description: t('floors.second.description'),
         key: '⇧2'

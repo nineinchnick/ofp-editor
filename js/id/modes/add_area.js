@@ -18,6 +18,9 @@ iD.modes.AddArea = function(context) {
             node = iD.Node({loc: loc}),
             way = iD.Way({tags: defaultTags});
 
+        node.setFloor(context);
+        way.setFloor(context);
+
         context.perform(
             iD.actions.AddEntity(node),
             iD.actions.AddEntity(way),
@@ -32,6 +35,9 @@ iD.modes.AddArea = function(context) {
             node = iD.Node({loc: loc}),
             way = iD.Way({tags: defaultTags});
 
+        node.setFloor(context);
+        way.setFloor(context);
+
         context.perform(
             iD.actions.AddEntity(node),
             iD.actions.AddEntity(way),
@@ -45,6 +51,8 @@ iD.modes.AddArea = function(context) {
     function startFromNode(node) {
         var graph = context.graph(),
             way = iD.Way({tags: defaultTags});
+
+        way.setFloor(context);
 
         context.perform(
             iD.actions.AddEntity(way),

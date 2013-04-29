@@ -3,6 +3,7 @@ iD.floors.Other = function(context) {
     var floor = {
         button: 'floor-other',
         id: 'floor-other',
+        value: "0", //TODO: this will be set dynamically when the user activates the 'other' option
         title: t('floors.other.title'),
         description: t('floors.other.description'),
         key: 'O'

@@ -17,6 +17,9 @@ iD.modes.AddLine = function(context) {
             node = iD.Node({loc: loc}),
             way = iD.Way();
 
+        node.setFloor(context);
+        way.setFloor(context);
+
         context.perform(
             iD.actions.AddEntity(node),
             iD.actions.AddEntity(way),
@@ -29,6 +32,9 @@ iD.modes.AddLine = function(context) {
         var graph = context.graph(),
             node = iD.Node({loc: loc}),
             way = iD.Way();
+
+        node.setFloor(context);
+        way.setFloor(context);
 
         context.perform(
             iD.actions.AddEntity(node),
@@ -52,6 +58,8 @@ iD.modes.AddLine = function(context) {
 
         } else {
             var way = iD.Way();
+
+            way.setFloor(context);
 
             context.perform(
                 iD.actions.AddEntity(way),

@@ -23,7 +23,7 @@ window.iD = function () {
         container,
         ui = iD.ui(context),
         map = iD.Map(context),
-        connection = iD.Connection();
+        connection = iD.Connection(context);
 
     connection.on('load.context', function loadContext(err, result) {
         history.merge(result);

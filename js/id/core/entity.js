@@ -120,5 +120,11 @@ iD.Entity.prototype = {
         });
 
         return deprecated;
+    },
+
+    setFloor: function (context) {
+        if (!this.tags.floor || (this.tags.floor !== context.floor().value)) {
+            this.tags.floor = context.floor().value;
+        }
     }
 };

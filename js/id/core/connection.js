@@ -21,6 +21,8 @@ iD.Connection = function(context) {
         relationStr = 'relation',
         off;
 
+    connection.context = context;
+
     connection.changesetURL = function(changesetId) {
         return url + '/browse/changeset/' + changesetId;
     };
@@ -93,9 +95,24 @@ iD.Connection = function(context) {
         return members;
     }
 
+    function initFloor(tags) {
+        var floor = null;
+        if(tags.floor) {
+           //we found a floor
+           floor = tags.floor;
+        } else {
+           //lookup current floor and use that
+           floor = connection.context.floor().value;
+           tags.floor = floor;
+        }
+        return floor;
+    }
+
     var parsers = {
         node: function nodeData(obj) {
-            var attrs = obj.attributes;
+            var attrs = obj.attributes,
+                tags =  getTags(obj);
+            initFloor(tags);
             return new iD.Node({
                 id: iD.Entity.id.fromOSM(nodeStr, attrs.id.nodeValue),
                 loc: [parseFloat(attrs.lon.nodeValue), parseFloat(attrs.lat.nodeValue)],
@@ -105,12 +122,14 @@ iD.Connection = function(context) {
                 uid: attrs.uid && attrs.uid.nodeValue,
                 visible: attrs.visible.nodeValue,
                 timestamp: attrs.timestamp.nodeValue,
-                tags: getTags(obj)
+                tags: tags
             });
         },
 
         way: function wayData(obj) {
-            var attrs = obj.attributes;
+            var attrs = obj.attributes,
+                tags =  getTags(obj);
+            initFloor(tags);
             return new iD.Way({
                 id: iD.Entity.id.fromOSM(wayStr, attrs.id.nodeValue),
                 version: attrs.version.nodeValue,
@@ -119,13 +138,15 @@ iD.Connection = function(context) {
                 uid: attrs.uid && attrs.uid.nodeValue,
                 visible: attrs.visible.nodeValue,
                 timestamp: attrs.timestamp.nodeValue,
-                tags: getTags(obj),
+                tags: tags,
                 nodes: getNodes(obj)
             });
         },
 
         relation: function relationData(obj) {
-            var attrs = obj.attributes;
+            var attrs = obj.attributes,
+                tags =  getTags(obj);
+            initFloor(tags);
             return new iD.Relation({
                 id: iD.Entity.id.fromOSM(relationStr, attrs.id.nodeValue),
                 version: attrs.version.nodeValue,
@@ -134,7 +155,7 @@ iD.Connection = function(context) {
                 uid: attrs.uid && attrs.uid.nodeValue,
                 visible: attrs.visible.nodeValue,
                 timestamp: attrs.timestamp.nodeValue,
-                tags: getTags(obj),
+                tags: tags,
                 members: getMembers(obj)
             });
         }
@@ -203,7 +224,7 @@ iD.Connection = function(context) {
         return {
             osmChange: {
                 '@version': 0.3,
-                '@generator': 'iD',
+                '@generator': 'OFP',
                 'create': nest(changes.created.map(rep), ['node', 'way', 'relation']),
                 'modify': nest(changes.modified.map(rep), ['node', 'way', 'relation']),
                 'delete': _.extend(nest(changes.deleted.map(rep), ['relation', 'way', 'node']), {'@if-unused': true})
@@ -214,7 +235,7 @@ iD.Connection = function(context) {
     connection.changesetTags = function(comment, imagery_used) {
         var tags = {
             imagery_used: imagery_used.join(';'),
-            created_by: 'iD ' + iD.version
+            created_by: 'OpenFloorPlan ' + iD.version
         };
 
         if (comment) {

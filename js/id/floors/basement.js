@@ -2,6 +2,7 @@ iD.floors.Basement = function(context) {
     var floor = {
         button: 'floor-basement',
         id: 'floor-basement',
+        value: '-1',
         title: t('floors.basement.title'),
         description: t('floors.basement.description'),
         key: '⇧b'
