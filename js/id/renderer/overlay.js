@@ -11,12 +11,6 @@ iD.Overlay = function(context) {
         imageSizeMult = 0.5; //screen dimension multiplier of initial image size
 
 
-    function tileSizeAtZoom(z0, z) {
-        var xSizeAtZoom = Math.ceil(size[0] * Math.pow(2, z - z0)) / size[0],
-            ySizeAtZoom = Math.ceil(size[1] * Math.pow(2, z - z0)) / size[1];
-        return [xSizeAtZoom, ySizeAtZoom];
-    }
-
 
     // Update tiles based on current state of `projection`.
     function overlay(selection) {
@@ -32,13 +26,8 @@ iD.Overlay = function(context) {
         var bscale = transformStart[0];
         var scale = (ascale / bscale);
 
-
         var tX = Math.round((projection.translate()[0] / scale) - (transformStart[1][0]));
         var tY = Math.round((projection.translate()[1] / scale) - (transformStart[1][1]));
-        //var tX = Math.round((projection.translate()[0] / scale) - (transformStart[1][0])) - ((image[0][0].offsetWidth) * scale);
-        // var tY = Math.round((projection.translate()[1] / scale) - (transformStart[1][1])) - ((image[0][0].offsetHeight) * scale);
-        //var tX = Math.round((projection.translate()[0] / scale) - (transformStart[1][0])) - ((image[0][0].offsetWidth/2) * scale);
-        //var tY = Math.round((projection.translate()[1] / scale) - (transformStart[1][1])) - ((image[0][0].offsetHeight/2) * scale);
 
         var transform =
             'scale(' + scale + ')' +
@@ -59,11 +48,6 @@ iD.Overlay = function(context) {
         }
 
 
-
-
-        //image = selection.select('#overlay-image-tile');
-
-
         if (!image) {
 
 
@@ -80,7 +64,43 @@ iD.Overlay = function(context) {
             var imageHeight =dim[1] * imageSizeMult;
             var imagePosX = centerX - (imageWidth / 2);
             var imagePosY = centerY - (imageHeight / 2);
-            //var projectedCenter = projection([centerX, centerY]);
+
+           /* var imageTRPos = [centerX + (imageWidth / 2), centerY + (imageHeight / 2)];
+            var imageTLPos = [centerX - (imageWidth / 2), centerY + (imageHeight / 2)];
+            var imageBRPos = [centerX + (imageWidth / 2), centerY - (imageHeight / 2)];
+            var imageBLPos = [centerX - (imageWidth / 2), centerY - (imageHeight / 2)];
+
+            var imageTRProj = projection.invert(imageTRPos);
+            var imageTLProj = projection.invert(imageTLPos);
+            var imageBRProj = projection.invert(imageBRPos);
+            var imageBLProj = projection.invert(imageBLPos);*/
+
+
+            //this was an attempt to set the image as a pattern on the selected area
+            //it works but the pattern is static behind the shape, it doesn't move/rotate like we need it to
+           /* var wayId = context.selection();
+            var way = context.entity(wayId);
+            way.tags.floorplanOverlay = "true";
+            var isArea = way.geometry() === 'area';
+            var geometry = context.geometry(wayId);
+
+            var defs = context.map().surface.select("defs");
+            defs.append('pattern')
+                .attr({
+                    id: 'pattern-overlay-image',
+                    patternUnits: 'userSpaceOnUse',
+                    width: imageWidth,
+                    height: imageHeight
+                })
+                .append('image')
+                .attr({
+                    x: imagePosX,
+                    y: imagePosY,
+                    width: imageWidth,
+                    height: imageHeight
+                })
+                .attr('xlink:href', context.overlay);*/
+
 
             var trans0 = projection.translate();
             projection.center([center[0], center[1]]); // temporarily set center
@@ -90,13 +110,7 @@ iD.Overlay = function(context) {
             var trans2 = projection.translate();
             projection.center([0, 0]); // reset
             var trans3 = projection.translate();
-            /*projection.translate([imagePosWidth * projection.scale(), imagePosHeight * projection.scale()])
-                .translate(projection([0, 0]));*/
 
-           /* var transform =
-                'scale(' + 1 + ')' +
-                    'translate(' + imagePosWidth + 'px,' + imagePosHeight + 'px) ';
-*/
 
             transformStart = [
                 projection.scale(),
@@ -106,30 +120,23 @@ iD.Overlay = function(context) {
             projection.translate(trans0);
             var trans7 = projection.translate();
 
-            //attach the image to the DOM
-            image = selection.append('img')
-                .attr('id', 'overlay-image-tile')
-                .attr('src', context.overlay)
-                .attr('title', 'overlay image')
-                .attr('width', imageWidth)
-                .attr('height', imageHeight)
+            image = context.map().surface.select('.layer-overlay').append('image')
+                .attr({
+                    x: imagePosX,
+                    y: imagePosY,
+                    width: imageWidth,
+                    height: imageHeight
+                })
+                .attr('xlink:href', context.overlay)
                 .style(transformProp, imageTransform())
                 .style('opacity', '0.65');
 
             //give the UI panel the initial settings
             imageLoadedCallback(imageWidth, imageHeight, imagePosX, imagePosY);
 
-            //record the initial transformation so we can pan/zoom the image relative to the map
-            /*transformStart = [
-                projection.scale(),
-                projection.translate().slice()];*/
-
-
 
 
         } else {
-           // size[0] = image[0][0].width;
-           // size[1] = image[0][0].height;
             image.style(transformProp, imageTransform());
         }
 
@@ -155,13 +162,13 @@ iD.Overlay = function(context) {
 
     overlay.id = 'layer-overlay';
 
-	overlay.offset = function(_) {
+    overlay.offset = function(_) {
         if (!arguments.length) {return offset; }
         offset = _;
         return overlay;
     };
 
-	overlay.nudge = function(_, zoomlevel) {
+    overlay.nudge = function(_, zoomlevel) {
         offset[0] += _[0] / Math.pow(2, zoomlevel);
         offset[1] += _[1] / Math.pow(2, zoomlevel);
         return overlay;
@@ -173,14 +180,14 @@ iD.Overlay = function(context) {
         return overlay;
     };
 
-	overlay.size = function(_) {
+    overlay.size = function(_) {
         if (!arguments.length) {return size; }
         size = _;
         return overlay;
     };
 
 
-	overlay.setImageData = function(_) {
+    overlay.setImageData = function(_) {
         if (!arguments.length) {return imageData; }
 
         //create new tile
