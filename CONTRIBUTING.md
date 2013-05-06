@@ -1,14 +1,15 @@
-# Contributing to iD
+# Contributing to OpenFloorPlan Editor
 
-Thinking of contributing to iD? High five! Here are some basics for our habits
-so that you can write code that fits in perfectly.
+You should contribute to [iD] (https://github.com/systemed/iD) unless your modifications are explictly for customizations made by ofp-editor.
+
+
 
 ## Reporting Issues
 
-We'd love to hear what you think about iD, about any specific problems or
+We'd love to hear what you think about ofp-editor, about any specific problems or
 concerns you have. Here's a quick list of things to consider:
 
-Please [search for your issue before filing it: many bugs and improvements have already been reported](https://github.com/systemed/iD/issues/search?q=)
+Please [search for your issue before filing it: many bugs and improvements have already been reported](https://github.com/openfloorplan/ofp-editor/issues/search?q=)
 
 To report a bug:
 
@@ -24,67 +25,12 @@ To request a feature:
 
 * If the feature is available in some other software (like Potlatch), link to that software and the implementation.
   We care about prior art.
-* Understand that iD is meant to be a simple editor and doesn't aim to be
+* Understand that ofp-editor is meant to be a simple editor and doesn't aim to be
   as complete or complicated as JOSM or similar.
 
-## Translating
 
-Translations are managed using the
-[Transifex](https://www.transifex.com/projects/p/id-editor/) platform. After
-signing up, you can go to [iD's project
-page](https://www.transifex.com/projects/p/id-editor/), select a language and
-click *Translate now* to start translating. Translations are divided into two
-sections, *core*, which contains text for the main interface of iD, and
-*presets*, which has the text for labeling feature presets.
 
-The words in brackets, for example `{name}`, should not be translated into a
-new language: it's replaced with a place name when iD presents the text. So a
-French translation of `Couldn't locate a place named '{name}'` would look like
-`Impossible de localiser l'endroit nommé '{name}'`.
 
-The translations for presets consist of the names of presets, labels for
-preset fields, and lists of search terms. You do _not_ need to translate the
-search terms literally -- use a set of synonyms and related terms appropriate
-to the target language, separated by commas.
-
-[iD translation project on
-Transifex](https://www.transifex.com/projects/p/id-editor/)
-
-To get notifications when translation source files change, click **Watch
-project** button near the bottom of the project page. You can edit your
-[notification settings](https://www.transifex.com/settings/notices/) if you're
-getting too many notifications.
-
-Translations are licensed under
-[WTFPL](https://raw.github.com/systemed/iD/master/LICENSE), the same license
-as iD.
-
-**Why are there so many duplicate "Type" translations?** There are multiple
-distinct preset fields with the label "Type". You can see some context on the
-"Details" tab in Transifex:
-
-![image](https://f.cloud.github.com/assets/98601/324275/1a5cfc8c-9ae0-11e2-9a38-36c0f14d532d.png)
-
-The "key" field indicates that this is the "Type" label for the
-"[aeroway](http://wiki.openstreetmap.org/wiki/Aeroway)" preset, i.e. you should
-translate it as you would translate "type" in "type of aeroway".
-
-These are separate translations for uniformity reasons and because some languages
- may translate "type" differently in "type of aeroway" and "type of amenity", for
- example.
-
-## Adding New Strings for Translation
-
-iD translates strings with a `t` function - `t('foo.bar')` translate the key
-`foo.bar` into the current language. If you introduce new translatable strings
-to iD, only display them in the interface through the `t()` function.
-
-Then, add the new string to `data/core.yaml` or `data/presets.yaml` (depending
-on whether it pertains to core code or presets). The translation system,
-Transiflex, will automatically detect the change.
-
-Use `make` to build the translations with the local changes.
-`make translate` can be used to pull the latest translations from Transifex.
 
 ## Contributing Documentation
 
@@ -92,14 +38,6 @@ Documentation is maintained as a series of [Markdown](http://daringfireball.net/
 documents in the `data/doc/` path. The first line of each page of documentation
 should be of the form
 
-    # GPS
-
-This will be used for navigation and as its title in iD. Documentation is
-shown in alphabetical order, so most documentation is prefixed with `02-` and
-so on in order to keep it in a certain order.
-
-To add a new page of documentation, simply create a new Markdown file in
-`data/doc` in the same format as the rest.
 
 ## Javascript
 
@@ -116,7 +54,7 @@ warnings.
 
 ## HTML
 
-There isn't much HTML in iD, but what there is is similar to JS: 4 spaces
+There isn't much HTML in ofp-editor, but what there is is similar to JS: 4 spaces
 always, indented by the level of the tree:
 
 ```html
@@ -135,7 +73,7 @@ Just like HTML and Javascript, 4 space soft tabs always.
 }
 ```
 
-We write vanilla CSS with no preprocessing step. Since iD targets modern browsers,
+We write vanilla CSS with no preprocessing step. Since ofp-editor targets modern browsers,
 feel free to use newer features wisely.
 
 ## Tests
@@ -144,27 +82,27 @@ Test your code and make sure it passes. Our testing harness requires [node.js](h
 and a few modules:
 
 1. [Install node.js](http://nodejs.org/) - 'Install' will download a package for your OS
-2. Go to the directory where you have checked out `iD`
+2. Go to the directory where you have checked out `ofp-editor`
 3. Run `npm install`
 4. Run `npm test` to see whether your tests pass or fail.
 
 ## Building / Installing
 
-You can build a concatenated and minified version of iD with the command `make`. Node.js is
+You can build a concatenated and minified version of ofp-editor with the command `make`. Node.js is
 required for this.
 
-iD will be built to the `dist` directory. This directory is self-contained; you can copy it
-into the public directory of your webserver to deploy iD.
+ofp-editor will be built to the `dist` directory. This directory is self-contained; you can copy it
+into the public directory of your webserver to deploy ofp-editor.
 
 ## Licensing
 
-iD is under the [WTFPL](http://www.wtfpl.net/). Some of the libraries it uses
-are under different licenses. If you're contributing to iD, you're contributing
-WTFPL code.
+ofp-editor is dual licensed under the MIT License or the [WTFPL](http://www.wtfpl.net/). Some of the libraries it uses
+are under different licenses. If you're contributing to ofp-editor, you're contributing
+MIT/WTFPL code.
 
 ## Submitting Changes
 
-Let's say that you've thought of a great improvement to iD - a change that
+Let's say that you've thought of a great improvement to ofp-editor - a change that
 turns everything red (please do not do this, we like colors other than red).
 
 In your local copy, make a branch for this change:
@@ -172,12 +110,12 @@ In your local copy, make a branch for this change:
     git checkout -b make-red
 
 Make your changes to source files. By source files we mean the files in `js/`.
-the `iD.js` and `iD.min.js` files in this project are autogenerated - don't edit
+the `ofp-editor.js` and `ofp-editor.min.js` files in this project are autogenerated - don't edit
 them.
 
 So let's say you've changed `js/ui/confirm.js`.
 
-1. Run `jshint js/id` to make sure your code is clean
+1. Run `jshint js/ofp-editor` to make sure your code is clean
 2. Run tests with `npm test`
 3. Commit your changes with an informative commit message
-4. [Submit a pull request](https://help.github.com/articles/using-pull-requests) to the `systemed/iD` project.
+4. [Submit a pull request](https://help.github.com/articles/using-pull-requests) to the `openfloorplan\ofp-editor` project.
