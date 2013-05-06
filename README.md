@@ -1,29 +1,15 @@
-# Private fork of the iD OSM Editor
 
-I needed a private copy to hack around with. Hopefully I'll have more info soon @kriscarle
-
--------------
-# iD - friendly JavaScript editor for [OpenStreetMap](http://www.openstreetmap.org/)
+# OpenFloorPlan Editor
 
 
-
-[![](http://ideditor.com/img/editor.png)](http://ideditor.com/)
 
 ## Basics
 
-* iD is a JavaScript [OpenStreetMap](http://www.openstreetmap.org/) editor.
-* It's intentionally simple. It lets you do the most basic tasks while
-  not breaking other people's data.
-* It supports modern browsers. Data is rendered with [d3](http://d3js.org/).
+* OpenFloorPlan Editor is a JavaScript editor for creating SVG floorplans.
+* This is a fork of the awesome iD editor for [OpenStreetMap](http://www.openstreetmap.org/) https://github.com/systemed/iD
 
-## Participate!
+This is pre-alpha code, intended as a proof of concept, more information will follow.
 
-* [Try out the latest stable release](http://openstreetmap.us/iD/release)
-* [Read up on Contributing and the code style of iD](CONTRIBUTING.md)
-* See [open issues in the issue tracker](https://github.com/systemed/iD/issues?state=open) if you're looking for something to do
-* [Translate!](https://github.com/systemed/iD/blob/master/CONTRIBUTING.md#translating)
-
-[![translation chart](https://www.transifex.com/projects/p/id-editor/chart/image_png)](https://github.com/systemed/iD/blob/master/CONTRIBUTING.md#translating)
 ## Installation
 
 To run the current development version, fork this project and serve it locally.
@@ -33,14 +19,12 @@ If you have Python handy, just `cd` into the project root directory and run
 
 Or, with a Mac, you can enable Web Sharing and clone iD into your website directory.
 
-Come on in, the water's lovely. More help? Ping RichardF, tmcw, or jfire on IRC
-(`irc.oftc.net`, in `#osm-dev` or `#osm`), on the OSM mailing lists or at
-richard@systemeD.net.
-
-For guidance on building a packaged version, running tests, and contributing to
-development, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-iD is available under the [WTFPL](http://sam.zoy.org/wtfpl/), though obviously, if you want to dual-license
-any contributions that's cool. It includes [d3js](http://d3js.org/), which BSD-licensed.
+OpenFloorPlan Editor (ofp-editor) is available under a dual MIT and WTFPL License, see the LICENSE file.
+
+The original iD project is available under the [WTFPL](http://sam.zoy.org/wtfpl/) see https://github.com/systemed/iD
+
+It includes [d3js](http://d3js.org/), which BSD-licensed.
+
