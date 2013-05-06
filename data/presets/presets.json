@@ -26,10 +26,58 @@
             "airport",
             "aerodrome"
         ],
+        "fields": [
+            "ref",
+            "iata",
+            "icao",
+            "operator"
+        ],
         "tags": {
             "aeroway": "aerodrome"
         },
         "name": "Airport"
+    },
+    "aeroway/apron": {
+        "icon": "airport",
+        "geometry": [
+            "area"
+        ],
+        "terms": [
+            "ramp"
+        ],
+        "fields": [
+            "ref",
+            "surface"
+        ],
+        "tags": {
+            "aeroway": "apron"
+        },
+        "name": "Apron"
+    },
+    "aeroway/gate": {
+        "icon": "airport",
+        "geometry": [
+            "point"
+        ],
+        "fields": [
+            "ref"
+        ],
+        "tags": {
+            "aeroway": "gate"
+        },
+        "name": "Airport gate"
+    },
+    "aeroway/hangar": {
+        "geometry": [
+            "area"
+        ],
+        "fields": [
+            "building_area"
+        ],
+        "tags": {
+            "aeroway": "hangar"
+        },
+        "name": "Hangar"
     },
     "aeroway/helipad": {
         "icon": "heliport",
@@ -46,6 +94,54 @@
             "aeroway": "helipad"
         },
         "name": "Helipad"
+    },
+    "aeroway/runway": {
+        "geometry": [
+            "line",
+            "area"
+        ],
+        "terms": [
+            "landing strip"
+        ],
+        "fields": [
+            "ref",
+            "surface"
+        ],
+        "tags": {
+            "aeroway": "runway"
+        },
+        "name": "Runway"
+    },
+    "aeroway/taxiway": {
+        "geometry": [
+            "line"
+        ],
+        "fields": [
+            "ref",
+            "surface"
+        ],
+        "tags": {
+            "aeroway": "taxiway"
+        },
+        "name": "Taxiway"
+    },
+    "aeroway/terminal": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "terms": [
+            "airport",
+            "aerodrome"
+        ],
+        "fields": [
+            "operator",
+            "building_area"
+        ],
+        "tags": {
+            "aeroway": "terminal"
+        },
+        "name": "Airport terminal"
     },
     "amenity": {
         "fields": [
@@ -234,6 +330,22 @@
         },
         "name": "Cinema"
     },
+    "amenity/college": {
+        "icon": "college",
+        "fields": [
+            "operator",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "amenity": "college"
+        },
+        "terms": [],
+        "name": "College"
+    },
     "amenity/courthouse": {
         "fields": [
             "operator",
@@ -374,6 +486,28 @@
             "amenity": "hospital"
         },
         "name": "Hospital"
+    },
+    "amenity/kindergarten": {
+        "icon": "school",
+        "fields": [
+            "building_area",
+            "address"
+        ],
+        "geometry": [
+            "point",
+            "vertex",
+            "area"
+        ],
+        "terms": [
+            "preschool",
+            "nursery",
+            "childcare",
+            "playgroup"
+        ],
+        "tags": {
+            "amenity": "kindergarten"
+        },
+        "name": "Kindergarten"
     },
     "amenity/library": {
         "icon": "library",
@@ -865,7 +999,9 @@
         "tags": {
             "amenity": "university"
         },
-        "terms": [],
+        "terms": [
+            "college"
+        ],
         "name": "University"
     },
     "amenity/waste_basket": {
@@ -2371,6 +2507,25 @@
         },
         "name": "Man Made"
     },
+    "man_made/breakwater": {
+        "geometry": [
+            "line",
+            "area"
+        ],
+        "tags": {
+            "man_made": "breakwater"
+        },
+        "name": "Breakwater"
+    },
+    "man_made/cutline": {
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "man_made": "cutline"
+        },
+        "name": "Cut line"
+    },
     "man_made/lighthouse": {
         "geometry": [
             "point",
@@ -2391,6 +2546,19 @@
         },
         "name": "Pier"
     },
+    "man_made/pipeline": {
+        "geometry": [
+            "line"
+        ],
+        "tags": {
+            "man_made": "pipeline"
+        },
+        "fields": [
+            "location",
+            "operator"
+        ],
+        "name": "Pipeline"
+    },
     "man_made/survey_point": {
         "icon": "monument",
         "geometry": [
@@ -2404,6 +2572,19 @@
             "ref"
         ],
         "name": "Survey Point"
+    },
+    "man_made/tower": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "man_made": "tower"
+        },
+        "fields": [
+            "towertype"
+        ],
+        "name": "Tower"
     },
     "man_made/wastewater_plant": {
         "icon": "water",
@@ -2432,6 +2613,16 @@
             "man_made": "water_tower"
         },
         "name": "Water Tower"
+    },
+    "man_made/water_well": {
+        "geometry": [
+            "point",
+            "area"
+        ],
+        "tags": {
+            "man_made": "water_well"
+        },
+        "name": "Water well"
     },
     "man_made/water_works": {
         "icon": "water",

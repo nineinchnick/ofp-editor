@@ -230,6 +230,16 @@
         "type": "combo",
         "label": "Type"
     },
+    "iata": {
+        "key": "iata",
+        "type": "text",
+        "label": "IATA"
+    },
+    "icao": {
+        "key": "icao",
+        "type": "text",
+        "label": "ICAO"
+    },
     "incline": {
         "key": "incline",
         "type": "combo",
@@ -280,6 +290,11 @@
         "key": "building:levels",
         "type": "number",
         "label": "Levels"
+    },
+    "location": {
+        "key": "location",
+        "type": "combo",
+        "label": "Location"
     },
     "man_made": {
         "key": "man_made",
@@ -481,6 +496,11 @@
         "key": "tourism",
         "type": "combo",
         "label": "Type"
+    },
+    "towertype": {
+        "key": "tower:type",
+        "type": "combo",
+        "label": "Tower type"
     },
     "tracktype": {
         "key": "tracktype",

@@ -314,7 +314,7 @@
             "add": "Points can be used to represent features such as shops, restaurants and monuments. They mark a specific location, and describe what's there. **Click the Point button to add a new point.**",
             "place": "The point can be placed by clicking on the map. **Place the point on top of the building.**",
             "search": "There many different features that can be represented by points. The point you just added is a Cafe. **Search for 'Cafe' **",
-            "choose": "**Choose Cafe from the grid.**",
+            "choose": "**Choose Cafe from the list.**",
             "describe": "The point is now marked as a cafe. Using the feature editor, we can add more information about the feature. **Add a name**",
             "close": "The feature editor can be closed by clicking on the close button. **Close the feature editor**",
             "reselect": "Often points will already exist, but have mistakes or be incomplete. We can edit existing points. **Select the point you just created.**",
@@ -327,7 +327,7 @@
             "corner": "Areas are drawn by placing nodes that mark the boundary of the area. **Place the starting node on one of the corners of the playground.**",
             "place": "Draw the area by placing more nodes. Finish the area by clicking on the starting node. **Draw an area for the playground.**",
             "search": "**Search for Playground.**",
-            "choose": "**Choose Playground from the grid.**",
+            "choose": "**Choose Playground from the list.**",
             "describe": "**Add a name, and close the feature editor**"
         },
         "lines": {
@@ -335,7 +335,7 @@
             "start": "**Start the line by clicking on the end of the road.**",
             "intersect": "Click to add more nodes to the line. You can drag the map while drawing if necessary. Roads, and many other types of lines, are part of a larger network. It is important for these lines to be connected properly in order for routing applications to work. **Click on Flower Street, to create an intersection connecting the two lines.**",
             "finish": "Lines can be finished by clicking on the last node again. **Finish drawing the road.**",
-            "road": "**Select Road from the grid**",
+            "road": "**Select Road from the list**",
             "residential": "There are different types of roads, the most common of which is Residential. **Choose the Residential road type**",
             "describe": "**Name the road and close the feature editor.**",
             "restart": "The road needs to intersect Flower Street."
@@ -496,6 +496,12 @@
             "historic": {
                 "label": "Type"
             },
+            "iata": {
+                "label": "IATA"
+            },
+            "icao": {
+                "label": "ICAO"
+            },
             "incline": {
                 "label": "Incline"
             },
@@ -523,6 +529,9 @@
             },
             "levels": {
                 "label": "Levels"
+            },
+            "location": {
+                "label": "Location"
             },
             "man_made": {
                 "label": "Type"
@@ -629,6 +638,9 @@
             "tourism": {
                 "label": "Type"
             },
+            "towertype": {
+                "label": "Tower type"
+            },
             "tracktype": {
                 "label": "Type"
             },
@@ -671,9 +683,33 @@
                 "name": "Airport",
                 "terms": "airplane,airport,aerodrome"
             },
+            "aeroway/apron": {
+                "name": "Apron",
+                "terms": "ramp"
+            },
+            "aeroway/gate": {
+                "name": "Airport gate",
+                "terms": ""
+            },
+            "aeroway/hangar": {
+                "name": "Hangar",
+                "terms": ""
+            },
             "aeroway/helipad": {
                 "name": "Helipad",
                 "terms": "helicopter,helipad,heliport"
+            },
+            "aeroway/runway": {
+                "name": "Runway",
+                "terms": "landing strip"
+            },
+            "aeroway/taxiway": {
+                "name": "Taxiway",
+                "terms": ""
+            },
+            "aeroway/terminal": {
+                "name": "Airport terminal",
+                "terms": "airport,aerodrome"
             },
             "amenity": {
                 "name": "Amenity",
@@ -711,6 +747,10 @@
                 "name": "Cinema",
                 "terms": "big screen,bijou,cine,drive-in,film,flicks,motion pictures,movie house,movie theater,moving pictures,nabes,photoplay,picture show,pictures,playhouse,show,silver screen"
             },
+            "amenity/college": {
+                "name": "College",
+                "terms": ""
+            },
             "amenity/courthouse": {
                 "name": "Courthouse",
                 "terms": ""
@@ -742,6 +782,10 @@
             "amenity/hospital": {
                 "name": "Hospital",
                 "terms": "clinic,emergency room,health service,hospice,infirmary,institution,nursing home,rest home,sanatorium,sanitarium,sick bay,surgery,ward"
+            },
+            "amenity/kindergarten": {
+                "name": "Kindergarten",
+                "terms": "preschool,nursery,childcare,playgroup"
             },
             "amenity/library": {
                 "name": "Library",
@@ -821,7 +865,7 @@
             },
             "amenity/university": {
                 "name": "University",
-                "terms": ""
+                "terms": "college"
             },
             "amenity/waste_basket": {
                 "name": "Waste Basket",
@@ -1231,6 +1275,14 @@
                 "name": "Man Made",
                 "terms": ""
             },
+            "man_made/breakwater": {
+                "name": "Breakwater",
+                "terms": ""
+            },
+            "man_made/cutline": {
+                "name": "Cut line",
+                "terms": ""
+            },
             "man_made/lighthouse": {
                 "name": "Lighthouse",
                 "terms": ""
@@ -1239,8 +1291,16 @@
                 "name": "Pier",
                 "terms": ""
             },
+            "man_made/pipeline": {
+                "name": "Pipeline",
+                "terms": ""
+            },
             "man_made/survey_point": {
                 "name": "Survey Point",
+                "terms": ""
+            },
+            "man_made/tower": {
+                "name": "Tower",
                 "terms": ""
             },
             "man_made/wastewater_plant": {
@@ -1249,6 +1309,10 @@
             },
             "man_made/water_tower": {
                 "name": "Water Tower",
+                "terms": ""
+            },
+            "man_made/water_well": {
+                "name": "Water well",
                 "terms": ""
             },
             "man_made/water_works": {

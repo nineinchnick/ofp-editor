@@ -163,6 +163,11 @@
     "logout": "Déconnexion",
     "loading_auth": "Connexion à OpenStreetMap...",
     "report_a_bug": "Signaler un bug",
+    "status": {
+        "error": "Impossible de se connecter à l'API.",
+        "offline": "L'API est hors ligne. Veuillez essayer d'éditer plus tard.",
+        "readonly": "L'API est en lecture seule. Vous devez attendre pour enregistrer vos changements."
+    },
     "commit": {
         "title": "Sauvegarder vos modifications",
         "description_placeholder": "Description succinte de vos contributions",
@@ -194,11 +199,13 @@
         "new_tag": "Nouvel attribut",
         "view_on_osm": "Visualiser sur openstreetmap.org",
         "editing_feature": "Édition de {feature}",
-        "additional": "Attributs complémentaires",
+        "all_tags": "Tous les tags",
         "choose": "Que souhaitez vous ajouter?",
         "results": "{n} résultats pour {search}",
         "reference": "Consulter sur le Wiki d'OpenStreetMap",
-        "back_tooltip": "Changer le type de l'objet "
+        "back_tooltip": "Changer le type de l'objet ",
+        "remove": "Supprimer",
+        "search": "Rechercher"
     },
     "background": {
         "title": "Fond de carte",
@@ -309,6 +316,23 @@
         }
     },
     "presets": {
+        "categories": {
+            "category-landuse": {
+                "name": "Usage du terrain"
+            },
+            "category-path": {
+                "name": "Chemin"
+            },
+            "category-rail": {
+                "name": "Voie ferrée"
+            },
+            "category-road": {
+                "name": "Route"
+            },
+            "category-water": {
+                "name": "Eau"
+            }
+        },
         "fields": {
             "access": {
                 "label": "Accès",
@@ -352,7 +376,8 @@
                     "housename": "Nom du bâtiment",
                     "number": "123",
                     "street": "Rue",
-                    "city": "Ville"
+                    "city": "Ville",
+                    "postcode": "Code postal"
                 }
             },
             "admin_level": {
@@ -437,6 +462,15 @@
             "historic": {
                 "label": "Type"
             },
+            "iata": {
+                "label": "IATA"
+            },
+            "icao": {
+                "label": "OACI"
+            },
+            "incline": {
+                "label": "Pente"
+            },
             "internet_access": {
                 "label": "Accès Internet",
                 "options": {
@@ -459,6 +493,9 @@
             },
             "levels": {
                 "label": "Niveaux"
+            },
+            "location": {
+                "label": "Lieu"
             },
             "man_made": {
                 "label": "Type"
@@ -526,6 +563,9 @@
                     "taoist": "Taoïste"
                 }
             },
+            "sac_scale": {
+                "label": "Difficulté du chemin"
+            },
             "service": {
                 "label": "Type"
             },
@@ -559,8 +599,14 @@
             "tourism": {
                 "label": "Type"
             },
+            "towertype": {
+                "label": "Type de tour"
+            },
             "tracktype": {
                 "label": "Type"
+            },
+            "trail_visibility": {
+                "label": "Visibilité du sentier"
             },
             "water": {
                 "label": "Type"
@@ -592,9 +638,30 @@
                 "name": "Aéroport",
                 "terms": "avion, aéroport, aérodrome, aeroclub"
             },
+            "aeroway/apron": {
+                "name": "Aire de stationnement",
+                "terms": "Aire de stationnement"
+            },
+            "aeroway/gate": {
+                "name": "Porte d'embarquement"
+            },
+            "aeroway/hangar": {
+                "name": "Hangar"
+            },
             "aeroway/helipad": {
                 "name": "Héliport",
                 "terms": "hélicoptère, hélisurface, héliport"
+            },
+            "aeroway/runway": {
+                "name": "Piste d'atterissage",
+                "terms": "Bande d'atterissage"
+            },
+            "aeroway/taxiway": {
+                "name": "Taxiway"
+            },
+            "aeroway/terminal": {
+                "name": "Terminal aéroportuaire",
+                "terms": "aéroport,aérodrome"
             },
             "amenity": {
                 "name": "Équipements"
@@ -619,6 +686,9 @@
                 "name": "Café",
                 "terms": "café, salon de thé"
             },
+            "amenity/car_wash": {
+                "name": "Lavage de voiture"
+            },
             "amenity/cinema": {
                 "name": "Cinéma",
                 "terms": "cinéma, film, ciné, cinématographe, salle obscure, projection "
@@ -635,6 +705,9 @@
             "amenity/fire_station": {
                 "name": "Caserne de pompiers"
             },
+            "amenity/fountain": {
+                "name": "Fontaine"
+            },
             "amenity/fuel": {
                 "name": "Station service"
             },
@@ -644,6 +717,10 @@
             "amenity/hospital": {
                 "name": "Hôpital",
                 "terms": "clinique, CHU, centre hospitalier, hôpital, infirmerie, hospice, cabinet, maison de repos, urgences, soins"
+            },
+            "amenity/kindergarten": {
+                "name": "Ecole maternelle",
+                "terms": "crêche"
             },
             "amenity/library": {
                 "name": "Bibliothèque"
@@ -715,6 +792,10 @@
             "amenity/university": {
                 "name": "Université"
             },
+            "amenity/waste_basket": {
+                "name": "Corbeille",
+                "terms": "poubelle"
+            },
             "barrier": {
                 "name": "Barrière"
             },
@@ -781,6 +862,9 @@
             "building/house": {
                 "name": "Maison"
             },
+            "emergency/phone": {
+                "name": "Téléphone d'urgence"
+            },
             "entrance": {
                 "name": "Entrée"
             },
@@ -804,6 +888,9 @@
             "highway/footway": {
                 "name": "Voie piétonne",
                 "terms": "passage, chemin, route, rue, autoroute, avenue, boulevard, chaussée, chemin de fer, rails, piste, allée, sentier, voie"
+            },
+            "highway/living_street": {
+                "name": "Zone de rencontre"
             },
             "highway/mini_roundabout": {
                 "name": "Mini rond-point"
@@ -846,6 +933,21 @@
             },
             "highway/service": {
                 "name": "Route d'accès"
+            },
+            "highway/service/alley": {
+                "name": "Ruelle"
+            },
+            "highway/service/drive-through": {
+                "name": "Drive In"
+            },
+            "highway/service/driveway": {
+                "name": "Allée"
+            },
+            "highway/service/emergency_access": {
+                "name": "Accès d'urgence"
+            },
+            "highway/service/parking_aisle": {
+                "name": "Allée de parking"
             },
             "highway/steps": {
                 "name": "Escalier",
@@ -950,6 +1052,9 @@
             "landuse/residential": {
                 "name": "Résidentielle"
             },
+            "landuse/retail": {
+                "name": "Commerce"
+            },
             "landuse/vineyard": {
                 "name": "Vigne"
             },
@@ -987,6 +1092,9 @@
             "leisure/pitch/tennis": {
                 "name": "Court de tennis"
             },
+            "leisure/pitch/volleyball": {
+                "name": "Terrain de volleyball"
+            },
             "leisure/playground": {
                 "name": "Jeux pour enfants"
             },
@@ -1002,14 +1110,26 @@
             "man_made": {
                 "name": "Édifices"
             },
+            "man_made/breakwater": {
+                "name": "Brise-lames"
+            },
+            "man_made/cutline": {
+                "name": "Ligne de coupe"
+            },
             "man_made/lighthouse": {
                 "name": "Phare"
             },
             "man_made/pier": {
                 "name": "Jetée"
             },
+            "man_made/pipeline": {
+                "name": "Pipeline"
+            },
             "man_made/survey_point": {
                 "name": "Poteau de triangulation"
+            },
+            "man_made/tower": {
+                "name": "Tour"
             },
             "man_made/wastewater_plant": {
                 "name": "Station d'épuration",
@@ -1017,6 +1137,9 @@
             },
             "man_made/water_tower": {
                 "name": "Château d'eau"
+            },
+            "man_made/water_well": {
+                "name": "Puits"
             },
             "man_made/water_works": {
                 "name": "Station de pompage d'eau potable"
@@ -1173,7 +1296,8 @@
                 "name": "Magasin"
             },
             "shop/alcohol": {
-                "name": "Magasin de vente d'alcool"
+                "name": "Magasin de vente d'alcool",
+                "terms": "alcool"
             },
             "shop/bakery": {
                 "name": "Boulangerie"
