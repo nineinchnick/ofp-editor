@@ -17,13 +17,13 @@ describe('iD.Connection', function () {
 
     describe('#changesetUrl', function() {
         it('provides a changeset url', function() {
-            expect(c.changesetURL(2)).to.eql('http://localhost:3000/browse/changeset/2');
+            expect(c.changesetURL(2)).to.eql('http://openfloorplan.herokuapp.com/browse/changeset/2');
         });
     });
 
     describe('#userURL', function() {
         it('provides a user url', function() {
-            expect(c.userURL('bob')).to.eql('http://localhost:3000/user/bob');
+            expect(c.userURL('bob')).to.eql('http://openfloorplan.herokuapp.com/user/bob');
         });
     });
 

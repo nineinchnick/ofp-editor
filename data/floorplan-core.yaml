@@ -122,12 +122,12 @@ en:
       multiple_ways: There are too many lines here to split.
   nothing_to_undo: Nothing to undo.
   nothing_to_redo: Nothing to redo.
-  just_edited: "You just edited OpenStreetMap!"
-  browser_notice: "This editor is supported in Firefox, Chrome, Safari, Opera, and Internet Explorer 9 and above. Please upgrade your browser or use Potlatch 2 to edit the map."
+  just_edited: "You just edited OpenFloorPlan!"
+  browser_notice: "This editor is supported in Firefox, Chrome, Safari, Opera, and Internet Explorer 9 and above. Please upgrade your browser."
   view_on_osm: "View on OSM"
   zoom_in_edit: zoom in to edit the map
   logout: logout
-  loading_auth: "Connecting to OpenStreetMap..."
+  loading_auth: "Connecting to OpenFloorPlan..."
   report_a_bug: report a bug
   commit:
     title: Save Changes
@@ -177,7 +177,7 @@ en:
     help: "Save changes to OpenFloorPlan, making them visible to other users."
     no_changes: No changes to save.
     error: An error occurred while trying to save
-    uploading: Uploading changes to OpenStreetMap.
+    uploading: Uploading changes to OpenFloorPlan.
     unsaved_changes: You have unsaved changes
   splash:
     welcome: Welcome to the OpenFloorPlan Editor
@@ -190,7 +190,7 @@ en:
     dev: dev
   tag_reference:
     description: Description
-    on_wiki: "{tag} on wiki.osm.org"
+    on_wiki: "{tag} on wiki.openfloorplan.org"
     used_with: "used with {type}"
   validations:
     untagged_point: Untagged point which is not part of a line or area
@@ -216,8 +216,8 @@ en:
     help: |
       # Help
 
-      This is an editor for [OpenStreetMap](http://www.openstreetmap.org/), the
-      free and editable map of the building floor plans. You can use it to add and update
+      This is an editor for [OpenFloorPlan](http://www.openstreetmap.org/), a
+      free and editable map of building floor plans. You can use it to add and update
       data in your area, making an open-source and open-data map of the world
       better for everyone.
 
@@ -225,8 +225,8 @@ en:
       OpenFloorPlan. In order to make an edit, you'll need a
       [free OpenFloorPlan account](https://www.openfloorplan.org/user/new).
 
-      The [iD editor](http://ideditor.com/) is a collaborative project with [source
-      code available on GitHub](https://github.com/systemed/iD).
+      The OpenFloorPlan editor is based on open source code from [iD editor](http://ideditor.com/) project.
+
     editing_saving: |
       # Editing & Saving
 
@@ -322,22 +322,8 @@ en:
     gps: |
       # GPS
 
-      GPS data is the most trusted source of data for OpenStreetMap. This editor
-      supports local traces - `.gpx` files on your local computer. You can collect
-      this kind of GPS trace with a number of smartphone applications as well as
-      personal GPS hardware.
-
-      For information on how to perform a GPS survey, read
-      [Surveying with a GPS](http://learnosm.org/en/beginner/using-gps/).
-
-      To use a GPX track for mapping, drag and drop the GPX file onto the map
-      editor. If it's recognized, it will be added to the map as a bright green
-      line. Click on the 'Background Settings' menu on the left side to enable,
-      disable, or zoom to this new GPX-powered layer.
-
-      The GPX track isn't directly uploaded to OpenStreetMap - the best way to
-      use it is to draw on the map, using it as a guide for the new features that
-      you add.
+      Since GPS will not be accurate inside the building, the functionality will be disabled
+       in future versions of OpenFloorPlan Editor.
     imagery: |
       # Imagery
 
@@ -360,7 +346,7 @@ en:
 
       Addresses are some of the most useful information for the map.
 
-      Although addresses are often represented as parts of streets, in OpenStreetMap
+      Although addresses are often represented as parts of streets, in OpenFloorPlan
       they're recorded as attributes of buildings and places along streets.
 
       You can add address information to places mapped as building outlines as well
@@ -408,8 +394,7 @@ en:
     buildings: |
       # Buildings
 
-      OpenStreetMap is the world's largest database of buildings. You can create
-      and improve this database.
+
 
       ### Selecting
 
@@ -429,29 +414,14 @@ en:
 
       ### Creating
 
-      One of the main questions around adding buildings to the map is that
-      OpenStreetMap records buildings both as shapes and points. The rule of thumb
-      is to _map a building as a shape whenever possible_, and map companies, homes,
-      amenities, and other things that operate out of buildings as points placed
-      within the building shape.
 
-      Start drawing a building as a shape by clicking the 'Area' button in the top
-      left of the interface, and end it either by pressing 'Return' on your keyboard
-      or clicking on the first point drawn to close the shape.
 
       ### Deleting
 
-      If a building is entirely incorrect - you can see that it doesn't exist in satellite
-      imagery and ideally have confirmed locally that it's not present - you can delete
-      it, which removes it from the map. Be cautious when deleting features -
-      like any other edit, the results are seen by everyone and satellite imagery
-      is often out of date, so the road could simply be newly built.
 
-      You can delete a building by clicking on it to select it, then clicking the
-      trash can icon or pressing the 'Delete' key.
   intro:
     navigation:
-      drag: "The main map area shows OpenStreetMap data on top of a background. You can navigate by dragging and scrolling, just like any web map. **Drag the map!**"
+      drag: "The main map area shows OpenFloorPlan data on top of a background. You can navigate by dragging and scrolling, just like any web map. **Drag the map!**"
       select: "Map features are represented three ways: using points, lines or areas. All features can be selected by clicking on them. **Click on the point to select it.**"
       header: "The header shows us the feature type."
       pane: "When a feature is selected, the feature editor is displayed. The header shows us the feature type and the main pane shows the feature's attributes, such as its name and address. **Close the feature editor with the close button in the top right.**"

@@ -1,15 +1,15 @@
 iD.Connection = function(context) {
 
     var event = d3.dispatch('authenticating', 'authenticated', 'auth', 'loading', 'load', 'loaded'),
-        url = 'http://localhost:3000',
+        url = 'http://openfloorplan.herokuapp.com',
         connection = {},
         user = {},
         inflight = {},
         loadedTiles = {},
         oauth = osmAuth({
-            url: 'http://localhost:3000',
-            oauth_consumer_key: 'EMNLFsAJ7SscoDwM9Pu4cua67iIgHkDsBMJ4979R',
-            oauth_secret: '9oMcXzoat8sis6aoW1p2drbEbhOwWAyi3T5auZ5r',
+            url: 'http://openfloorplan.herokuapp.com',
+            oauth_consumer_key: 'DTi3QlLLQW5tu2ktUq0ULqonaGWSD788AltugjpU',
+            oauth_secret: 'MA23mNT9cNIL7ScNu5lUTygqPwP9ZbBpzsrLwovp',
             loading: authenticating,
             done: authenticated
         }),

@@ -25,7 +25,7 @@ iD.ui.Geocoder = function(context) {
             d3.event.preventDefault();
             var searchVal = this.value;
             inputNode.classed('loading', true);
-            d3.json('http://localhost:3000/search/' +
+            d3.json('http://openfloorplan.herokuapp.com/search/' +
                 encodeURIComponent(searchVal) + '?limit=10&format=json', function(err, resp) {
                     inputNode.classed('loading', false);
                     if (err) return hide();

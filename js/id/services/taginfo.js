@@ -1,6 +1,6 @@
 iD.taginfo = function() {
     var taginfo = {},
-        endpoint = 'http://localhost:3000/api/4/',
+        endpoint = 'http://openfloorplan.herokuapp.com/api/4/',
         tag_sorts = {
             point: 'count_nodes',
             vertex: 'count_nodes',

@@ -152,7 +152,7 @@ module.exports = function(o) {
 
         o = _;
 
-        o.url = o.url || 'http://localhost:3000';
+        o.url = o.url || 'http://openfloorplan.herokuapp.com';
         o.landing = o.landing || 'land.html';
 
         // Optional loading and loading-done functions for nice UI feedback.

@@ -35,7 +35,7 @@ iD.ui.Contributors = function(context) {
                 .attr('tabindex', -1)
                 .attr('href', function() {
                     var ext = context.map().extent();
-                    return 'http://localhost:3000/browse/changesets?bbox=' + [
+                    return 'http://openfloorplan.herokuapp.com/browse/changesets?bbox=' + [
                         ext[0][0], ext[0][1],
                         ext[1][0], ext[1][1]];
                 })
