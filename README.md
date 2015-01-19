@@ -1,7 +1,7 @@
 
 # OpenFloorPlan Editor
 
-
+Update (Jan. 2015): This project will need a lot of work before it is usable. It is not completely dead, I do plan to get back to it in some form. If you interested in contributing feel free to send me a message.
 
 ## Basics
 
@@ -9,6 +9,8 @@
 * This is a fork of the awesome iD editor for [OpenStreetMap](http://www.openstreetmap.org/) https://github.com/systemed/iD
 
 This is pre-alpha code, intended as a proof of concept, more information will follow.
+
+
 
 ## Installation
 
