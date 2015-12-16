@@ -1,6 +1,6 @@
 iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
     var way = context.entity(wayId),
-        isArea = way.geometry() === 'area',
+        isArea = context.geometry(wayId) === 'area',
         finished = false,
         annotation = t((way.isDegenerate() ?
             'operations.start.annotation.' :
@@ -11,7 +11,7 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
         start = iD.Node({loc: context.graph().entity(way.nodes[startIndex]).loc}),
         end = iD.Node({loc: context.map().mouseCoordinates()}),
         segment = iD.Way({
-            nodes: [start.id, end.id],
+            nodes: typeof index === 'undefined' ? [start.id, end.id] : [end.id, start.id],
             tags: _.clone(way.tags)
         });
 
@@ -26,18 +26,14 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
     }
 
     function move(datum) {
-        var loc = context.map().mouseCoordinates();
+        var loc;
 
-        if (datum.id === end.id || datum.id === segment.id) {
-            context.surface().selectAll('.way, .node')
-                .filter(function(d) {
-                    return d.id === end.id || d.id === segment.id;
-                })
-                .classed('active', true);
-        } else if (datum.type === 'node') {
+        if (datum.type === 'node' && datum.id !== end.id) {
             loc = datum.loc;
-        } else if (datum.type === 'way') {
-            loc = iD.geo.chooseIndex(datum, d3.mouse(context.surface().node()), context).loc;
+        } else if (datum.type === 'way' && datum.id !== segment.id) {
+            loc = iD.geo.chooseEdge(context.childNodes(datum), context.mouse(), context.projection).loc;
+        } else {
+            loc = context.map().mouseCoordinates();
         }
 
         context.replace(iD.actions.MoveNode(end.id, loc));
@@ -48,12 +44,10 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
         context.enter(iD.modes.Browse(context));
     }
 
-    function lineActives(d) {
-        return d.id === segment.id || d.id === start.id || d.id === end.id;
-    }
-
-    function areaActives(d) {
-        return d.id === wayId || d.id === end.id;
+    function setActiveElements() {
+        var active = isArea ? [wayId, end.id] : [segment.id, start.id, end.id];
+        context.surface().selectAll(iD.util.entitySelector(active))
+            .classed('active', true);
     }
 
     var drawWay = function(surface) {
@@ -66,13 +60,12 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
             .on('finish', drawWay.finish);
 
         context.map()
-            .minzoom(16)
-            .dblclickEnable(false);
+            .dblclickEnable(false)
+            .on('drawn.draw', setActiveElements);
 
-        surface.call(draw)
-          .selectAll('.way, .node')
-            .filter(isArea ? areaActives : lineActives)
-            .classed('active', true);
+        setActiveElements();
+
+        surface.call(draw);
 
         context.history()
             .on('undone.draw', undone);
@@ -83,11 +76,10 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
             context.pop();
 
         context.map()
-            .minzoom(0)
-            .tail(false);
+            .on('drawn.draw', null);
 
         surface.call(draw.off)
-          .selectAll('.way, .node')
+            .selectAll('.active')
             .classed('active', false);
 
         context.history()
@@ -131,12 +123,13 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
 
     // Connect the way to an existing way.
     drawWay.addWay = function(loc, edge) {
+        var previousEdge = startIndex ?
+            [way.nodes[startIndex], way.nodes[startIndex - 1]] :
+            [way.nodes[0], way.nodes[1]];
 
         // Avoid creating duplicate segments
-        if (!isArea) {
-            if (edge[0] === way.nodes[way.nodes.length - 1] ||
-                edge[1] === way.nodes[way.nodes.length - 1]) return;
-        }
+        if (!isArea && iD.geo.edgeEqual(edge, previousEdge))
+            return;
 
         var newNode = iD.Node({ loc: loc });
 
@@ -195,6 +188,11 @@ iD.behavior.DrawWay = function(context, wayId, index, mode, baseGraph) {
 
         finished = true;
         context.enter(iD.modes.Browse(context));
+    };
+
+    drawWay.tail = function(text) {
+        draw.tail(text);
+        return drawWay;
     };
 
     return drawWay;

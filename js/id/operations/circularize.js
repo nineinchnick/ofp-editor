@@ -1,5 +1,7 @@
-iD.operations.Circularize = function(selection, context) {
-    var entityId = selection[0],
+iD.operations.Circularize = function(selectedIDs, context) {
+    var entityId = selectedIDs[0],
+        entity = context.entity(entityId),
+        extent = entity.extent(context.graph()),
         geometry = context.geometry(entityId),
         action = iD.actions.Circularize(entityId, context.projection);
 
@@ -9,12 +11,19 @@ iD.operations.Circularize = function(selection, context) {
     };
 
     operation.available = function() {
-        return selection.length === 1 &&
-            context.entity(entityId).type === 'way';
+        return selectedIDs.length === 1 &&
+            entity.type === 'way' &&
+            _.uniq(entity.nodes).length > 1;
     };
 
     operation.disabled = function() {
-        return action.disabled(context.graph());
+        var reason;
+        if (extent.percentContainedIn(context.extent()) < 0.8) {
+            reason = 'too_large';
+        } else if (context.hasHiddenConnections(entityId)) {
+            reason = 'connected_to_hidden';
+        }
+        return action.disabled(context.graph()) || reason;
     };
 
     operation.tooltip = function() {
@@ -24,7 +33,7 @@ iD.operations.Circularize = function(selection, context) {
             t('operations.circularize.description.' + geometry);
     };
 
-    operation.id = "circularize";
+    operation.id = 'circularize';
     operation.keys = [t('operations.circularize.key')];
     operation.title = t('operations.circularize.title');
 

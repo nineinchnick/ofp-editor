@@ -1,10 +1,4 @@
 iD.svg = {
-    RoundProjection: function(projection) {
-        return function(d) {
-            return iD.geo.roundCoords(projection(d));
-        };
-    },
-
     PointTransform: function(projection) {
         return function(entity) {
             // http://jsperf.com/short-array-join
@@ -13,13 +7,19 @@ iD.svg = {
         };
     },
 
-    LineString: function(projection, graph) {
+    Path: function(projection, graph, polygon) {
         var cache = {},
-            path = d3.geo.path().projection(projection);
+            clip = d3.geo.clipExtent().extent(projection.clipExtent()).stream,
+            project = projection.stream,
+            path = d3.geo.path()
+                .projection({stream: function(output) { return polygon ? project(output) : project(clip(output)); }});
 
         return function(entity) {
-            if (entity.id in cache) return cache[entity.id];
-            return cache[entity.id] = path(entity.asGeoJSON(graph));
+            if (entity.id in cache) {
+                return cache[entity.id];
+            } else {
+                return cache[entity.id] = path(entity.asGeoJSON(graph));
+            }
         };
     },
 
@@ -30,6 +30,7 @@ iD.svg = {
                 i = 0,
                 offset = dt,
                 segments = [],
+                clip = d3.geo.clipExtent().extent(projection.clipExtent()).stream,
                 coordinates = graph.childNodes(entity).map(function(n) {
                     return n.loc;
                 });
@@ -39,45 +40,44 @@ iD.svg = {
             d3.geo.stream({
                 type: 'LineString',
                 coordinates: coordinates
-            }, projection.stream({
+            }, projection.stream(clip({
                 lineStart: function() {},
-                lineEnd: function() {},
+                lineEnd: function() {
+                    a = null;
+                },
                 point: function(x, y) {
                     b = [x, y];
 
                     if (a) {
-                        var segment = 'M' + a[0] + ',' + a[1];
+                        var span = iD.geo.euclideanDistance(a, b) - offset;
 
-                        var span = iD.geo.dist(a, b),
-                            angle = Math.atan2(b[1] - a[1], b[0] - a[0]),
-                            dx = dt * Math.cos(angle),
-                            dy = dt * Math.sin(angle),
-                            p;
+                        if (span >= 0) {
+                            var angle = Math.atan2(b[1] - a[1], b[0] - a[0]),
+                                dx = dt * Math.cos(angle),
+                                dy = dt * Math.sin(angle),
+                                p = [a[0] + offset * Math.cos(angle),
+                                     a[1] + offset * Math.sin(angle)];
 
-                        if (offset < span) {
-                            p = [a[0] + offset * Math.cos(angle),
-                                 a[1] + offset * Math.sin(angle)];
+                            var segment = 'M' + a[0] + ',' + a[1] +
+                                          'L' + p[0] + ',' + p[1];
 
-                            segment += 'L' + p[0] + ',' + p[1];
+                            for (span -= dt; span >= 0; span -= dt) {
+                                p[0] += dx;
+                                p[1] += dy;
+                                segment += 'L' + p[0] + ',' + p[1];
+                            }
+
+                            segment += 'L' + b[0] + ',' + b[1];
+                            segments.push({id: entity.id, index: i, d: segment});
                         }
 
-                        while ((offset + dt) < span) {
-                            offset += dt;
-                            p[0] += dx;
-                            p[1] += dy;
-                            segment += 'L' + p[0] + ',' + p[1];
-                        }
-
-                        offset = dt - (span - offset);
-
-                        segment += 'L' + b[0] + ',' + b[1];
-                        segments.push({id: entity.id, index: i, d: segment});
+                        offset = -span;
                         i++;
                     }
 
                     a = b;
                 }
-            }));
+            })));
 
             return segments;
         };

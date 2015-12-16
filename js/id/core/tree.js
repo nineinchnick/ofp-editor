@@ -1,92 +1,98 @@
-iD.Tree = function(graph) {
-
-    var rtree = new RTree(),
-        m = 1000 * 1000 * 100,
-        head = graph,
-        queuedCreated = [],
-        queuedModified = [],
-        x, y, dx, dy, rebased;
+iD.Tree = function(head) {
+    var rtree = rbush(),
+        rectangles = {};
 
     function extentRectangle(extent) {
-            x = m * extent[0][0],
-            y = m * extent[0][1],
-            dx = Math.max(m * extent[1][0] - x, 1),
-            dy = Math.max(m * extent[1][1] - y, 1);
-        return new RTree.Rectangle(~~x, ~~y, ~~dx, ~~dy);
+        return [
+            extent[0][0],
+            extent[0][1],
+            extent[1][0],
+            extent[1][1]
+        ];
     }
 
-    function insert(entity) {
-        rtree.insert(extentRectangle(entity.extent(head)), entity.id);
+    function entityRectangle(entity) {
+        var rect = extentRectangle(entity.extent(head));
+        rect.id = entity.id;
+        rectangles[entity.id] = rect;
+        return rect;
     }
 
-    function remove(entity) {
-        rtree.remove(extentRectangle(entity.extent(graph)), entity.id);
+    function updateParents(entity, insertions, memo) {
+        head.parentWays(entity).forEach(function(parent) {
+            if (rectangles[parent.id]) {
+                rtree.remove(rectangles[parent.id]);
+                insertions[parent.id] = parent;
+            }
+        });
+
+        head.parentRelations(entity).forEach(function(parent) {
+            if (memo[entity.id]) return;
+            memo[entity.id] = true;
+            if (rectangles[parent.id]) {
+                rtree.remove(rectangles[parent.id]);
+                insertions[parent.id] = parent;
+            }
+            updateParents(parent, insertions, memo);
+        });
     }
 
-    function reinsert(entity) {
-        remove(graph.entities[entity.id]);
-        insert(entity);
-    }
+    var tree = {};
 
-    var tree = {
+    tree.rebase = function(entities, force) {
+        var insertions = {};
 
-        rebase: function(entities) {
-            for (var i = 0; i < entities.length; i++) {
-                if (!graph.entities.hasOwnProperty(entities[i])) {
-                    insert(graph.entity(entities[i]), true);
+        for (var i = 0; i < entities.length; i++) {
+            var entity = entities[i];
+
+            if (!entity.visible)
+                continue;
+
+            if (head.entities.hasOwnProperty(entity.id) || rectangles[entity.id]) {
+                if (!force) {
+                    continue;
+                } else if (rectangles[entity.id]) {
+                    rtree.remove(rectangles[entity.id]);
                 }
             }
-            rebased = true;
-            return tree;
-        },
 
-        intersects: function(extent, g) {
-
-            head = g;
-
-            if (graph !== head || rebased) {
-                var diff = iD.Difference(graph, head),
-                    modified = {};
-
-                diff.modified().forEach(function(d) {
-                    var loc = graph.entities[d.id].loc;
-                    if (!loc || loc[0] !== d.loc[0] || loc[1] !== d.loc[1]) {
-                        modified[d.id] = d;
-                    }
-                });
-
-                var created = diff.created().concat(queuedCreated);
-                modified = d3.values(diff.addParents(modified))
-                    // some parents might be created, not modified
-                    .filter(function(d) { return !!graph.hasEntity(d.id); })
-                    .concat(queuedModified);
-                queuedCreated = [];
-                queuedModified = [];
-
-                modified.forEach(function(d) {
-                    if (head.hasAllChildren(d)) reinsert(d);
-                    else queuedModified.push(d);
-                });
-
-                created.forEach(function(d) {
-                    if (head.hasAllChildren(d)) insert(d);
-                    else queuedCreated.push(d);
-                });
-
-                diff.deleted().forEach(remove);
-
-                graph = head;
-                rebased = false;
-            }
-
-            return rtree.search(extentRectangle(extent))
-                .map(function(id) { return graph.entity(id); });
-        },
-
-        graph: function() {
-            return graph;
+            insertions[entity.id] = entity;
+            updateParents(entity, insertions, {});
         }
 
+        rtree.load(_.map(insertions, entityRectangle));
+
+        return tree;
+    };
+
+    tree.intersects = function(extent, graph) {
+        if (graph !== head) {
+            var diff = iD.Difference(head, graph),
+                insertions = {};
+
+            head = graph;
+
+            diff.deleted().forEach(function(entity) {
+                rtree.remove(rectangles[entity.id]);
+                delete rectangles[entity.id];
+            });
+
+            diff.modified().forEach(function(entity) {
+                rtree.remove(rectangles[entity.id]);
+                insertions[entity.id] = entity;
+                updateParents(entity, insertions, {});
+            });
+
+            diff.created().forEach(function(entity) {
+                insertions[entity.id] = entity;
+            });
+
+            rtree.load(_.map(insertions, entityRectangle));
+        }
+
+        return rtree.search(extentRectangle(extent)).map(function(rect) {
+            return head.entity(rect.id);
+        });
     };
 
     return tree;

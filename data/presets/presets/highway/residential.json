@@ -2,10 +2,11 @@
     "icon": "highway-residential",
     "fields": [
         "oneway",
+        "maxspeed",
         "structure",
         "access",
-        "maxspeed",
-        "surface"
+        "surface",
+        "cycleway"
     ],
     "geometry": [
         "line"

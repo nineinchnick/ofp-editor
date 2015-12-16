@@ -1,108 +1,89 @@
-iD.ui.Inspector = function(context, entity) {
-    var tagEditor,
-        id = entity.id,
+iD.ui.Inspector = function(context) {
+    var presetList = iD.ui.PresetList(context),
+        entityEditor = iD.ui.EntityEditor(context),
+        state = 'select',
+        entityID,
         newFeature = false;
 
-    function changeTags(tags) {
-        var entity = context.hasEntity(id);
-        if (entity && !_.isEqual(entity.tags, tags)) {
-            context.perform(
-                iD.actions.ChangeTags(entity.id, tags),
-                t('operations.change_tags.annotation'));
-        }
-    }
-
-    function browse() {
-        context.enter(iD.modes.Browse(context));
-    }
-
     function inspector(selection) {
-
-        var reselect = selection.html();
-
-        selection
-            .html('')
-            .style('display', 'block')
-            .style('right', '-500px')
-            .style('opacity', 1)
-            .transition()
-            .duration(reselect ? 0 : 200)
-            .style('right', '0px');
-
-        var panewrap = selection
-            .append('div')
-            .classed('panewrap', true);
-
-        var presetLayer = panewrap
-            .append('div')
-            .classed('pane grid-pane', true);
-
-        var tagLayer = panewrap
-            .append('div')
-            .classed('pane tag-pane', true);
-
-        var presetGrid = iD.ui.PresetGrid(context, entity)
+        presetList
+            .entityID(entityID)
             .autofocus(newFeature)
-            .on('close', browse)
-            .on('choose', function(preset) {
-                var right = panewrap.style('right').indexOf('%') > 0 ? '0%' : '0px';
-                panewrap
-                    .transition()
-                    .style('right', right);
+            .on('choose', setPreset);
 
-                tagLayer.call(tagEditor, preset);
-            });
+        entityEditor
+            .state(state)
+            .entityID(entityID)
+            .on('choose', showList);
 
-        tagEditor = iD.ui.TagEditor(context, entity)
-            .on('changeTags', changeTags)
-            .on('close', browse)
-            .on('choose', function(preset) {
-                var right = panewrap.style('right').indexOf('%') > 0 ?
-                    '-100%' :
-                    '-' + selection.style('width');
-                panewrap
-                    .transition()
-                    .style('right', right);
+        var $wrap = selection.selectAll('.panewrap')
+            .data([0]);
 
-                presetGrid.autofocus(true);
-                presetLayer.call(presetGrid, preset);
-            });
+        var $enter = $wrap.enter().append('div')
+            .attr('class', 'panewrap');
 
-        var tagless = _.without(Object.keys(entity.tags), 'area').length === 0;
+        $enter.append('div')
+            .attr('class', 'preset-list-pane pane');
 
-        if (tagless) {
-            panewrap.style('right', '-100%');
-            presetLayer.call(presetGrid);
+        $enter.append('div')
+            .attr('class', 'entity-editor-pane pane');
+
+        var $presetPane = $wrap.select('.preset-list-pane');
+        var $editorPane = $wrap.select('.entity-editor-pane');
+
+        var graph = context.graph(),
+            entity = context.entity(entityID),
+            showEditor = state === 'hover' ||
+                entity.isUsed(graph) ||
+                entity.isHighwayIntersection(graph);
+
+        if (showEditor) {
+            $wrap.style('right', '0%');
+            $editorPane.call(entityEditor);
         } else {
-            panewrap.style('right', '-0%');
-            tagLayer.call(tagEditor);
+            $wrap.style('right', '-100%');
+            $presetPane.call(presetList);
         }
 
-        if (d3.event) {
-            // Pan the map if the clicked feature intersects with the position
-            // of the inspector
-            var inspectorSize = selection.size(),
-                mapSize = context.map().size(),
-                offset = 50,
-                shiftLeft = d3.event.clientX - mapSize[0] + inspectorSize[0] + offset,
-                center = (mapSize[0] / 2) + shiftLeft + offset;
+        var $footer = selection.selectAll('.footer')
+            .data([0]);
 
-            if (shiftLeft > 0 && inspectorSize[1] > d3.event.clientY) {
-                context.map().centerEase(context.projection.invert([center, mapSize[1]/2]));
-            }
+        $footer.enter().append('div')
+            .attr('class', 'footer');
+
+        selection.select('.footer')
+            .call(iD.ui.ViewOnOSM(context)
+                .entityID(entityID));
+
+        function showList(preset) {
+            $wrap.transition()
+                .styleTween('right', function() { return d3.interpolate('0%', '-100%'); });
+
+            $presetPane.call(presetList
+                .preset(preset)
+                .autofocus(true));
+        }
+
+        function setPreset(preset) {
+            $wrap.transition()
+                .styleTween('right', function() { return d3.interpolate('-100%', '0%'); });
+
+            $editorPane.call(entityEditor
+                .preset(preset));
         }
     }
 
-    inspector.close = function(selection) {
-        tagEditor.close();
+    inspector.state = function(_) {
+        if (!arguments.length) return state;
+        state = _;
+        entityEditor.state(state);
+        return inspector;
+    };
 
-        selection.transition()
-            .style('right', '-500px')
-            .each('end', function() {
-                d3.select(this)
-                    .style('display', 'none')
-                    .html('');
-            });
+    inspector.entityID = function(_) {
+        if (!arguments.length) return entityID;
+        entityID = _;
+        return inspector;
     };
 
     inspector.newFeature = function(_) {

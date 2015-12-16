@@ -8,9 +8,10 @@ iD.modes.AddLine = function(context) {
     };
 
     var behavior = iD.behavior.AddWay(context)
-            .on('start', start)
-            .on('startFromWay', startFromWay)
-            .on('startFromNode', startFromNode);
+        .tail(t('modes.add_line.tail'))
+        .on('start', start)
+        .on('startFromWay', startFromWay)
+        .on('startFromNode', startFromNode);
 
     function start(loc) {
         var graph = context.graph(),
@@ -25,7 +26,7 @@ iD.modes.AddLine = function(context) {
             iD.actions.AddEntity(way),
             iD.actions.AddVertex(way.id, node.id));
 
-        context.enter(iD.modes.DrawLine(context, way.id, 'forward', graph));
+        context.enter(iD.modes.DrawLine(context, way.id, graph));
     }
 
     function startFromWay(loc, edge) {
@@ -42,36 +43,23 @@ iD.modes.AddLine = function(context) {
             iD.actions.AddVertex(way.id, node.id),
             iD.actions.AddMidpoint({ loc: loc, edge: edge }, node));
 
-        context.enter(iD.modes.DrawLine(context, way.id, 'forward', graph));
+        context.enter(iD.modes.DrawLine(context, way.id, graph));
     }
 
     function startFromNode(node) {
-        var graph = context.graph(),
-            parent = graph.parentWays(node)[0],
-            isLine = parent && parent.geometry(graph) === 'line';
+        var way = iD.Way();
 
-        if (isLine && parent.first() === node.id) {
-            context.enter(iD.modes.DrawLine(context, parent.id, 'backward', graph));
+        way.setFloor(context);
 
-        } else if (isLine && parent.last() === node.id) {
-            context.enter(iD.modes.DrawLine(context, parent.id, 'forward', graph));
+        context.perform(
+            iD.actions.AddEntity(way),
+            iD.actions.AddVertex(way.id, node.id));
 
-        } else {
-            var way = iD.Way();
-
-            way.setFloor(context);
-
-            context.perform(
-                iD.actions.AddEntity(way),
-                iD.actions.AddVertex(way.id, node.id));
-
-            context.enter(iD.modes.DrawLine(context, way.id, 'forward', graph));
-        }
+        context.enter(iD.modes.DrawLine(context, way.id, context.graph()));
     }
 
     mode.enter = function() {
         context.install(behavior);
-        context.tail(t('modes.add_line.tail'));
     };
 
     mode.exit = function() {

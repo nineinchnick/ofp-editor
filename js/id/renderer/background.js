@@ -1,196 +1,290 @@
-iD.Background = function(backgroundType) {
+iD.Background = function(context) {
+    var dispatch = d3.dispatch('change'),
+        baseLayer = iD.TileLayer()
+            .projection(context.projection),
+        gpxLayer = iD.GpxLayer(context, dispatch)
+            .projection(context.projection),
+        mapillaryLayer = iD.MapillaryLayer(context),
+        overlayLayers = [];
 
-    backgroundType = backgroundType || 'layer';
+    var backgroundSources;
 
-    var tileSize = 256,
-        tile = d3.geo.tile(),
-        projection,
-        cache = {},
-        offset = [0, 0],
-        offsets = {},
-        tileOrigin,
-        z,
-        transformProp = iD.util.prefixCSSProperty('Transform'),
-        source = d3.functor('');
-
-    function tileSizeAtZoom(d, z) {
-        return Math.ceil(tileSize * Math.pow(2, z - d[2])) / tileSize;
+    function findSource(id) {
+        return _.find(backgroundSources, function(d) {
+            return d.id && d.id === id;
+        });
     }
 
-    function atZoom(t, distance) {
-        var power = Math.pow(2, distance);
-        return [
-            Math.floor(t[0] * power),
-            Math.floor(t[1] * power),
-            t[2] + distance];
-    }
+    function updateImagery() {
+        var b = background.baseLayerSource(),
+            o = overlayLayers.map(function (d) { return d.source().id; }).join(','),
+            q = iD.util.stringQs(location.hash.substring(1));
 
-    function lookUp(d) {
-        for (var up = -1; up > -d[2]; up--) {
-            if (cache[atZoom(d, up)] !== false) return atZoom(d, up);
+        var id = b.id;
+        if (id === 'custom') {
+            id = 'custom:' + b.template;
         }
-    }
 
-    function uniqueBy(a, n) {
-        var o = [], seen = {};
-        for (var i = 0; i < a.length; i++) {
-            if (seen[a[i][n]] === undefined) {
-                o.push(a[i]);
-                seen[a[i][n]] = true;
+        if (id) {
+            q.background = id;
+        } else {
+            delete q.background;
+        }
+
+        if (o) {
+            q.overlays = o;
+        } else {
+            delete q.overlays;
+        }
+
+        location.replace('#' + iD.util.qsString(q, true));
+
+        var imageryUsed = [b.imageryUsed()];
+
+        overlayLayers.forEach(function (d) {
+            var source = d.source();
+            if (!source.isLocatorOverlay()) {
+                imageryUsed.push(source.imageryUsed());
             }
+        });
+
+        if (background.showsGpxLayer()) {
+            imageryUsed.push('Local GPX');
         }
-        return o;
+
+        context.history().imageryUsed(imageryUsed);
     }
 
-    function addSource(d) {
-        d.push(source(d));
-        return d;
-    }
-
-    // Update tiles based on current state of `projection`.
     function background(selection) {
-        tile.scale(projection.scale() * 2 * Math.PI)
-            .translate(projection.translate());
+        var base = selection.selectAll('.background-layer')
+            .data([0]);
 
-        tileOrigin = [
-            projection.scale() * Math.PI - projection.translate()[0],
-            projection.scale() * Math.PI - projection.translate()[1]];
+        base.enter().insert('div', '.layer-data')
+            .attr('class', 'layer-layer background-layer');
 
-        z = Math.max(Math.log(projection.scale() * 2 * Math.PI) / Math.log(2) - 8, 0);
+        base.call(baseLayer);
 
-        render(selection);
+        var overlays = selection.selectAll('.layer-overlay')
+            .data(overlayLayers, function(d) { return d.source().name(); });
+
+        overlays.enter().insert('div', '.layer-data')
+            .attr('class', 'layer-layer layer-overlay');
+
+        overlays.each(function(layer) {
+            d3.select(this).call(layer);
+        });
+
+        overlays.exit()
+            .remove();
+
+        var gpx = selection.selectAll('.layer-gpx')
+            .data([0]);
+
+        gpx.enter().insert('div')
+            .attr('class', 'layer-layer layer-gpx');
+
+        gpx.call(gpxLayer);
+
+        var mapillary = selection.selectAll('.layer-mapillary')
+            .data([0]);
+
+        mapillary.enter().insert('div')
+            .attr('class', 'layer-layer layer-mapillary');
+
+        mapillary.call(mapillaryLayer);
     }
 
-    // Derive the tiles onscreen, remove those offscreen and position them.
-    // Important that this part not depend on `projection` because it's
-    // rentered when tiles load/error (see #644).
-    function render(selection) {
-        var requests = [];
+    background.sources = function(extent) {
+        return backgroundSources.filter(function(source) {
+            return source.intersects(extent);
+        });
+    };
 
-        tile().forEach(function(d) {
-            addSource(d);
-            requests.push(d);
-            if (cache[d[3]] === false && lookUp(d)) {
-                requests.push(addSource(lookUp(d)));
+    background.dimensions = function(_) {
+        baseLayer.dimensions(_);
+        gpxLayer.dimensions(_);
+        mapillaryLayer.dimensions(_);
+
+        overlayLayers.forEach(function(layer) {
+            layer.dimensions(_);
+        });
+    };
+
+    background.baseLayerSource = function(d) {
+        if (!arguments.length) return baseLayer.source();
+
+        baseLayer.source(d);
+        dispatch.change();
+        updateImagery();
+
+        return background;
+    };
+
+    background.bing = function() {
+        background.baseLayerSource(findSource('Bing'));
+    };
+
+    background.hasGpxLayer = function() {
+        return !_.isEmpty(gpxLayer.geojson());
+    };
+
+    background.showsGpxLayer = function() {
+        return background.hasGpxLayer() && gpxLayer.enable();
+    };
+
+    function toDom(x) {
+        return (new DOMParser()).parseFromString(x, 'text/xml');
+    }
+
+    background.gpxLayerFiles = function(fileList) {
+        var f = fileList[0],
+            reader = new FileReader();
+
+        reader.onload = function(e) {
+            gpxLayer.geojson(toGeoJSON.gpx(toDom(e.target.result)));
+            iD.ui.MapInMap.gpxLayer.geojson(toGeoJSON.gpx(toDom(e.target.result)));
+            background.zoomToGpxLayer();
+            dispatch.change();
+        };
+
+        reader.readAsText(f);
+    };
+
+    background.zoomToGpxLayer = function() {
+        if (background.hasGpxLayer()) {
+            var map = context.map(),
+                viewport = map.trimmedExtent().polygon(),
+                coords = _.reduce(gpxLayer.geojson().features, function(coords, feature) {
+                    var c = feature.geometry.coordinates;
+                    return _.union(coords, feature.geometry.type === 'Point' ? [c] : c);
+                }, []);
+
+            if (!iD.geo.polygonIntersectsPolygon(viewport, coords, true)) {
+                var extent = iD.geo.Extent(d3.geo.bounds(gpxLayer.geojson()));
+                map.centerZoom(extent.center(), map.trimmedExtentZoom(extent));
+            }
+        }
+    };
+
+    background.toggleGpxLayer = function() {
+        gpxLayer.enable(!gpxLayer.enable());
+        iD.ui.MapInMap.gpxLayer.enable(!iD.ui.MapInMap.gpxLayer.enable());
+        dispatch.change();
+    };
+
+    background.showsMapillaryLayer = function() {
+        return mapillaryLayer.enable();
+    };
+
+    background.toggleMapillaryLayer = function() {
+        mapillaryLayer.enable(!mapillaryLayer.enable());
+        dispatch.change();
+    };
+
+    background.showsLayer = function(d) {
+        return d === baseLayer.source() ||
+            (d.id === 'custom' && baseLayer.source().id === 'custom') ||
+            overlayLayers.some(function(l) { return l.source() === d; });
+    };
+
+    background.overlayLayerSources = function() {
+        return overlayLayers.map(function (l) { return l.source(); });
+    };
+
+    background.toggleOverlayLayer = function(d) {
+        var layer;
+
+        for (var i = 0; i < overlayLayers.length; i++) {
+            layer = overlayLayers[i];
+            if (layer.source() === d) {
+                overlayLayers.splice(i, 1);
+                dispatch.change();
+                updateImagery();
+                return;
+            }
+        }
+
+        layer = iD.TileLayer()
+            .source(d)
+            .projection(context.projection)
+            .dimensions(baseLayer.dimensions());
+
+        overlayLayers.push(layer);
+        dispatch.change();
+        updateImagery();
+    };
+
+    background.nudge = function(d, zoom) {
+        baseLayer.source().nudge(d, zoom);
+        dispatch.change();
+        return background;
+    };
+
+    background.offset = function(d) {
+        if (!arguments.length) return baseLayer.source().offset();
+        baseLayer.source().offset(d);
+        dispatch.change();
+        return background;
+    };
+
+    background.load = function(imagery) {
+        function parseMap(qmap) {
+            if (!qmap) return false;
+            var args = qmap.split('/').map(Number);
+            if (args.length < 3 || args.some(isNaN)) return false;
+            return iD.geo.Extent([args[1], args[2]]);
+        }
+
+        var q = iD.util.stringQs(location.hash.substring(1)),
+            chosen = q.background || q.layer,
+            extent = parseMap(q.map),
+            best;
+
+        backgroundSources = imagery.map(function(source) {
+            if (source.type === 'bing') {
+                return iD.BackgroundSource.Bing(source, dispatch);
+            } else {
+                return iD.BackgroundSource(source);
             }
         });
 
-        requests = uniqueBy(requests, 3).filter(function(r) {
-            // don't re-request tiles which have failed in the past
-            return cache[r[3]] !== false;
+        backgroundSources.unshift(iD.BackgroundSource.None());
+
+        if (!chosen && extent) {
+            best = _.find(this.sources(extent), function(s) { return s.best(); });
+        }
+
+        if (chosen && chosen.indexOf('custom:') === 0) {
+            background.baseLayerSource(iD.BackgroundSource.Custom(chosen.replace(/^custom:/, '')));
+        } else {
+            background.baseLayerSource(findSource(chosen) || best || findSource('Bing') || backgroundSources[1]);
+        }
+
+        var locator = _.find(backgroundSources, function(d) {
+            return d.overlay && d.default;
         });
 
-        var pixelOffset = [
-            Math.round(offset[0] * Math.pow(2, z)),
-            Math.round(offset[1] * Math.pow(2, z))
-        ];
-
-        function load(d) {
-            cache[d[3]] = true;
-            d3.select(this)
-                .on('load', null)
-                .classed('tile-loaded', true);
-            render(selection);
+        if (locator) {
+            background.toggleOverlayLayer(locator);
         }
 
-        function error(d) {
-            cache[d[3]] = false;
-            d3.select(this)
-                .on('load', null)
-                .remove();
-            render(selection);
-        }
+        var overlays = (q.overlays || '').split(',');
+        overlays.forEach(function(overlay) {
+            overlay = findSource(overlay);
+            if (overlay) background.toggleOverlayLayer(overlay);
+        });
 
-        function imageTransform(d) {
-            var _ts = tileSize * Math.pow(2, z - d[2]);
-            var scale = tileSizeAtZoom(d, z);
-            return 'translate(' +
-                (Math.round((d[0] * _ts) - tileOrigin[0]) + pixelOffset[0]) + 'px,' +
-                (Math.round((d[1] * _ts) - tileOrigin[1]) + pixelOffset[1]) + 'px)' +
-                'scale(' + scale + ',' + scale + ')';
-        }
-
-        var image = selection
-            .selectAll('img')
-            .data(requests, function(d) { return d[3]; });
-
-        image.exit()
-            .style(transformProp, imageTransform)
-            .classed('tile-loaded', false)
-            .each(function() {
-                var tile = this;
-                window.setTimeout(function() {
-                    // this tile may already be removed
-                    if (tile.parentNode) {
-                        tile.parentNode.removeChild(tile);
-                    }
-                }, 300);
+        var gpx = q.gpx;
+        if (gpx) {
+            d3.text(gpx, function(err, gpxTxt) {
+                if (!err) {
+                    gpxLayer.geojson(toGeoJSON.gpx(toDom(gpxTxt)));
+                    iD.ui.MapInMap.gpxLayer.geojson(toGeoJSON.gpx(toDom(gpxTxt)));
+                    dispatch.change();
+                }
             });
-
-        image.enter().append('img')
-            .attr('class', 'tile')
-            .attr('src', function(d) { return d[3]; })
-            .on('error', error)
-            .on('load', load);
-
-        image.style(transformProp, imageTransform);
-    }
-
-    background.offset = function(_) {
-        if (!arguments.length) return offset;
-        offset = _;
-        if (source.data) offsets[source.data.name] = offset;
-        return background;
-    };
-
-    background.nudge = function(_, zoomlevel) {
-        offset[0] += _[0] / Math.pow(2, zoomlevel);
-        offset[1] += _[1] / Math.pow(2, zoomlevel);
-        return background;
-    };
-
-    background.projection = function(_) {
-        if (!arguments.length) return projection;
-        projection = _;
-        return background;
-    };
-
-    background.size = function(_) {
-        if (!arguments.length) return tile.size();
-        tile.size(_);
-        return background;
-    };
-
-    function setHash(source) {
-        var tag = source.data && source.data.sourcetag;
-        if (!tag && source.data && source.data.name === 'Custom') {
-            tag = 'custom:' + source.data.template;
         }
-        var q = iD.util.stringQs(location.hash.substring(1));
-        if (tag) {
-            q[backgroundType] = tag;
-            location.replace('#' + iD.util.qsString(q, true));
-        } else {
-            location.replace('#' + iD.util.qsString(_.omit(q, backgroundType), true));
-        }
-    }
-
-    background.dispatch = d3.dispatch('change');
-
-    background.source = function(_) {
-        if (!arguments.length) return source;
-        source = _;
-        if (source.data) {
-            offset = offsets[source.data.name] = offsets[source.data.name] || [0, 0];
-        } else {
-            offset = [0, 0];
-        }
-        cache = {};
-        tile.scaleExtent((source.data && source.data.scaleExtent) || [1, 20]);
-        setHash(source);
-        background.dispatch.change();
-        return background;
     };
 
-    return d3.rebind(background, background.dispatch, 'on');
+    return d3.rebind(background, dispatch, 'on');
 };

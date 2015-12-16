@@ -1,12 +1,14 @@
 iD.modes.AddPoint = function(context) {
     var mode = {
         id: 'add-point',
+        button: 'point',
         title: t('modes.add_point.title'),
         description: t('modes.add_point.description'),
         key: '1'
     };
 
     var behavior = iD.behavior.Draw(context)
+        .tail(t('modes.add_point.tail'))
         .on('click', add)
         .on('clickWay', addWay)
         .on('clickNode', addNode)
@@ -28,7 +30,7 @@ iD.modes.AddPoint = function(context) {
                 .newFeature(true));
     }
 
-    function addWay(loc, edge) {
+    function addWay(loc) {
         add(loc);
     }
 
@@ -42,12 +44,10 @@ iD.modes.AddPoint = function(context) {
 
     mode.enter = function() {
         context.install(behavior);
-        context.tail(t('modes.add_point.tail'));
     };
 
     mode.exit = function() {
         context.uninstall(behavior);
-        context.tail(false);
     };
 
     return mode;

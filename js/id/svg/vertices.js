@@ -8,28 +8,30 @@ iD.svg.Vertices = function(projection, context) {
 
     var hover;
 
-    function siblingAndChildVertices(ids, graph) {
+    function siblingAndChildVertices(ids, graph, extent) {
         var vertices = {};
 
         function addChildVertices(entity) {
-            var i;
-            if (entity.type === 'way') {
-                for (i = 0; i < entity.nodes.length; i++) {
-                    vertices[entity.nodes[i]] = graph.entity(entity.nodes[i]);
-                }
-            } else if (entity.type === 'relation') {
-                for (i = 0; i < entity.members.length; i++) {
-                    var member = context.hasEntity(entity.members[i].id);
-                    if (member) {
-                        addChildVertices(member);
+            if (!context.features().isHiddenFeature(entity, graph, entity.geometry(graph))) {
+                var i;
+                if (entity.type === 'way') {
+                    for (i = 0; i < entity.nodes.length; i++) {
+                        addChildVertices(graph.entity(entity.nodes[i]));
                     }
+                } else if (entity.type === 'relation') {
+                    for (i = 0; i < entity.members.length; i++) {
+                        var member = context.hasEntity(entity.members[i].id);
+                        if (member) {
+                            addChildVertices(member);
+                        }
+                    }
+                } else if (entity.intersects(extent, graph)) {
+                    vertices[entity.id] = entity;
                 }
-            } else {
-                vertices[entity.id] = entity;
             }
         }
 
-        function addSiblingAndChildVertices(id) {
+        ids.forEach(function(id) {
             var entity = context.hasEntity(id);
             if (entity && entity.type === 'node') {
                 vertices[entity.id] = entity;
@@ -39,153 +41,149 @@ iD.svg.Vertices = function(projection, context) {
             } else if (entity) {
                 addChildVertices(entity);
             }
-        }
-
-        ids.forEach(function(id) {
-            addSiblingAndChildVertices(id, 'vertex-selected');
         });
 
         return vertices;
     }
 
-    function isIntersection(entity, graph) {
-        return graph.parentWays(entity).filter(function (parent) {
-            return parent.geometry(graph) === 'line';
-        }).length > 1;
-    }
-
-    function draw(groups, graph, zoom) {
-        var group = groups.enter()
-            .insert('g', ':first-child')
-            .attr('class', 'node vertex');
+    function draw(selection, vertices, klass, graph, zoom) {
+        var icons = {},
+            z;
 
         if (zoom < 17) {
-            zoom = 0;
+            z = 0;
         } else if (zoom < 18) {
-            zoom = 1;
+            z = 1;
         } else {
-            zoom = 2;
+            z = 2;
         }
 
-        group.append('circle')
-            .attr('class', 'node vertex shadow');
-
-        group.append('circle')
-            .attr('class', 'node vertex stroke');
-
-        groups.attr('transform', iD.svg.PointTransform(projection))
-            .call(iD.svg.TagClasses())
-            .call(iD.svg.MemberClasses(graph))
-            .classed('tagged', function(entity) { return entity.hasInterestingTags(); })
-            .classed('shared', function(entity) { return graph.isShared(entity); });
+        var groups = selection.data(vertices, function(entity) {
+            return iD.Entity.key(entity);
+        });
 
         function icon(entity) {
-            return zoom !== 0 &&
+            if (entity.id in icons) return icons[entity.id];
+            icons[entity.id] =
                 entity.hasInterestingTags() &&
                 context.presets().match(entity, graph).icon;
+            return icons[entity.id];
         }
 
-        function center(entity) {
-            if (icon(entity)) {
-                d3.select(this)
-                    .attr('cx', 0.5)
-                    .attr('cy', -0.5);
-            } else {
-                d3.select(this)
-                    .attr('cy', 0)
-                    .attr('cx', 0);
-            }
+        function setClass(klass) {
+            return function(entity) {
+                this.setAttribute('class', 'node vertex ' + klass + ' ' + entity.id);
+            };
         }
 
-        groups.select('circle.shadow')
-            .each(center)
-            .attr('r', function(entity) {
-                return radiuses.shadow[icon(entity) ? 3 : zoom];
+        function setAttributes(selection) {
+            ['shadow','stroke','fill'].forEach(function(klass) {
+                var rads = radiuses[klass];
+                selection.selectAll('.' + klass)
+                    .each(function(entity) {
+                        var i = z && icon(entity),
+                            c = i ? 0.5 : 0,
+                            r = rads[i ? 3 : z];
+                        this.setAttribute('cx', c);
+                        this.setAttribute('cy', -c);
+                        this.setAttribute('r', r);
+                        if (i && klass === 'fill') {
+                            this.setAttribute('visibility', 'hidden');
+                        } else {
+                            this.removeAttribute('visibility');
+                        }
+                    });
             });
 
-        groups.select('circle.stroke')
-            .each(center)
-            .attr('r', function(entity) {
-                return radiuses.stroke[icon(entity) ? 3 : zoom];
-            });
+            selection.selectAll('use')
+                .each(function() {
+                    if (z) {
+                        this.removeAttribute('visibility');
+                    } else {
+                        this.setAttribute('visibility', 'hidden');
+                    }
+                });
+        }
 
-        // Each vertex gets either a circle or a use, depending
-        // on if it has a icon or not.
+        var enter = groups.enter()
+            .append('g')
+            .attr('class', function(d) { return 'node vertex ' + klass + ' ' + d.id; });
 
-        var fill = groups.selectAll('circle.fill')
-            .data(function(entity) {
-                return icon(entity) ? [] : [entity];
-            }, iD.Entity.key);
+        enter.append('circle')
+            .each(setClass('shadow'));
 
-        fill.enter().append('circle')
-            .attr('class', 'node vertex fill')
-            .each(center)
-            .attr('r', radiuses.fill[zoom]);
+        enter.append('circle')
+            .each(setClass('stroke'));
 
-        fill.exit()
-            .remove();
-
-        var use = groups.selectAll('use')
-            .data(function(entity) {
-                var i = icon(entity);
-                return i ? [i] : [];
-            }, function(d) {
-                return d;
-            });
-
-        use.enter().append('use')
+        // Vertices with icons get a `use`.
+        enter.filter(function(d) { return icon(d); })
+            .append('use')
             .attr('transform', 'translate(-6, -6)')
-            .attr('clip-path', 'url(#clip-square-12)')
-            .attr('xlink:href', function(icon) { return '#maki-' + icon + '-12'; });
+            .attr('xlink:href', function(d) { return '#' + icon(d) + '-12'; })
+            .attr('width', '12px')
+            .attr('height', '12px')
+            .each(setClass('icon'));
 
-        use.exit()
-            .remove();
+        // Vertices with tags get a fill.
+        enter.filter(function(d) { return d.hasInterestingTags(); })
+            .append('circle')
+            .each(setClass('fill'));
+
+        groups
+            .attr('transform', iD.svg.PointTransform(projection))
+            .classed('shared', function(entity) { return graph.isShared(entity); })
+            .call(setAttributes);
 
         groups.exit()
             .remove();
     }
 
-    function drawVertices(surface, graph, entities, filter, zoom) {
-        var selected = siblingAndChildVertices(context.selection(), graph),
+    function drawVertices(surface, graph, entities, filter, extent, zoom) {
+        var selected = siblingAndChildVertices(context.selectedIDs(), graph, extent),
+            wireframe = surface.classed('fill-wireframe'),
             vertices = [];
 
         for (var i = 0; i < entities.length; i++) {
-            var entity = entities[i];
+            var entity = entities[i],
+                geometry = entity.geometry(graph);
 
-            if(entity.tags.floor !== context.floor().value) continue;
+            if (entity.tags.floor !== context.floor().value) {
+                continue;
+            }
 
-            if (entity.geometry(graph) !== 'vertex')
+            if (wireframe && geometry === 'point') {
+                vertices.push(entity);
+                continue;
+            }
+
+            if (geometry !== 'vertex')
                 continue;
 
             if (entity.id in selected ||
                 entity.hasInterestingTags() ||
-                isIntersection(entity, graph)) {
-                vertices.push(entity)
+                entity.isIntersection(graph)) {
+                vertices.push(entity);
             }
         }
 
         surface.select('.layer-hit').selectAll('g.vertex.vertex-persistent')
             .filter(filter)
-            .data(vertices, iD.Entity.key)
-            .call(draw, graph, zoom)
-            .classed('vertex-persistent', true);
+            .call(draw, vertices, 'vertex-persistent', graph, zoom);
 
-        drawHover(surface, graph, zoom);
+        drawHover(surface, graph, extent, zoom);
     }
 
-    function drawHover(surface, graph, zoom) {
-        var hovered = hover ? siblingAndChildVertices([hover.id], graph) : {};
+    function drawHover(surface, graph, extent, zoom) {
+        var hovered = hover ? siblingAndChildVertices([hover.id], graph, extent) : {};
 
         surface.select('.layer-hit').selectAll('g.vertex.vertex-hover')
-            .data(d3.values(hovered), iD.Entity.key)
-            .call(draw, graph, zoom)
-            .classed('vertex-hover', true);
+            .call(draw, d3.values(hovered), 'vertex-hover', graph, zoom);
     }
 
-    drawVertices.drawHover = function(surface, graph, _, zoom) {
+    drawVertices.drawHover = function(surface, graph, _, extent, zoom) {
         if (hover !== _) {
             hover = _;
-            drawHover(surface, graph, zoom);
+            drawHover(surface, graph, extent, zoom);
         }
     };
 

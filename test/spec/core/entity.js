@@ -1,8 +1,11 @@
 describe('iD.Entity', function () {
     it("returns a subclass of the appropriate type", function () {
-        expect(iD.Entity({type: 'way'})).be.an.instanceOf(iD.Way);
         expect(iD.Entity({type: 'node'})).be.an.instanceOf(iD.Node);
+        expect(iD.Entity({type: 'way'})).be.an.instanceOf(iD.Way);
         expect(iD.Entity({type: 'relation'})).be.an.instanceOf(iD.Relation);
+        expect(iD.Entity({id: 'n1'})).be.an.instanceOf(iD.Node);
+        expect(iD.Entity({id: 'w1'})).be.an.instanceOf(iD.Way);
+        expect(iD.Entity({id: 'r1'})).be.an.instanceOf(iD.Relation);
     });
 
     if (iD.debug) {
@@ -33,6 +36,30 @@ describe('iD.Entity', function () {
         });
     });
 
+    describe("#copy", function () {
+        it("returns a new Entity", function () {
+            var a = iD.Entity(),
+                result = a.copy();
+            expect(result).to.have.length(1);
+            expect(result[0]).to.be.an.instanceof(iD.Entity);
+            expect(a).not.to.equal(result[0]);
+        });
+
+        it("resets 'id', 'user', and 'version' properties", function () {
+            var a = iD.Entity({id: 'n1234', version: 10, user: 'bot-mode'}),
+                b = a.copy()[0];
+            expect(b.isNew()).to.be.ok;
+            expect(b.version).to.be.undefined;
+            expect(b.user).to.be.undefined;
+        });
+
+        it("copies tags", function () {
+            var a = iD.Entity({id: 'n1234', version: 10, user: 'test', tags: {foo: 'foo'}}),
+                b = a.copy()[0];
+            expect(b.tags).to.deep.equal(a.tags);
+        });
+    });
+
     describe("#update", function () {
         it("returns a new Entity", function () {
             var a = iD.Entity(),
@@ -60,6 +87,14 @@ describe('iD.Entity', function () {
 
         it("doesn't copy prototype properties", function () {
             expect(iD.Entity().update({})).not.to.have.ownProperty('update');
+        });
+
+        it("sets v to 1 if previously undefined", function() {
+            expect(iD.Entity().update({}).v).to.equal(1);
+        });
+
+        it("increments v", function() {
+            expect(iD.Entity({v: 1}).update({}).v).to.equal(2);
         });
     });
 
@@ -136,7 +171,34 @@ describe('iD.Entity', function () {
         });
     });
 
-   describe("#hasDeprecatedTags", function () {
+    describe("#isUsed", function () {
+        it("returns false for an entity without tags", function () {
+            var node = iD.Node(),
+                graph = iD.Graph([node]);
+            expect(node.isUsed(graph)).to.equal(false);
+        });
+
+        it("returns true for an entity with tags", function () {
+            var node = iD.Node({tags: {foo: 'bar'}}),
+                graph = iD.Graph([node]);
+            expect(node.isUsed(graph)).to.equal(true);
+        });
+
+        it("returns false for an entity with only an area=yes tag", function () {
+            var node = iD.Node({tags: {area: 'yes'}}),
+                graph = iD.Graph([node]);
+            expect(node.isUsed(graph)).to.equal(false);
+        });
+
+        it("returns true for an entity that is a relation member", function () {
+            var node = iD.Node(),
+                relation = iD.Relation({members: [{id: node.id}]}),
+                graph = iD.Graph([node, relation]);
+            expect(node.isUsed(graph)).to.equal(true);
+        });
+    });
+
+    describe("#hasDeprecatedTags", function () {
         it("returns false if entity has no tags", function () {
             expect(iD.Entity().deprecatedTags()).to.eql({});
         });
@@ -144,7 +206,7 @@ describe('iD.Entity', function () {
         it("returns true if entity has deprecated tags", function () {
             expect(iD.Entity({ tags: { barrier: 'wire_fence' } }).deprecatedTags()).to.eql({ barrier: 'wire_fence' });
         });
-   });
+    });
 
     describe("#hasInterestingTags", function () {
         it("returns false if the entity has no tags", function () {

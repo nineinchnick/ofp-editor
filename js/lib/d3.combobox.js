@@ -1,10 +1,12 @@
 d3.combobox = function() {
     var event = d3.dispatch('accept'),
-        data = [];
+        data = [],
+        suggestions = [],
+        minItems = 2;
 
-    var fetcher = function(val, data, cb) {
+    var fetcher = function(val, cb) {
         cb(data.filter(function(d) {
-            return d.title
+            return d.value
                 .toString()
                 .toLowerCase()
                 .indexOf(val.toLowerCase()) !== -1;
@@ -12,53 +14,71 @@ d3.combobox = function() {
     };
 
     var combobox = function(input) {
-        var idx = -1, container, shown = false;
+        var idx = -1,
+            container = d3.select(document.body)
+                .selectAll('div.combobox')
+                .filter(function(d) { return d === input.node(); }),
+            shown = !container.empty();
 
         input
             .classed('combobox-input', true)
+            .on('focus.typeahead', focus)
+            .on('blur.typeahead', blur)
+            .on('keydown.typeahead', keydown)
+            .on('keyup.typeahead', keyup)
+            .on('input.typeahead', change)
             .each(function() {
                 var parent = this.parentNode,
                     sibling = this.nextSibling;
-                d3.select(parent)
-                    .insert('div', function() { return sibling; })
-                    .attr('class', 'combobox-carat')
+
+                var caret = d3.select(parent).selectAll('.combobox-caret')
+                    .filter(function(d) { return d === input.node(); })
+                    .data([input.node()]);
+
+                caret.enter().insert('div', function() { return sibling; })
+                    .attr('class', 'combobox-caret');
+
+                caret
                     .on('mousedown', function () {
                         // prevent the form element from blurring. it blurs
                         // on mousedown
                         d3.event.stopPropagation();
                         d3.event.preventDefault();
-                        mousedown();
+                        if (!shown) {
+                            input.node().focus();
+                            fetch('', render);
+                        } else {
+                            hide();
+                        }
                     });
             });
 
-        function updateSize() {
-            var rect = input.node().getBoundingClientRect();
-            container.style({
-                'left': rect.left + 'px',
-                'width': rect.width + 'px',
-                'top': rect.height + rect.top + 'px'
-            });
+        function focus() {
+            fetch(value(), render);
         }
 
         function blur() {
-            // hide the combobox whenever the input element
-            // loses focus
-            slowHide();
+            window.setTimeout(hide, 150);
         }
 
         function show() {
             if (!shown) {
                 container = d3.select(document.body)
                     .insert('div', ':first-child')
+                    .datum(input.node())
                     .attr('class', 'combobox')
                     .style({
                         position: 'absolute',
                         display: 'block',
                         left: '0px'
+                    })
+                    .on('mousedown', function () {
+                        // prevent moving focus out of the text field
+                        d3.event.preventDefault();
                     });
 
                 d3.select(document.body)
-                    .on('scroll.combobox', updateSize, true);
+                    .on('scroll.combobox', render, true);
 
                 shown = true;
             }
@@ -76,24 +96,35 @@ d3.combobox = function() {
             }
         }
 
-        function slowHide() {
-            window.setTimeout(hide, 150);
-        }
         function keydown() {
-           if (!shown) return;
            switch (d3.event.keyCode) {
-               // down arrow
-               case 40:
-                   next();
+               // backspace, delete
+               case 8:
+               case 46:
+                   input.on('input.typeahead', function() {
+                       idx = -1;
+                       render();
+                       var start = input.property('selectionStart');
+                       input.node().setSelectionRange(start, start);
+                       input.on('input.typeahead', change);
+                   });
+                   break;
+               // tab
+               case 9:
+                   container.selectAll('a.selected').each(event.accept);
+                   break;
+               // return
+               case 13:
                    d3.event.preventDefault();
                    break;
                // up arrow
                case 38:
-                   prev();
+                   nav(-1);
                    d3.event.preventDefault();
                    break;
-               // escape, tab
-               case 13:
+               // down arrow
+               case 40:
+                   nav(+1);
                    d3.event.preventDefault();
                    break;
            }
@@ -106,171 +137,118 @@ d3.combobox = function() {
                 case 27:
                     hide();
                     break;
-                // escape, tab
-                case 9:
+                // return
                 case 13:
-                    if (!shown) return;
-                    accept();
+                    container.selectAll('a.selected').each(event.accept);
+                    hide();
                     break;
-                default:
-                    update();
-                    d3.event.preventDefault();
             }
-            d3.event.stopPropagation();
         }
 
-        function accept() {
-            if (container.select('a.selected').node()) {
-                select(container.select('a.selected').datum());
-            }
-            hide();
+        function change() {
+            fetch(value(), function() {
+                autocomplete();
+                render();
+            });
         }
 
-        function next() {
-            var len = container.selectAll('a').data().length;
-            idx = Math.min(idx + 1, len - 1);
-            highlight();
+        function nav(dir) {
+            idx = Math.max(Math.min(idx + dir, suggestions.length - 1), 0);
+            input.property('value', suggestions[idx].value);
+            render();
+            ensureVisible();
         }
 
-        function prev() {
-            idx = Math.max(idx - 1, 0);
-            highlight();
-        }
-
-        var prevValue, prevCompletion;
-
-        function autocomplete(e, data) {
-
+        function value() {
             var value = input.property('value'),
-                match;
+                start = input.property('selectionStart'),
+                end = input.property('selectionEnd');
 
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].value.toLowerCase().indexOf(value.toLowerCase()) === 0) {
-                    match = data[i].value;
-                    break;
+            if (start && end) {
+                value = value.substring(0, start);
+            }
+
+            return value;
+        }
+
+        function fetch(v, cb) {
+            fetcher.call(input, v, function(_) {
+                suggestions = _;
+                cb();
+            });
+        }
+
+        function autocomplete() {
+            var v = value();
+
+            idx = -1;
+
+            if (!v) return;
+
+            for (var i = 0; i < suggestions.length; i++) {
+                if (suggestions[i].value.toLowerCase().indexOf(v.toLowerCase()) === 0) {
+                    var completion = suggestions[i].value;
+                    idx = i;
+                    input.property('value', completion);
+                    input.node().setSelectionRange(v.length, completion.length);
+                    return;
                 }
             }
-
-            // backspace
-            if (e.keyCode === 8) {
-                prevValue = value;
-                prevCompletion = '';
-
-            } else if (value && match && value !== prevValue + prevCompletion) {
-                prevValue = value;
-                prevCompletion = match.substr(value.length);
-                input.property('value', prevValue + prevCompletion);
-                input.node().setSelectionRange(value.length, value.length + prevCompletion.length);
-            }
         }
 
-
-        function highlight() {
-            container
-                .selectAll('a')
-                .classed('selected', function(d, i) { return i == idx; });
-            var height = container.node().offsetHeight,
-                top = container.select('a.selected').node().offsetTop,
-                selectedHeight = container.select('a.selected').node().offsetHeight;
-            if ((top + selectedHeight) < height) {
-                container.node().scrollTop = 0;
+        function render() {
+            if (suggestions.length >= minItems && document.activeElement === input.node()) {
+                show();
             } else {
-                container.node().scrollTop = top;
+                hide();
+                return;
             }
+
+            var options = container
+                .selectAll('a.combobox-option')
+                .data(suggestions, function(d) { return d.value; });
+
+            options.enter().append('a')
+                .attr('class', 'combobox-option')
+                .text(function(d) { return d.value; });
+
+            options
+                .attr('title', function(d) { return d.title; })
+                .classed('selected', function(d, i) { return i == idx; })
+                .on('mouseover', select)
+                .on('click', accept)
+                .order();
+
+            options.exit()
+                .remove();
+
+            var rect = input.node().getBoundingClientRect();
+
+            container.style({
+                'left': rect.left + 'px',
+                'width': rect.width + 'px',
+                'top': rect.height + rect.top + 'px'
+            });
         }
 
-        function update(value) {
-
-            if (typeof value === 'undefined') {
-                value = input.property('value');
-            }
-
-            var e = d3.event;
-
-            function render(data) {
-
-                if (data.length &&
-                    document.activeElement === input.node()) show();
-                else return hide();
-
-                autocomplete(e, data);
-
-                updateSize();
-
-                var options = container
-                    .selectAll('a.combobox-option')
-                    .data(data, function(d) { return d.value; });
-
-                options.enter()
-                    .append('a')
-                    .text(function(d) { return d.value; })
-                    .attr('class', 'combobox-option')
-                    .attr('title', function(d) { return d.title; })
-                    .on('click', select);
-
-                options.exit().remove();
-
-                options
-                    .classed('selected', function(d, i) { return i == idx; })
-                    .order();
-            }
-
-            fetcher.apply(input, [value, data, render]);
+        function select(d, i) {
+            idx = i;
+            render();
         }
 
-        // select the choice given as d
-        function select(d) {
+        function ensureVisible() {
+            var node = container.selectAll('a.selected').node();
+            if (node) node.scrollIntoView();
+        }
+
+        function accept(d) {
+            if (!shown) return;
             input
                 .property('value', d.value)
                 .trigger('change');
             event.accept(d);
             hide();
         }
-
-        function mousedown() {
-
-            if (shown) return hide();
-
-            input.node().focus();
-            update('');
-
-            if (!container) return;
-
-            var entries = container.selectAll('a'),
-                height = container.node().scrollHeight / entries[0].length,
-                w = d3.select(window);
-
-            function getIndex(m) {
-                return Math.floor((m[1] + container.node().scrollTop) / height);
-            }
-
-            function withinBounds(m) {
-                var n = container.node();
-                return m[0] >= 0 && m[0] < n.offsetWidth &&
-                    m[1] >= 0 && m[1] < n.offsetHeight;
-            }
-
-            w.on('mousemove.typeahead', function() {
-                var m = d3.mouse(container.node());
-                var within = withinBounds(m);
-                var n = getIndex(m);
-                entries.classed('selected', function(d, i) { return within && i === n; });
-            });
-
-            w.on('mouseup.typeahead', function() {
-                var m = d3.mouse(container.node());
-                if (withinBounds(m)) select(d3.select(entries[0][getIndex(m)]).datum());
-                entries.classed('selected', false);
-                w.on('mouseup.typeahead', null);
-                w.on('mousemove.typeahead', null);
-            });
-        }
-
-        input
-            .on('blur.typeahead', blur)
-            .on('keydown.typeahead', keydown)
-            .on('keyup.typeahead', keyup)
-            .on('mousedown.typeahead', mousedown);
     };
 
     combobox.fetcher = function(_) {
@@ -285,7 +263,11 @@ d3.combobox = function() {
         return combobox;
     };
 
+    combobox.minItems = function(_) {
+        if (!arguments.length) return minItems;
+        minItems = _;
+        return combobox;
+    };
+
     return d3.rebind(combobox, event, 'on');
 };
-
-d3.combobox.id = 0;

@@ -9,43 +9,47 @@ iD.ui.intro = function(context) {
         // Save current map state
         var history = context.history().toJSON(),
             hash = window.location.hash,
-            background = context.background().source(),
-            opacity = d3.select('.layer-layer:first-child').style('opacity'),
+            center = context.map().center(),
+            zoom = context.map().zoom(),
+            background = context.background().baseLayerSource(),
+            opacity = d3.select('.background-layer').style('opacity'),
             loadedTiles = context.connection().loadedTiles(),
-            baseEntities = context.history().graph().base().entities;
+            baseEntities = context.history().graph().base().entities,
+            introGraph;
 
         // Load semi-real data used in intro
         context.connection().toggle(false).flush();
-        context.history().save().reset();
-        context.history().merge(iD.Graph().load(JSON.parse(iD.introGraph)).entities);
+        context.history().reset();
 
-        context.background().source(_.find(context.backgroundSources(), function(d) {
-            return d.data.sourcetag === "Bing";
-        }));
+        introGraph = JSON.parse(iD.introGraph);
+        for (var key in introGraph) {
+            introGraph[key] = iD.Entity(introGraph[key]);
+        }
+        context.history().merge(d3.values(iD.Graph().load(introGraph).entities));
+        context.background().bing();
 
         // Block saving
         var savebutton = d3.select('#bar button.save'),
             save = savebutton.on('click');
         savebutton.on('click', null);
+        context.inIntro(true);
 
-        var beforeunload = window.onbeforeunload;
-        window.onbeforeunload = null;
-
-        d3.select('.layer-layer:first-child').style('opacity', 1);
+        d3.select('.background-layer').style('opacity', 1);
 
         var curtain = d3.curtain();
         selection.call(curtain);
 
-        function reveal(box, textid, duration) {
-            if (textid) curtain.reveal(box, t(textid), textid.replace(/\./g, '-'), duration);
-            else curtain.reveal(box, '', '', duration);
+        function reveal(box, text, options) {
+            options = options || {};
+            if (text) curtain.reveal(box, text, options.tooltipClass, options.duration);
+            else curtain.reveal(box, '', '', options.duration);
         }
 
         var steps = ['navigation', 'point', 'area', 'line', 'startEditing'].map(function(step, i) {
             var s = iD.ui.intro[step](context, reveal)
                 .on('done', function() {
                     entered.filter(function(d) {
-                        return d.name === s.name;
+                        return d.title === s.title;
                     }).classed('finished', true);
                     enter(steps[i + 1]);
                 });
@@ -55,13 +59,14 @@ iD.ui.intro = function(context) {
         steps[steps.length - 1].on('startEditing', function() {
             curtain.remove();
             navwrap.remove();
-            d3.select('.layer-layer:first-child').style('opacity', opacity);
+            d3.select('.background-layer').style('opacity', opacity);
             context.connection().toggle(true).flush().loadedTiles(loadedTiles);
-            context.history().reset().merge(baseEntities);
-            context.background().source(background);
-            if (history) context.history().fromJSON(history);
+            context.history().reset().merge(d3.values(baseEntities));
+            context.background().baseLayerSource(background);
+            if (history) context.history().fromJSON(history, false);
+            context.map().centerZoom(center, zoom);
             window.location.replace(hash);
-            window.onbeforeunload = beforeunload;
+            context.inIntro(false);
             d3.select('#bar button.save').on('click', save);
         });
 
@@ -71,20 +76,24 @@ iD.ui.intro = function(context) {
             .attr('class', 'joined')
             .selectAll('button.step');
 
-        var entered = buttonwrap.data(steps)
-            .enter().append('button')
-                .attr('class', 'step')
-                .on('click', enter);
+        var entered = buttonwrap
+            .data(steps)
+            .enter()
+            .append('button')
+            .attr('class', 'step')
+            .on('click', enter);
 
-        entered.append('div').attr('class','icon icon-pre-text apply');
-        entered.append('label').text(function(d) { return d.name; });
+        entered
+            .call(iD.svg.Icon('#icon-apply', 'pre-text'));
+
+        entered
+            .append('label')
+            .text(function(d) { return t(d.title); });
+
         enter(steps[0]);
 
         function enter (newStep) {
-
-            if (step) {
-                step.exit();
-            }
+            if (step) { step.exit(); }
 
             context.enter(iD.modes.Browse(context));
 
@@ -92,7 +101,7 @@ iD.ui.intro = function(context) {
             step.enter();
 
             entered.classed('active', function(d) {
-                return d.name === step.name;
+                return d.title === step.title;
             });
         }
 
@@ -100,20 +109,24 @@ iD.ui.intro = function(context) {
     return intro;
 };
 
-iD.ui.intro.pointBox = function(point) {
+iD.ui.intro.pointBox = function(point, context) {
+    var rect = context.surfaceRect();
+    point = context.projection(point);
     return {
-        left: point[0] - 30,
-        top: point[1] - 50,
+        left: point[0] + rect.left - 30,
+        top: point[1] + rect.top - 50,
         width: 60,
         height: 70
     };
 };
 
-iD.ui.intro.pad = function(box, padding) {
+iD.ui.intro.pad = function(box, padding, context) {
     if (box instanceof Array) {
+        var rect = context.surfaceRect();
+        box = context.projection(box);
         box = {
-            left: box[0],
-            top: box[1]
+            left: box[0] + rect.left,
+            top: box[1] + rect.top
         };
     }
     return {

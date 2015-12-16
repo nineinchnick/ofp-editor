@@ -1,11 +1,15 @@
-iD.Connection = function(context) {
+iD.Connection = function(context, useHttps) {
+    if (typeof useHttps !== 'boolean') {
+        useHttps = window.location.protocol === 'https:';
+    }
 
     var event = d3.dispatch('authenticating', 'authenticated', 'auth', 'loading', 'load', 'loaded'),
-        url = 'http://openfloorplan.herokuapp.com',
+        protocol = useHttps ? 'https:' : 'http:',
+        url = protocol + '//openfloorplan.herokuapp.com',
         connection = {},
-        user = {},
         inflight = {},
         loadedTiles = {},
+        tileZoom = 16,
         oauth = osmAuth({
             url: 'http://openfloorplan.herokuapp.com',
             oauth_consumer_key: 'DTi3QlLLQW5tu2ktUq0ULqonaGWSD788AltugjpU',
@@ -19,27 +23,36 @@ iD.Connection = function(context) {
         nodeStr = 'node',
         wayStr = 'way',
         relationStr = 'relation',
+        userDetails,
         off;
 
     connection.context = context;
 
     connection.changesetURL = function(changesetId) {
-        return url + '/browse/changeset/' + changesetId;
+        return url + '/changeset/' + changesetId;
+    };
+
+    connection.changesetsURL = function(center, zoom) {
+        var precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2));
+        return url + '/history#map=' +
+            Math.floor(zoom) + '/' +
+            center[1].toFixed(precision) + '/' +
+            center[0].toFixed(precision);
     };
 
     connection.entityURL = function(entity) {
-        return url + '/browse/' + entity.type + '/' + entity.osmId();
+        return url + '/' + entity.type + '/' + entity.osmId();
     };
 
     connection.userURL = function(username) {
-        return url + "/user/" + username;
+        return url + '/user/' + username;
     };
 
     connection.loadFromURL = function(url, callback) {
-        function done(dom) {
-            return callback(null, parse(dom));
+        function done(err, dom) {
+            return callback(err, parse(dom));
         }
-        return d3.xml(url).get().on('load', done);
+        return d3.xml(url).get(done);
     };
 
     connection.loadEntity = function(id, callback) {
@@ -49,9 +62,34 @@ iD.Connection = function(context) {
         connection.loadFromURL(
             url + '/api/0.6/' + type + '/' + osmID + (type !== 'node' ? '/full' : ''),
             function(err, entities) {
-                event.load(err, entities);
-                if (callback) callback(err, entities && entities[id]);
+                if (callback) callback(err, {data: entities});
             });
+    };
+
+    connection.loadEntityVersion = function(id, version, callback) {
+        var type = iD.Entity.id.type(id),
+            osmID = iD.Entity.id.toOSM(id);
+
+        connection.loadFromURL(
+            url + '/api/0.6/' + type + '/' + osmID + '/' + version,
+            function(err, entities) {
+                if (callback) callback(err, {data: entities});
+            });
+    };
+
+    connection.loadMultiple = function(ids, callback) {
+        _.each(_.groupBy(_.uniq(ids), iD.Entity.id.type), function(v, k) {
+            var type = k + 's',
+                osmIDs = _.map(v, iD.Entity.id.toOSM);
+
+            _.each(_.chunk(osmIDs, 150), function(arr) {
+                connection.loadFromURL(
+                    url + '/api/0.6/' + type + '?' + type + '=' + arr.join(),
+                    function(err, entities) {
+                        if (callback) callback(err, {data: entities});
+                    });
+            });
+        });
     };
 
     function authenticating() {
@@ -62,11 +100,17 @@ iD.Connection = function(context) {
         event.authenticated();
     }
 
+    function getLoc(attrs) {
+        var lon = attrs.lon && attrs.lon.value,
+            lat = attrs.lat && attrs.lat.value;
+        return [parseFloat(lon), parseFloat(lat)];
+    }
+
     function getNodes(obj) {
         var elems = obj.getElementsByTagName(ndStr),
             nodes = new Array(elems.length);
         for (var i = 0, l = elems.length; i < l; i++) {
-            nodes[i] = 'n' + elems[i].attributes.ref.nodeValue;
+            nodes[i] = 'n' + elems[i].attributes.ref.value;
         }
         return nodes;
     }
@@ -76,7 +120,7 @@ iD.Connection = function(context) {
             tags = {};
         for (var i = 0, l = elems.length; i < l; i++) {
             var attrs = elems[i].attributes;
-            tags[attrs.k.nodeValue] = attrs.v.nodeValue;
+            tags[attrs.k.value] = attrs.v.value;
         }
         return tags;
     }
@@ -87,9 +131,9 @@ iD.Connection = function(context) {
         for (var i = 0, l = elems.length; i < l; i++) {
             var attrs = elems[i].attributes;
             members[i] = {
-                id: attrs.type.nodeValue[0] + attrs.ref.nodeValue,
-                type: attrs.type.nodeValue,
-                role: attrs.role.nodeValue
+                id: attrs.type.value[0] + attrs.ref.value,
+                type: attrs.type.value,
+                role: attrs.role.value
             };
         }
         return members;
@@ -108,21 +152,22 @@ iD.Connection = function(context) {
         return floor;
     }
 
+    function getVisible(attrs) {
+        return (!attrs.visible || attrs.visible.value !== 'false');
+    }
+
     var parsers = {
         node: function nodeData(obj) {
             var attrs = obj.attributes,
                 tags =  getTags(obj);
             initFloor(tags);
             return new iD.Node({
-                id: iD.Entity.id.fromOSM(nodeStr, attrs.id.nodeValue),
-                loc: [parseFloat(attrs.lon.nodeValue), parseFloat(attrs.lat.nodeValue)],
-                version: attrs.version.nodeValue,
-                changeset: attrs.changeset.nodeValue,
-                user: attrs.user && attrs.user.nodeValue,
-                uid: attrs.uid && attrs.uid.nodeValue,
-                visible: attrs.visible.nodeValue,
-                timestamp: attrs.timestamp.nodeValue,
-                tags: tags
+                id: iD.Entity.id.fromOSM(nodeStr, attrs.id.value),
+                loc: getLoc(attrs),
+                version: attrs.version.value,
+                user: attrs.user && attrs.user.value,
+                tags: getTags(obj),
+                visible: getVisible(attrs)
             });
         },
 
@@ -131,15 +176,12 @@ iD.Connection = function(context) {
                 tags =  getTags(obj);
             initFloor(tags);
             return new iD.Way({
-                id: iD.Entity.id.fromOSM(wayStr, attrs.id.nodeValue),
-                version: attrs.version.nodeValue,
-                changeset: attrs.changeset.nodeValue,
-                user: attrs.user && attrs.user.nodeValue,
-                uid: attrs.uid && attrs.uid.nodeValue,
-                visible: attrs.visible.nodeValue,
-                timestamp: attrs.timestamp.nodeValue,
-                tags: tags,
-                nodes: getNodes(obj)
+                id: iD.Entity.id.fromOSM(wayStr, attrs.id.value),
+                version: attrs.version.value,
+                user: attrs.user && attrs.user.value,
+                tags: getTags(obj),
+                nodes: getNodes(obj),
+                visible: getVisible(attrs)
             });
         },
 
@@ -148,33 +190,28 @@ iD.Connection = function(context) {
                 tags =  getTags(obj);
             initFloor(tags);
             return new iD.Relation({
-                id: iD.Entity.id.fromOSM(relationStr, attrs.id.nodeValue),
-                version: attrs.version.nodeValue,
-                changeset: attrs.changeset.nodeValue,
-                user: attrs.user && attrs.user.nodeValue,
-                uid: attrs.uid && attrs.uid.nodeValue,
-                visible: attrs.visible.nodeValue,
-                timestamp: attrs.timestamp.nodeValue,
-                tags: tags,
-                members: getMembers(obj)
+                id: iD.Entity.id.fromOSM(relationStr, attrs.id.value),
+                version: attrs.version.value,
+                user: attrs.user && attrs.user.value,
+                tags: getTags(obj),
+                members: getMembers(obj),
+                visible: getVisible(attrs)
             });
         }
     };
 
     function parse(dom) {
-        if (!dom || !dom.childNodes) return new Error('Bad request');
+        if (!dom || !dom.childNodes) return;
 
         var root = dom.childNodes[0],
             children = root.childNodes,
-            entities = {};
+            entities = [];
 
-        var i, o, l;
-        for (i = 0, l = children.length; i < l; i++) {
+        for (var i = 0, l = children.length; i < l; i++) {
             var child = children[i],
                 parser = parsers[child.nodeName];
             if (parser) {
-                o = parser(child);
-                entities[o.id] = o;
+                entities.push(parser(child));
             }
         }
 
@@ -193,7 +230,7 @@ iD.Connection = function(context) {
                     tag: _.map(tags, function(value, key) {
                         return { '@k': key, '@v': value };
                     }),
-                    '@version': 0.3,
+                    '@version': 0.6,
                     '@generator': 'iD'
                 }
             }
@@ -202,7 +239,7 @@ iD.Connection = function(context) {
 
     // Generate [osmChange](http://wiki.openstreetmap.org/wiki/OsmChange)
     // XML. Returns a string.
-    connection.osmChangeJXON = function(userid, changeset_id, changes) {
+    connection.osmChangeJXON = function(changeset_id, changes) {
         function nest(x, order) {
             var groups = {};
             for (var i = 0; i < x.length; i++) {
@@ -223,7 +260,7 @@ iD.Connection = function(context) {
 
         return {
             osmChange: {
-                '@version': 0.3,
+                '@version': 0.6,
                 '@generator': 'OFP',
                 'create': nest(changes.created.map(rep), ['node', 'way', 'relation']),
                 'modify': nest(changes.modified.map(rep), ['node', 'way', 'relation']),
@@ -232,59 +269,76 @@ iD.Connection = function(context) {
         };
     };
 
-    connection.changesetTags = function(comment, imagery_used) {
-        var tags = {
-            imagery_used: imagery_used.join(';'),
-            created_by: 'OpenFloorPlan ' + iD.version
-        };
+    connection.changesetTags = function(comment, imageryUsed) {
+        var detected = iD.detect(),
+            tags = {
+                created_by: 'OpenFloorPlan ' + iD.version,
+                imagery_used: imageryUsed.join(';').substr(0, 255),
+                host: (window.location.origin + window.location.pathname).substr(0, 255),
+                locale: detected.locale
+            };
 
         if (comment) {
-            tags.comment = comment;
+            tags.comment = comment.substr(0, 255);
         }
 
         return tags;
     };
 
-    connection.putChangeset = function(changes, comment, imagery_used, callback) {
+    connection.putChangeset = function(changes, comment, imageryUsed, callback) {
         oauth.xhr({
                 method: 'PUT',
                 path: '/api/0.6/changeset/create',
                 options: { header: { 'Content-Type': 'text/xml' } },
-                content: JXON.stringify(connection.changesetJXON(connection.changesetTags(comment, imagery_used)))
+                content: JXON.stringify(connection.changesetJXON(connection.changesetTags(comment, imageryUsed)))
             }, function(err, changeset_id) {
                 if (err) return callback(err);
                 oauth.xhr({
                     method: 'POST',
                     path: '/api/0.6/changeset/' + changeset_id + '/upload',
                     options: { header: { 'Content-Type': 'text/xml' } },
-                    content: JXON.stringify(connection.osmChangeJXON(user.id, changeset_id, changes))
+                    content: JXON.stringify(connection.osmChangeJXON(changeset_id, changes))
                 }, function(err) {
                     if (err) return callback(err);
+                    // POST was successful, safe to call the callback.
+                    // Still attempt to close changeset, but ignore response because #2667
+                    // Add delay to allow for postgres replication #1646 #2678
+                    window.setTimeout(function() { callback(null, changeset_id); }, 2500);
                     oauth.xhr({
                         method: 'PUT',
-                        path: '/api/0.6/changeset/' + changeset_id + '/close'
-                    }, function(err) {
-                        callback(err, changeset_id);
-                    });
+                        path: '/api/0.6/changeset/' + changeset_id + '/close',
+                        options: { header: { 'Content-Type': 'text/xml' } }
+                    }, d3.functor(true));
                 });
             });
     };
 
     connection.userDetails = function(callback) {
+        if (userDetails) {
+            callback(undefined, userDetails);
+            return;
+        }
+
         function done(err, user_details) {
             if (err) return callback(err);
+
             var u = user_details.getElementsByTagName('user')[0],
                 img = u.getElementsByTagName('img'),
                 image_url = '';
+
             if (img && img[0] && img[0].getAttribute('href')) {
                 image_url = img[0].getAttribute('href');
             }
-            callback(undefined, connection.user({
-                display_name: u.attributes.display_name.nodeValue,
+
+            userDetails = {
+                display_name: u.attributes.display_name.value,
                 image_url: image_url,
-                id: u.attributes.id.nodeValue
-            }).user());
+                id: u.attributes.id.value
+            };
+
+            callback(undefined, userDetails);
         }
+
         oauth.xhr({ method: 'GET', path: '/api/0.6/user/details' }, done);
     };
 
@@ -300,44 +354,54 @@ iD.Connection = function(context) {
 
     function abortRequest(i) { i.abort(); }
 
-    connection.loadTiles = function(projection, dimensions) {
+    connection.tileZoom = function(_) {
+        if (!arguments.length) return tileZoom;
+        tileZoom = _;
+        return connection;
+    };
+
+    connection.loadTiles = function(projection, dimensions, callback) {
 
         if (off) return;
 
-        var scaleExtent = [16, 16],
-            s = projection.scale() * 2 * Math.PI,
-            tiles = d3.geo.tile()
-                .scaleExtent(scaleExtent)
-                .scale(s)
-                .size(dimensions)
-                .translate(projection.translate())(),
+        var s = projection.scale() * 2 * Math.PI,
             z = Math.max(Math.log(s) / Math.log(2) - 8, 0),
-            rz = Math.max(scaleExtent[0], Math.min(scaleExtent[1], Math.floor(z))),
-            ts = 256 * Math.pow(2, z - rz),
-            tile_origin = [
+            ts = 256 * Math.pow(2, z - tileZoom),
+            origin = [
                 s / 2 - projection.translate()[0],
                 s / 2 - projection.translate()[1]];
 
-        function bboxUrl(tile) {
-            var x = (tile[0] * ts) - tile_origin[0];
-            var y = (tile[1] * ts) - tile_origin[1];
-            var b = [
-                projection.invert([x, y]),
-                projection.invert([x + ts, y + ts])];
+        var tiles = d3.geo.tile()
+            .scaleExtent([tileZoom, tileZoom])
+            .scale(s)
+            .size(dimensions)
+            .translate(projection.translate())()
+            .map(function(tile) {
+                var x = tile[0] * ts - origin[0],
+                    y = tile[1] * ts - origin[1];
 
-            return url + '/api/0.6/map?bbox=' + [b[0][0], b[1][1], b[1][0], b[0][1]];
+                return {
+                    id: tile.toString(),
+                    extent: iD.geo.Extent(
+                        projection.invert([x, y + ts]),
+                        projection.invert([x + ts, y]))
+                };
+            });
+
+        function bboxUrl(tile) {
+            return url + '/api/0.6/map?bbox=' + tile.extent.toParam();
         }
 
         _.filter(inflight, function(v, i) {
             var wanted = _.find(tiles, function(tile) {
-                return i === tile.toString();
+                return i === tile.id;
             });
             if (!wanted) delete inflight[i];
             return !wanted;
         }).map(abortRequest);
 
         tiles.forEach(function(tile) {
-            var id = tile.toString();
+            var id = tile.id;
 
             if (loadedTiles[id] || inflight[id]) return;
 
@@ -349,7 +413,7 @@ iD.Connection = function(context) {
                 loadedTiles[id] = true;
                 delete inflight[id];
 
-                event.load(err, parsed);
+                if (callback) callback(err, _.extend({data: parsed}, tile));
 
                 if (_.isEmpty(inflight)) {
                     event.loaded();
@@ -374,13 +438,8 @@ iD.Connection = function(context) {
         return connection;
     };
 
-    connection.user = function(_) {
-        if (!arguments.length) return user;
-        user = _;
-        return connection;
-    };
-
     connection.flush = function() {
+        userDetails = undefined;
         _.forEach(inflight, abortRequest);
         loadedTiles = {};
         inflight = {};
@@ -394,12 +453,14 @@ iD.Connection = function(context) {
     };
 
     connection.logout = function() {
+        userDetails = undefined;
         oauth.logout();
         event.auth();
         return connection;
     };
 
     connection.authenticate = function(callback) {
+        userDetails = undefined;
         function done(err, res) {
             event.auth();
             if (callback) callback(err, res);

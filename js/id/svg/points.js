@@ -10,21 +10,12 @@ iD.svg.Points = function(projection, context) {
         return b.loc[1] - a.loc[1];
     }
 
-    return function drawPoints(surface, graph, entities, filter) {
-        var points = [];
-
-        for (var i = 0; i < entities.length; i++) {
-            var entity = entities[i];
-            if (entity.geometry(graph) === 'point') {
-                if(entity.tags.floor === context.floor().value){
-                    points.push(entity);
-                }
-            }
-        }
-
-        if (points.length > 100) {
-            return surface.select('.layer-hit').selectAll('g.point').remove();
-        }
+    return function drawPoints(surface, entities, filter) {
+        var graph = context.graph(),
+            wireframe = surface.classed('fill-wireframe'),
+            points = wireframe ? [] : _.filter(entities, function(e) {
+                return e.geometry(graph) === 'point' && e.tags.floor === context.floor().value;
+            });
 
         points.sort(sortY);
 
@@ -34,7 +25,7 @@ iD.svg.Points = function(projection, context) {
 
         var group = groups.enter()
             .append('g')
-            .attr('class', 'node point')
+            .attr('class', function(d) { return 'node point ' + d.id; })
             .order();
 
         group.append('path')
@@ -44,13 +35,13 @@ iD.svg.Points = function(projection, context) {
             .call(markerPath, 'stroke');
 
         group.append('use')
-            .attr('class', 'icon')
             .attr('transform', 'translate(-6, -20)')
-            .attr('clip-path', 'url(#clip-square-12)');
+            .attr('class', 'icon')
+            .attr('width', '12px')
+            .attr('height', '12px');
 
         groups.attr('transform', iD.svg.PointTransform(projection))
-            .call(iD.svg.TagClasses())
-            .call(iD.svg.MemberClasses(graph));
+            .call(iD.svg.TagClasses());
 
         // Selecting the following implicitly
         // sets the data (point entity) on the element
@@ -58,8 +49,8 @@ iD.svg.Points = function(projection, context) {
         groups.select('.stroke');
         groups.select('.icon')
             .attr('xlink:href', function(entity) {
-                var preset = context.presets().match(entity, graph);
-                return preset.icon ? '#maki-' + preset.icon + '-12' : '';
+                var preset = context.presets().match(entity, context.graph());
+                return preset.icon ? '#' + preset.icon + '-12' : '';
             });
 
         groups.exit()

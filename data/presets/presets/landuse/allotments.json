@@ -1,11 +1,13 @@
 {
     "geometry": [
-        "point",
         "area"
     ],
     "tags": {
         "landuse": "allotments"
     },
-    "terms": [],
-    "name": "Allotments"
+    "terms": [
+        "allotment",
+        "garden"
+    ],
+    "name": "Community Garden"
 }

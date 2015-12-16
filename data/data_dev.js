@@ -15,9 +15,10 @@ iD.data = {
             path + 'data/presets/floorplan-fields.json',
             path + 'data/imperial.json',
             path + 'data/feature-icons.json',
-            path + 'data/operations-sprite.json',
             path + 'data/locales.json',
-            path + 'dist/locales/en.json'
+            path + 'dist/locales/en.json',
+            path + 'data/name-suggestions.json',
+            path + 'data/address-formats.json'
             ], d3.json, function (err, data) {
 
             iD.data = {
@@ -33,9 +34,10 @@ iD.data = {
                 },
                 imperial: data[8],
                 featureIcons: data[9],
-                operations: data[10],
-                locales: data[11],
-                en: data[12]
+                locales: data[10],
+                en: data[11],
+                suggestions: data[12],
+                addressFormats: data[13]
             };
 
             callback();

@@ -6,12 +6,17 @@ iD.actions.DeleteWay = function(wayId) {
             !node.hasInterestingTags();
     }
 
-    return function(graph) {
+    var action = function(graph) {
         var way = graph.entity(wayId);
 
         graph.parentRelations(way)
             .forEach(function(parent) {
-                graph = graph.replace(parent.removeMember(wayId));
+                parent = parent.removeMembersWithID(wayId);
+                graph = graph.replace(parent);
+
+                if (parent.isDegenerate()) {
+                    graph = iD.actions.DeleteRelation(parent.id)(graph);
+                }
             });
 
         _.uniq(way.nodes).forEach(function(nodeId) {
@@ -25,4 +30,20 @@ iD.actions.DeleteWay = function(wayId) {
 
         return graph.remove(way);
     };
+
+    action.disabled = function(graph) {
+        var disabled = false;
+
+        graph.parentRelations(graph.entity(wayId)).forEach(function(parent) {
+            var type = parent.tags.type,
+                role = parent.memberById(wayId).role || 'outer';
+            if (type === 'route' || type === 'boundary' || (type === 'multipolygon' && role === 'outer')) {
+                disabled = 'part_of_relation';
+            }
+        });
+
+        return disabled;
+    };
+
+    return action;
 };

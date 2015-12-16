@@ -1,47 +1,65 @@
 iD.ui.UndoRedo = function(context) {
+    var commands = [{
+        id: 'undo',
+        cmd: iD.ui.cmd('⌘Z'),
+        action: function() { if (!saving()) context.undo(); },
+        annotation: function() { return context.history().undoAnnotation(); }
+    }, {
+        id: 'redo',
+        cmd: iD.ui.cmd('⌘⇧Z'),
+        action: function() { if (!saving()) context.redo(); },
+        annotation: function() { return context.history().redoAnnotation(); }
+    }];
+
+    function saving() {
+        return context.mode().id === 'save';
+    }
+
     return function(selection) {
         var tooltip = bootstrap.tooltip()
             .placement('bottom')
-            .html(true);
+            .html(true)
+            .title(function (d) {
+                return iD.ui.tooltipHtml(d.annotation() ?
+                    t(d.id + '.tooltip', {action: d.annotation()}) :
+                    t(d.id + '.nothing'), d.cmd);
+            });
 
-        var undoButton = selection.append('button')
+        var buttons = selection.selectAll('button')
+            .data(commands)
+            .enter().append('button')
             .attr('class', 'col6 disabled')
-            .html('<span class="undo icon"/>')
-            .on('click', context.undo)
+            .on('click', function(d) { return d.action(); })
             .call(tooltip);
 
-        var redoButton = selection.append('button')
-            .attr('class', 'col6 disabled')
-            .html('<span class="redo icon"/>')
-            .on('click', context.redo)
-            .call(tooltip);
+        buttons.each(function(d) {
+            d3.select(this)
+                .call(iD.svg.Icon('#icon-' + d.id));
+        });
 
         var keybinding = d3.keybinding('undo')
-            .on(iD.ui.cmd('⌘Z'), context.undo)
-            .on(iD.ui.cmd('⌘⇧Z'), context.redo);
+            .on(commands[0].cmd, function() { d3.event.preventDefault(); commands[0].action(); })
+            .on(commands[1].cmd, function() { d3.event.preventDefault(); commands[1].action(); });
 
         d3.select(document)
             .call(keybinding);
 
-        context.history().on('change.editor', function() {
-            var undo = context.history().undoAnnotation(),
-                redo = context.history().redoAnnotation();
+        context.history()
+            .on('change.undo_redo', update);
 
-            function refreshTooltip(selection) {
-                if (selection.property('tooltipVisible')) {
-                    selection.call(tooltip.show);
-                }
-            }
+        context
+            .on('enter.undo_redo', update);
 
-            undoButton
-                .classed('disabled', !undo)
-                .attr('data-original-title', iD.ui.tooltipHtml(undo || t('nothing_to_undo'), iD.ui.cmd('⌘Z')))
-                .call(refreshTooltip);
-
-            redoButton
-                .classed('disabled', !redo)
-                .attr('data-original-title', iD.ui.tooltipHtml(redo || t('nothing_to_redo'), iD.ui.cmd('⌘⇧Z')))
-                .call(refreshTooltip);
-        });
+        function update() {
+            buttons
+                .property('disabled', saving())
+                .classed('disabled', function(d) { return !d.annotation(); })
+                .each(function() {
+                    var selection = d3.select(this);
+                    if (selection.property('tooltipVisible')) {
+                        selection.call(tooltip.show);
+                    }
+                });
+        }
     };
 };

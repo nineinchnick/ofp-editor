@@ -6,16 +6,21 @@ iD.actions.DeleteRelation = function(relationId) {
             !entity.hasInterestingTags();
     }
 
-    return function(graph) {
+    var action = function(graph) {
         var relation = graph.entity(relationId);
 
         graph.parentRelations(relation)
             .forEach(function(parent) {
-                graph = graph.replace(parent.removeMember(relationId));
+                parent = parent.removeMembersWithID(relationId);
+                graph = graph.replace(parent);
+
+                if (parent.isDegenerate()) {
+                    graph = iD.actions.DeleteRelation(parent.id)(graph);
+                }
             });
 
         _.uniq(_.pluck(relation.members, 'id')).forEach(function(memberId) {
-            graph = graph.replace(relation.removeMember(memberId));
+            graph = graph.replace(relation.removeMembersWithID(memberId));
 
             var entity = graph.entity(memberId);
             if (deleteEntity(entity, graph)) {
@@ -25,4 +30,11 @@ iD.actions.DeleteRelation = function(relationId) {
 
         return graph.remove(relation);
     };
+
+    action.disabled = function(graph) {
+        if (!graph.entity(relationId).isComplete(graph))
+            return 'incomplete_relation';
+    };
+
+    return action;
 };

@@ -1,5 +1,5 @@
-iD.operations.Reverse = function(selection, context) {
-    var entityId = selection[0];
+iD.operations.Reverse = function(selectedIDs, context) {
+    var entityId = selectedIDs[0];
 
     var operation = function() {
         context.perform(
@@ -8,7 +8,7 @@ iD.operations.Reverse = function(selection, context) {
     };
 
     operation.available = function() {
-        return selection.length === 1 &&
+        return selectedIDs.length === 1 &&
             context.geometry(entityId) === 'line';
     };
 
@@ -20,7 +20,7 @@ iD.operations.Reverse = function(selection, context) {
         return t('operations.reverse.description');
     };
 
-    operation.id = "reverse";
+    operation.id = 'reverse';
     operation.keys = [t('operations.reverse.key')];
     operation.title = t('operations.reverse.title');
 

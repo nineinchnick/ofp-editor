@@ -1,42 +1,86 @@
-iD.BackgroundSource = {};
+iD.BackgroundSource = function(data) {
+    var source = _.clone(data),
+        offset = [0, 0],
+        name = source.name,
+        best = !!source.best;
 
-// derive the url of a 'quadkey' style tile from a coordinate object
-iD.BackgroundSource.template = function(data) {
+    source.scaleExtent = data.scaleExtent || [0, 20];
+    source.overzoom = data.overzoom !== false;
 
-    function generator(coord) {
-        var u = '';
-        for (var zoom = coord[2]; zoom > 0; zoom--) {
-            var b = 0;
-            var mask = 1 << (zoom - 1);
-            if ((coord[0] & mask) !== 0) b++;
-            if ((coord[1] & mask) !== 0) b += 2;
-            u += b.toString();
-        }
+    source.offset = function(_) {
+        if (!arguments.length) return offset;
+        offset = _;
+        return source;
+    };
 
+    source.nudge = function(_, zoomlevel) {
+        offset[0] += _[0] / Math.pow(2, zoomlevel);
+        offset[1] += _[1] / Math.pow(2, zoomlevel);
+        return source;
+    };
+
+    source.name = function() {
+        return name;
+    };
+
+    source.best = function() {
+        return best;
+    };
+
+    source.imageryUsed = function() {
+        return source.id || name;
+    };
+
+    source.url = function(coord) {
         return data.template
-            .replace('{t}', data.subdomains ?
-                data.subdomains[coord[2] % data.subdomains.length] : '')
-            .replace('{u}', u)
             .replace('{x}', coord[0])
             .replace('{y}', coord[1])
-            .replace('{z}', coord[2])
-            // JOSM style
-            .replace('{zoom}', coord[2])
-            .replace(/\{(switch\:[^\}]*)\}/, function(s, r) {
-                var subdomains = r.split(':')[1].split(',');
-                return subdomains[coord[2] % subdomains.length];
+            // TMS-flipped y coordinate
+            .replace(/\{[t-]y\}/, Math.pow(2, coord[2]) - coord[1] - 1)
+            .replace(/\{z(oom)?\}/, coord[2])
+            .replace(/\{switch:([^}]+)\}/, function(s, r) {
+                var subdomains = r.split(',');
+                return subdomains[(coord[0] + coord[1]) % subdomains.length];
+            })
+            .replace('{u}', function() {
+                var u = '';
+                for (var zoom = coord[2]; zoom > 0; zoom--) {
+                    var b = 0;
+                    var mask = 1 << (zoom - 1);
+                    if ((coord[0] & mask) !== 0) b++;
+                    if ((coord[1] & mask) !== 0) b += 2;
+                    u += b.toString();
+                }
+                return u;
             });
-    }
+    };
 
-    generator.data = data;
-    generator.copyrightNotices = function() {};
+    source.intersects = function(extent) {
+        extent = extent.polygon();
+        return !data.polygon || data.polygon.some(function(polygon) {
+            return iD.geo.polygonIntersectsPolygon(polygon, extent, true);
+        });
+    };
 
-    return generator;
+    source.validZoom = function(z) {
+        return source.scaleExtent[0] <= z &&
+            (source.overzoom || source.scaleExtent[1] > z);
+    };
+
+    source.isLocatorOverlay = function() {
+        return name === 'Locator Overlay';
+    };
+
+    source.copyrightNotices = function() {};
+
+    return source;
 };
 
 iD.BackgroundSource.Bing = function(data, dispatch) {
     // http://msdn.microsoft.com/en-us/library/ff701716.aspx
     // http://msdn.microsoft.com/en-us/library/ff701701.aspx
+
+    data.template = 'https://ecn.t{switch:0,1,2,3}.tiles.virtualearth.net/tiles/a{u}.jpeg?g=587&mkt=en-gb&n=z';
 
     var bing = iD.BackgroundSource.template(data),
         key = 'Atkp1j5n2iDRkTlBtuwM63zz-GN0cInZY-B4xylrFpbJYXNO5NL-HXWMmm8_xo0t', // Same as P2 and JOSM
@@ -72,17 +116,36 @@ iD.BackgroundSource.Bing = function(data, dispatch) {
         }).join(', ');
     };
 
+    bing.logo = 'bing_maps.png';
+    bing.terms_url = 'http://opengeodata.org/microsoft-imagery-details';
+
     return bing;
 };
 
-iD.BackgroundSource.Custom = function() {
-    var template = window.prompt('Enter a tile template. ' +
-        'Valid tokens are {z}, {x}, {y} for Z/X/Y scheme and {u} for quadtile scheme.');
-    if (!template) return null;
-    return iD.BackgroundSource.template({
-        template: template,
-        name: 'Custom'
-    });
+iD.BackgroundSource.None = function() {
+    var source = iD.BackgroundSource({id: 'none', template: ''});
+
+    source.name = function() {
+        return t('background.none');
+    };
+
+    source.imageryUsed = function() {
+        return 'None';
+    };
+
+    return source;
 };
 
-iD.BackgroundSource.Custom.data = { 'name': 'Custom' };
+iD.BackgroundSource.Custom = function(template) {
+    var source = iD.BackgroundSource({id: 'custom', template: template});
+
+    source.name = function() {
+        return t('background.custom');
+    };
+
+    source.imageryUsed = function() {
+        return 'Custom (' + template + ')';
+    };
+
+    return source;
+};

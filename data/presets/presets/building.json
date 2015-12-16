@@ -1,16 +1,18 @@
 {
     "icon": "building",
     "fields": [
-        "building_yes",
+        "building",
         "levels",
         "address"
     ],
     "geometry": [
+        "point",
         "area"
     ],
     "tags": {
         "building": "*"
     },
+    "matchScore": 0.4,
     "terms": [],
     "name": "Building"
 }

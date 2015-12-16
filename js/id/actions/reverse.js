@@ -14,6 +14,8 @@
 
     Relation members:
        role=forward ⟺ role=backward
+         role=north ⟺ role=south
+          role=east ⟺ role=west
 
    In addition, numeric-valued `incline` tags are negated.
 
@@ -27,11 +29,20 @@
       http://wiki.openstreetmap.org/wiki/Route#Members
       http://josm.openstreetmap.de/browser/josm/trunk/src/org/openstreetmap/josm/corrector/ReverseWayTagCorrector.java
  */
-iD.actions.Reverse = function(wayId) {
+iD.actions.Reverse = function(wayId, options) {
     var replacements = [
-        [/:right$/, ':left'], [/:left$/, ':right'],
-        [/:forward$/, ':backward'], [/:backward$/, ':forward']
-    ], numeric = /^([+\-]?)(?=[\d.])/;
+            [/:right$/, ':left'], [/:left$/, ':right'],
+            [/:forward$/, ':backward'], [/:backward$/, ':forward']
+        ],
+        numeric = /^([+\-]?)(?=[\d.])/,
+        roleReversals = {
+            forward: 'backward',
+            backward: 'forward',
+            north: 'south',
+            south: 'north',
+            east: 'west',
+            west: 'east'
+        };
 
     function reverseKey(key) {
         for (var i = 0; i < replacements.length; ++i) {
@@ -44,10 +55,12 @@ iD.actions.Reverse = function(wayId) {
     }
 
     function reverseValue(key, value) {
-        if (key === "incline" && numeric.test(value)) {
+        if (key === 'incline' && numeric.test(value)) {
             return value.replace(numeric, function(_, sign) { return sign === '-' ? '' : '-'; });
-        } else if (key === "incline" || key === "direction") {
+        } else if (key === 'incline' || key === 'direction') {
             return {up: 'down', down: 'up'}[value] || value;
+        } else if (options && options.reverseOneway && key === 'oneway') {
+            return {yes: '-1', '1': '-1', '-1': 'yes'}[value] || value;
         } else {
             return {left: 'right', right: 'left'}[value] || value;
         }
@@ -64,7 +77,7 @@ iD.actions.Reverse = function(wayId) {
 
         graph.parentRelations(way).forEach(function(relation) {
             relation.members.forEach(function(member, index) {
-                if (member.id === way.id && (role = {forward: 'backward', backward: 'forward'}[member.role])) {
+                if (member.id === way.id && (role = roleReversals[member.role])) {
                     relation = relation.updateMember({role: role}, index);
                     graph = graph.replace(relation);
                 }

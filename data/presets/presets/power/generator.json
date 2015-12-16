@@ -1,4 +1,10 @@
 {
+    "fields": [
+        "operator",
+        "generator/source",
+        "generator/method",
+        "generator/type"
+    ],
     "geometry": [
         "point",
         "vertex",
@@ -7,5 +13,5 @@
     "tags": {
         "power": "generator"
     },
-    "name": "Power Plant"
+    "name": "Power Generator"
 }

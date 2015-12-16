@@ -13,8 +13,8 @@ iD.ui.SourceSwitch = function(context) {
         context.connection()
             .switch(live ? keys[1] : keys[0]);
 
-        context.map()
-            .flush();
+        context.enter(iD.modes.Browse(context));
+        context.flush();
 
         d3.select(this)
             .text(live ? t('source_switch.dev') : t('source_switch.live'))

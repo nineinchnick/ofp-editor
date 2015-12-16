@@ -4,9 +4,11 @@ iD.modes.RotateWay = function(context, wayId) {
         button: 'browse'
     };
 
-    var keybinding = d3.keybinding('rotate-way');
+    var keybinding = d3.keybinding('rotate-way'),
+        edit = iD.behavior.Edit(context);
 
     mode.enter = function() {
+        context.install(edit);
 
         var annotation = t('operations.rotate.annotation.' + context.geometry(wayId)),
             way = context.graph().entity(wayId),
@@ -19,13 +21,9 @@ iD.modes.RotateWay = function(context, wayId) {
             iD.actions.Noop(),
             annotation);
 
-        function point() {
-            return d3.mouse(context.map().surface.node());
-        }
-
         function rotate() {
 
-            var mousePoint = point(),
+            var mousePoint = context.mouse(),
                 newAngle = Math.atan2(mousePoint[1] - pivot[1], mousePoint[0] - pivot[0]);
 
             if (typeof angle === 'undefined') angle = newAngle;
@@ -39,12 +37,14 @@ iD.modes.RotateWay = function(context, wayId) {
 
         function finish() {
             d3.event.stopPropagation();
-            context.enter(iD.modes.Select(context, [wayId]));
+            context.enter(iD.modes.Select(context, [wayId])
+                .suppressMenu(true));
         }
 
         function cancel() {
             context.pop();
-            context.enter(iD.modes.Select(context, [wayId]));
+            context.enter(iD.modes.Select(context, [wayId])
+                .suppressMenu(true));
         }
 
         function undone() {
@@ -67,6 +67,8 @@ iD.modes.RotateWay = function(context, wayId) {
     };
 
     mode.exit = function() {
+        context.uninstall(edit);
+
         context.surface()
             .on('mousemove.rotate-way', null)
             .on('click.rotate-way', null);

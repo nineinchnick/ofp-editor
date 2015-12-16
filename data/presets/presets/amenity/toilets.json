@@ -1,17 +1,32 @@
 {
+    "icon": "toilets",
     "fields": [
+        "toilets/disposal",
         "operator",
-        "building"
+        "building_area",
+        "access_toilets",
+        "gender",
+        "fee"
     ],
     "geometry": [
         "point",
         "vertex",
         "area"
     ],
-    "terms": [],
+    "terms": [
+        "bathroom",
+        "restroom",
+        "outhouse",
+        "privy",
+        "head",
+        "lavatory",
+        "latrine",
+        "water closet",
+        "WC",
+        "W.C."
+    ],
     "tags": {
         "amenity": "toilets"
     },
-    "icon": "toilets",
     "name": "Toilets"
 }

@@ -25,11 +25,11 @@ describe("iD.taginfo", function() {
             server.respond();
 
             expect(query(server.requests[0].url)).to.eql(
-                {query: "ame", page: "1", rp: "10", sortname: "count_all", sortorder: "desc"});
+                {query: "amen", page: "1", rp: "10", sortname: "count_all", sortorder: "desc"});
             expect(callback).to.have.been.calledWith(null, [{"value":"amenity"}]);
         });
 
-        it("filters only popular nodes", function() {
+        it("filters only popular keys", function() {
             var callback = sinon.spy();
             taginfo.keys({query: "amen"}, callback);
 
@@ -42,7 +42,7 @@ describe("iD.taginfo", function() {
             expect(callback).to.have.been.calledWith(null, [{"value":"amenity"}]);
         });
 
-        it("filters only popular nodes with an entity type filter", function() {
+        it("filters only popular keys with an entity type filter", function() {
             var callback = sinon.spy();
 
             taginfo.keys({query: "amen", filter: "nodes"}, callback);
@@ -69,7 +69,7 @@ describe("iD.taginfo", function() {
             server.respond();
 
             expect(query(server.requests[0].url)).to.eql(
-                {key: "amenity", query: "par", page: "1", rp: "20", sortname: 'count_all', sortorder: 'desc'});
+                {key: "amenity", query: "par", page: "1", rp: "25", sortname: 'count_all', sortorder: 'desc'});
             expect(callback).to.have.been.calledWith(null, [{"value":"parking","title":"A place for parking cars"}]);
         });
 
@@ -96,7 +96,7 @@ describe("iD.taginfo", function() {
 
             server.respondWith("GET", new RegExp("http://openfloorplan.herokuapp.com/api/4/tag/wiki_page"),
                 [200, { "Content-Type": "application/json" },
-                    '[{"on_way":false,"lang":"en","on_area":true,"image":"File:Car park2.jpg"}]']);
+                    '{"data":[{"on_way":false,"lang":"en","on_area":true,"image":"File:Car park2.jpg"}]}']);
             server.respond();
 
             expect(query(server.requests[0].url)).to.eql(
@@ -105,4 +105,5 @@ describe("iD.taginfo", function() {
                 [{"on_way":false,"lang":"en","on_area":true,"image":"File:Car park2.jpg"}]);
         });
     });
+
 });

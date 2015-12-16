@@ -1,6 +1,9 @@
 (function(e){if("function"==typeof bootstrap)bootstrap("osmauth",e);else if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else if("undefined"!=typeof ses){if(!ses.ok())return;ses.makeOsmAuth=e}else"undefined"!=typeof window?window.osmAuth=e():global.osmAuth=e()})(function(){var define,ses,bootstrap,module,exports;
 return (function(e,t,n){function i(n,s){if(!t[n]){if(!e[n]){var o=typeof require=="function"&&require;if(!s&&o)return o(n,!0);if(r)return r(n,!0);throw new Error("Cannot find module '"+n+"'")}var u=t[n]={exports:{}};e[n][0].call(u.exports,function(t){var r=e[n][1][t];return i(r?r:t)},u,u.exports)}return t[n].exports}var r=typeof require=="function"&&require;for(var s=0;s<n.length;s++)i(n[s]);return i})({1:[function(require,module,exports){
+'use strict';
+
 var ohauth = require('ohauth'),
+    xtend = require('xtend'),
     store = require('store');
 
 // # osm-auth
@@ -33,21 +36,33 @@ module.exports = function(o) {
 
         // ## Getting a request token
         var params = timenonce(getAuth(o)),
-            url = o.url + '/oauth/request_token';
+            url = o.url + '/oauth/request_token',
+            timer;
 
         params.oauth_signature = ohauth.signature(
             o.oauth_secret, '',
             ohauth.baseString('POST', url, params));
 
-        // Create a 600x550 popup window in the center of the screen
-        var w = 600, h = 550,
-            settings = [
-                ['width', w], ['height', h],
-                ['left', screen.width / 2 - w / 2],
-                ['top', screen.height / 2 - h / 2]].map(function(x) {
-                    return x.join('=');
-                }).join(','),
-            popup = window.open('about:blank', 'oauth_window', settings);
+        if (!o.singlepage) {
+            // Create a 600x550 popup window in the center of the screen
+            var w = 600, h = 550,
+                settings = [
+                    ['width', w], ['height', h],
+                    ['left', screen.width / 2 - w / 2],
+                    ['top', screen.height / 2 - h / 2]].map(function(x) {
+                        return x.join('=');
+                    }).join(','),
+                popup = window.open('about:blank', 'oauth_window', settings);
+
+
+            timer = setInterval(function() {
+                if (popup.closed) {
+                    o.done();
+                    clearInterval(timer);
+                    callback('not authenticated', null);
+                }
+            }, 100);
+        }
 
         // Request a request token. When this is complete, the popup
         // window is redirected to OSM's authorization page.
@@ -56,19 +71,29 @@ module.exports = function(o) {
 
         function reqTokenDone(err, xhr) {
             o.done();
-            if (err) return callback(err);
+            if (err) {
+                if (timer) clearInterval(timer);
+                return callback(err);
+            }
             var resp = ohauth.stringQs(xhr.response);
             token('oauth_request_token_secret', resp.oauth_token_secret);
-            popup.location = o.url + '/oauth/authorize?' + ohauth.qsString({
+            var authorize_url = o.url + '/oauth/authorize?' + ohauth.qsString({
                 oauth_token: resp.oauth_token,
                 oauth_callback: location.href.replace('index.html', '')
-                    .replace(/#.+/, '') + o.landing
+                    .replace(/#.*/, '') + o.landing
             });
+
+            if (o.singlepage) {
+                location.href = authorize_url;
+            } else {
+                popup.location = authorize_url;
+            }
         }
 
         // Called by a function in a landing page, in the popup window. The
         // window closes itself.
         window.authComplete = function(token) {
+            if (timer) clearInterval(timer);
             var oauth_token = ohauth.stringQs(token.split('?')[1]);
             get_access_token(oauth_token.oauth_token);
             delete window.authComplete;
@@ -98,12 +123,46 @@ module.exports = function(o) {
 
         function accessTokenDone(err, xhr) {
             o.done();
+            if (timer) clearInterval(timer);
             if (err) return callback(err);
             var access_token = ohauth.stringQs(xhr.response);
             token('oauth_token', access_token.oauth_token);
             token('oauth_token_secret', access_token.oauth_token_secret);
             callback(null, oauth);
         }
+    };
+
+    oauth.bootstrapToken = function(oauth_token, callback) {
+        // ## Getting an request token
+        // At this point we have an `oauth_token`, brought in from a function
+        // call on a landing page popup.
+        function get_access_token(oauth_token) {
+            var url = o.url + '/oauth/access_token',
+                params = timenonce(getAuth(o)),
+                request_token_secret = token('oauth_request_token_secret');
+            params.oauth_token = oauth_token;
+            params.oauth_signature = ohauth.signature(
+                o.oauth_secret,
+                request_token_secret,
+                ohauth.baseString('POST', url, params));
+
+            // ## Getting an access token
+            // The final token required for authentication. At this point
+            // we have a `request token secret`
+            ohauth.xhr('POST', url, params, null, {}, accessTokenDone);
+            o.loading();
+        }
+
+        function accessTokenDone(err, xhr) {
+            o.done();
+            if (err) return callback(err);
+            var access_token = ohauth.stringQs(xhr.response);
+            token('oauth_token', access_token.oauth_token);
+            token('oauth_token_secret', access_token.oauth_token_secret);
+            callback(null, oauth);
+        }
+
+        get_access_token(oauth_token);
     };
 
     // # xhr
@@ -120,6 +179,13 @@ module.exports = function(o) {
             var params = timenonce(getAuth(o)),
                 url = o.url + options.path,
                 oauth_token_secret = token('oauth_token_secret');
+
+            // https://tools.ietf.org/html/rfc5849#section-3.4.1.3.1
+            if ((!options.options || !options.options.header ||
+                options.options.header['Content-Type'] === 'application/x-www-form-urlencoded') &&
+                options.content) {
+                params = xtend(params, ohauth.stringQs(options.content));
+            }
 
             params.oauth_token = token('oauth_token');
             params.oauth_signature = ohauth.signature(
@@ -155,6 +221,8 @@ module.exports = function(o) {
         o.url = o.url || 'http://openfloorplan.herokuapp.com';
         o.landing = o.landing || 'land.html';
 
+        o.singlepage = o.singlepage || false;
+
         // Optional loading and loading-done functions for nice UI feedback.
         // by default, no-ops
         o.loading = o.loading || function() {};
@@ -175,9 +243,19 @@ module.exports = function(o) {
     // get/set tokens. These are prefixed with the base URL so that `osm-auth`
     // can be used with multiple APIs and the keys in `localStorage`
     // will not clash
-    function token(x, y) {
-        if (arguments.length === 1) return store.get(o.url + x);
-        else if (arguments.length === 2) return store.set(o.url + x, y);
+    var token;
+
+    if (store.enabled) {
+        token = function (x, y) {
+            if (arguments.length === 1) return store.get(o.url + x);
+            else if (arguments.length === 2) return store.set(o.url + x, y);
+        };
+    } else {
+        var storage = {};
+        token = function (x, y) {
+            if (arguments.length === 1) return storage[o.url + x];
+            else if (arguments.length === 2) return storage[o.url + x] = y;
+        };
     }
 
     // Get an authentication object. If you just add and remove properties
@@ -196,34 +274,11 @@ module.exports = function(o) {
     return oauth;
 };
 
-},{"store":2,"ohauth":3}],2:[function(require,module,exports){
-/* Copyright (c) 2010-2012 Marcus Westin
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-;(function(){
+},{"ohauth":2,"store":3,"xtend":4}],3:[function(require,module,exports){
+(function(global){;(function(win){
 	var store = {},
-		win = window,
 		doc = win.document,
 		localStorageName = 'localStorage',
-		namespace = '__storejs__',
 		storage
 
 	store.disabled = false
@@ -242,6 +297,7 @@ module.exports = function(o) {
 		store.set(key, val)
 	}
 	store.getAll = function() {}
+	store.forEach = function() {}
 
 	store.serialize = function(value) {
 		return JSON.stringify(value)
@@ -272,11 +328,16 @@ module.exports = function(o) {
 		store.clear = function() { storage.clear() }
 		store.getAll = function() {
 			var ret = {}
-			for (var i=0; i<storage.length; ++i) {
-				var key = storage.key(i)
-				ret[key] = store.get(key)
-			}
+			store.forEach(function(key, val) {
+				ret[key] = val
+			})
 			return ret
+		}
+		store.forEach = function(callback) {
+			for (var i=0; i<storage.length; i++) {
+				var key = storage.key(i)
+				callback(key, store.get(key))
+			}
 		}
 	} else if (doc.documentElement.addBehavior) {
 		var storageOwner,
@@ -294,7 +355,7 @@ module.exports = function(o) {
 		try {
 			storageContainer = new ActiveXObject('htmlfile')
 			storageContainer.open()
-			storageContainer.write('<s' + 'cript>document.w=window</s' + 'cript><iframe src="/favicon.ico"></frame>')
+			storageContainer.write('<s' + 'cript>document.w=window</s' + 'cript><iframe src="/favicon.ico"></iframe>')
 			storageContainer.close()
 			storageOwner = storageContainer.w.frames[0].document
 			storage = storageOwner.createElement('div')
@@ -348,124 +409,82 @@ module.exports = function(o) {
 			}
 			storage.save(localStorageName)
 		})
-		store.getAll = withIEStorage(function(storage) {
-			var attributes = storage.XMLDocument.documentElement.attributes
-			storage.load(localStorageName)
+		store.getAll = function(storage) {
 			var ret = {}
-			for (var i=0, attr; attr=attributes[i]; ++i) {
-				ret[attr] = store.get(attr)
-			}
+			store.forEach(function(key, val) {
+				ret[key] = val
+			})
 			return ret
+		}
+		store.forEach = withIEStorage(function(storage, callback) {
+			var attributes = storage.XMLDocument.documentElement.attributes
+			for (var i=0, attr; attr=attributes[i]; ++i) {
+				callback(attr.name, store.deserialize(storage.getAttribute(attr.name)))
+			}
 		})
 	}
 
 	try {
-		store.set(namespace, namespace)
-		if (store.get(namespace) != namespace) { store.disabled = true }
-		store.remove(namespace)
+		var testKey = '__storejs__'
+		store.set(testKey, testKey)
+		if (store.get(testKey) != testKey) { store.disabled = true }
+		store.remove(testKey)
 	} catch(e) {
 		store.disabled = true
 	}
 	store.enabled = !store.disabled
 
-	if (typeof module != 'undefined' && typeof module != 'function') { module.exports = store }
+	if (typeof module != 'undefined' && module.exports) { module.exports = store }
 	else if (typeof define === 'function' && define.amd) { define(store) }
-	else { this.store = store }
-})();
+	else { win.store = store }
 
-},{}],3:[function(require,module,exports){
-'use strict';
+})(this.window || global);
 
-var hashes = require('jshashes'),
-    sha1 = new hashes.SHA1();
+})(window)
+},{}],5:[function(require,module,exports){
+module.exports = hasKeys
 
-var ohauth = {};
+function hasKeys(source) {
+    return source !== null &&
+        (typeof source === "object" ||
+        typeof source === "function")
+}
 
-ohauth.qsString = function(obj) {
-    return Object.keys(obj).sort().map(function(key) {
-        return encodeURIComponent(key) + '=' +
-            encodeURIComponent(obj[key]);
-    }).join('&');
-};
+},{}],4:[function(require,module,exports){
+var Keys = require("object-keys")
+var hasKeys = require("./has-keys")
 
-ohauth.stringQs = function(str) {
-    return str.split('&').reduce(function(obj, pair){
-        var parts = pair.split('=');
-        obj[parts[0]] = (null === parts[1]) ?
-            '' : decodeURIComponent(parts[1]);
-        return obj;
-    }, {});
-};
+module.exports = extend
 
-ohauth.rawxhr = function(method, url, data, headers, callback) {
-    var xhr = new XMLHttpRequest(),
-        twoHundred = /^20\d$/;
-    xhr.onreadystatechange = function() {
-        if (4 == xhr.readyState && 0 !== xhr.status) {
-            if (twoHundred.test(xhr.status)) callback(null, xhr);
-            else return callback(xhr, null);
+function extend() {
+    var target = {}
+
+    for (var i = 0; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        if (!hasKeys(source)) {
+            continue
         }
-    };
-    xhr.onerror = function(e) { return callback(e, null); };
-    xhr.open(method, url, true);
-    for (var h in headers) xhr.setRequestHeader(h, headers[h]);
-    xhr.send(data);
-};
 
-ohauth.xhr = function(method, url, auth, data, options, callback) {
-    var headers = (options && options.header) || {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    };
-    headers.Authorization = 'OAuth ' + ohauth.authHeader(auth);
-    ohauth.rawxhr(method, url, data, headers, callback);
-};
+        var keys = Keys(source)
 
-ohauth.nonce = function() {
-    for (var o = ''; o.length < 6;) {
-        o += '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'[Math.floor(Math.random() * 61)];
+        for (var j = 0; j < keys.length; j++) {
+            var name = keys[j]
+            target[name] = source[name]
+        }
     }
-    return o;
-};
 
-ohauth.authHeader = function(obj) {
-    return Object.keys(obj).sort().map(function(key) {
-        return encodeURIComponent(key) + '="' + encodeURIComponent(obj[key]) + '"';
-    }).join(', ');
-};
+    return target
+}
 
-ohauth.timestamp = function() { return ~~((+new Date()) / 1000); };
-
-ohauth.percentEncode = function(s) {
-    return encodeURIComponent(s)
-        .replace(/\!/g, '%21').replace(/\'/g, '%27')
-        .replace(/\*/g, '%2A').replace(/\(/g, '%28').replace(/\)/g, '%29');
-};
-
-ohauth.baseString = function(method, url, params) {
-    if (params.oauth_signature) delete params.oauth_signature;
-    return [
-        method,
-        ohauth.percentEncode(url),
-        ohauth.percentEncode(ohauth.qsString(params))].join('&');
-};
-
-ohauth.signature = function(oauth_secret, token_secret, baseString) {
-    return sha1.b64_hmac(
-        ohauth.percentEncode(oauth_secret) + '&' +
-        ohauth.percentEncode(token_secret),
-        baseString);
-};
-
-module.exports = ohauth;
-
-},{"jshashes":4}],4:[function(require,module,exports){
+},{"./has-keys":5,"object-keys":6}],7:[function(require,module,exports){
 (function(global){/**
- * jsHashes - A fast and independent hashing library pure JavaScript implemented (ES5 compliant) for both server and client side
- * 
+ * jsHashes - A fast and independent hashing library pure JavaScript implemented (ES3 compliant) for both server and client side
+ *
  * @class Hashes
  * @author Tomas Aparicio <tomas@rijndael-project.com>
  * @license New BSD (see LICENSE file)
- * @version 1.0.3
+ * @version 1.0.4
  *
  * Algorithms specification:
  *
@@ -479,59 +498,67 @@ module.exports = ohauth;
  */
 (function(){
   var Hashes;
-  
+
   // private helper methods
-  function utf8Encode(input) {
-    var  x, y, output = '', i = -1, l = input.length;
-    while ((i+=1) < l) {
-      /* Decode utf-16 surrogate pairs */
-      x = input.charCodeAt(i);
-      y = i + 1 < l ? input.charCodeAt(i + 1) : 0;
-      if (0xD800 <= x && x <= 0xDBFF && 0xDC00 <= y && y <= 0xDFFF) {
-          x = 0x10000 + ((x & 0x03FF) << 10) + (y & 0x03FF);
-          i += 1;
-      }
-      /* Encode output as utf-8 */
-      if (x <= 0x7F) {
-          output += String.fromCharCode(x);
-      } else if (x <= 0x7FF) {
-          output += String.fromCharCode(0xC0 | ((x >>> 6 ) & 0x1F),
-                      0x80 | ( x & 0x3F));
-      } else if (x <= 0xFFFF) {
-          output += String.fromCharCode(0xE0 | ((x >>> 12) & 0x0F),
-                      0x80 | ((x >>> 6 ) & 0x3F),
-                      0x80 | ( x & 0x3F));
-      } else if (x <= 0x1FFFFF) {
-          output += String.fromCharCode(0xF0 | ((x >>> 18) & 0x07),
-                      0x80 | ((x >>> 12) & 0x3F),
-                      0x80 | ((x >>> 6 ) & 0x3F),
-                      0x80 | ( x & 0x3F));
+  function utf8Encode(str) {
+    var  x, y, output = '', i = -1, l;
+
+    if (str && str.length) {
+      l = str.length;
+      while ((i+=1) < l) {
+        /* Decode utf-16 surrogate pairs */
+        x = str.charCodeAt(i);
+        y = i + 1 < l ? str.charCodeAt(i + 1) : 0;
+        if (0xD800 <= x && x <= 0xDBFF && 0xDC00 <= y && y <= 0xDFFF) {
+            x = 0x10000 + ((x & 0x03FF) << 10) + (y & 0x03FF);
+            i += 1;
+        }
+        /* Encode output as utf-8 */
+        if (x <= 0x7F) {
+            output += String.fromCharCode(x);
+        } else if (x <= 0x7FF) {
+            output += String.fromCharCode(0xC0 | ((x >>> 6 ) & 0x1F),
+                        0x80 | ( x & 0x3F));
+        } else if (x <= 0xFFFF) {
+            output += String.fromCharCode(0xE0 | ((x >>> 12) & 0x0F),
+                        0x80 | ((x >>> 6 ) & 0x3F),
+                        0x80 | ( x & 0x3F));
+        } else if (x <= 0x1FFFFF) {
+            output += String.fromCharCode(0xF0 | ((x >>> 18) & 0x07),
+                        0x80 | ((x >>> 12) & 0x3F),
+                        0x80 | ((x >>> 6 ) & 0x3F),
+                        0x80 | ( x & 0x3F));
+        }
       }
     }
     return output;
   }
-  
-  function utf8Decode(str_data) {
-    var i, ac, c1, c2, c3, arr = [], l = str_data.length;
-    i = ac = c1 = c2 = c3 = 0;
-    str_data += '';
 
-    while (i < l) {
-        c1 = str_data.charCodeAt(i);
-        ac += 1;
-        if (c1 < 128) {
-            arr[ac] = String.fromCharCode(c1);
-            i+=1;
-        } else if (c1 > 191 && c1 < 224) {
-            c2 = str_data.charCodeAt(i + 1);
-            arr[ac] = String.fromCharCode(((c1 & 31) << 6) | (c2 & 63));
-            i += 2;
-        } else {
-            c2 = str_data.charCodeAt(i + 1);
-            c3 = str_data.charCodeAt(i + 2);
-            arr[ac] = String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-            i += 3;
-        }
+  function utf8Decode(str) {
+    var i, ac, c1, c2, c3, arr = [], l;
+    i = ac = c1 = c2 = c3 = 0;
+
+    if (str && str.length) {
+      l = str.length;
+      str += '';
+
+      while (i < l) {
+          c1 = str.charCodeAt(i);
+          ac += 1;
+          if (c1 < 128) {
+              arr[ac] = String.fromCharCode(c1);
+              i+=1;
+          } else if (c1 > 191 && c1 < 224) {
+              c2 = str.charCodeAt(i + 1);
+              arr[ac] = String.fromCharCode(((c1 & 31) << 6) | (c2 & 63));
+              i += 2;
+          } else {
+              c2 = str.charCodeAt(i + 1);
+              c3 = str.charCodeAt(i + 2);
+              arr[ac] = String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+              i += 3;
+          }
+      }
     }
     return arr.join('');
   }
@@ -621,9 +648,9 @@ module.exports = ohauth;
     }
     return output;
   }
-  
+
   /**
-   * Convert a raw string to an array of big-endian words 
+   * Convert a raw string to an array of big-endian words
    * Characters >255 have their high-byte silently ignored.
    */
    function rstr2binb(input) {
@@ -644,14 +671,14 @@ module.exports = ohauth;
     var divisor = encoding.length,
         remainders = Array(),
         i, q, x, ld, quotient, dividend, output, full_length;
-  
+
     /* Convert to an array of 16-bit big-endian values, forming the dividend */
     dividend = Array(Math.ceil(input.length / 2));
     ld = dividend.length;
     for (i = 0; i < ld; i+=1) {
       dividend[i] = (input.charCodeAt(i * 2) << 8) | input.charCodeAt(i * 2 + 1);
     }
-  
+
     /**
      * Repeatedly perform a long division. The binary array forms the dividend,
      * the length of the encoding is the divisor. Once computed, the quotient
@@ -672,13 +699,13 @@ module.exports = ohauth;
       remainders[remainders.length] = x;
       dividend = quotient;
     }
-  
+
     /* Convert the remainders to the output string */
     output = '';
     for (i = remainders.length - 1; i >= 0; i--) {
       output += encoding.charAt(remainders[i]);
     }
-  
+
     /* Append leading zero equivalents */
     full_length = Math.ceil(input.length * 8 / (Math.log(encoding.length) / Math.log(2)));
     for (i = output.length; i < full_length; i+=1) {
@@ -700,10 +727,10 @@ module.exports = ohauth;
             | (i + 1 < len ? input.charCodeAt(i+1) << 8 : 0)
             | (i + 2 < len ? input.charCodeAt(i+2)      : 0);
       for (j = 0; j < 4; j+=1) {
-        if (i * 8 + j * 6 > input.length * 8) { 
-          output += b64pad; 
-        } else { 
-          output += tab.charAt((triplet >>> 6*(3-j)) & 0x3F); 
+        if (i * 8 + j * 6 > input.length * 8) {
+          output += b64pad;
+        } else {
+          output += tab.charAt((triplet >>> 6*(3-j)) & 0x3F);
         }
        }
     }
@@ -711,7 +738,7 @@ module.exports = ohauth;
   }
 
   Hashes = {
-  /**  
+  /**
    * @property {String} version
    * @readonly
    */
@@ -731,7 +758,7 @@ module.exports = ohauth;
     // public method for encoding
     this.encode = function (input) {
       var i, j, triplet,
-          output = '', 
+          output = '',
           len = input.length;
 
       pad = pad || '=';
@@ -749,7 +776,7 @@ module.exports = ohauth;
           }
         }
       }
-      return output;    
+      return output;
     };
 
     // public method for decoding
@@ -821,8 +848,8 @@ module.exports = ohauth;
   CRC32 : function (str) {
     var crc = 0, x = 0, y = 0, table, i, iTop;
     str = utf8Encode(str);
-        
-    table = [ 
+
+    table = [
         '00000000 77073096 EE0E612C 990951BA 076DC419 706AF48F E963A535 9E6495A3 0EDB8832 ',
         '79DCB8A4 E0D5E91E 97D2D988 09B64C2B 7EB17CBD E7B82D07 90BF1D91 1DB71064 6AB020F2 F3B97148 ',
         '84BE41DE 1ADAD47D 6DDDE4EB F4D4B551 83D385C7 136C9856 646BA8C0 FD62F97A 8A65C9EC 14015C4F ',
@@ -840,7 +867,7 @@ module.exports = ohauth;
         '7A6A5AA8 E40ECF0B 9309FF9D 0A00AE27 7D079EB1 F00F9344 8708A3D2 1E01F268 6906C2FE F762575D ',
         '806567CB 196C3671 6E6B06E7 FED41B76 89D32BE0 10DA7A5A 67DD4ACC F9B9DF6F 8EBEEFF9 17B7BE43 ',
         '60B08ED5 D6D6A3E8 A1D1937E 38D8C2C4 4FDFF252 D1BB67F1 A6BC5767 3FB506DD 48B2364B D80D2BDA ',
-        'AF0A1B4C 36034AF6 41047A60 DF60EFC3 A867DF55 316E8EEF 4669BE79 CB61B38C BC66831A 256FD2A0 ', 
+        'AF0A1B4C 36034AF6 41047A60 DF60EFC3 A867DF55 316E8EEF 4669BE79 CB61B38C BC66831A 256FD2A0 ',
         '5268E236 CC0C7795 BB0B4703 220216B9 5505262F C5BA3BBE B2BD0B28 2BB45A92 5CB36A04 C2D7FFA7 ',
         'B5D0CF31 2CD99E8B 5BDEAE1D 9B64C2B0 EC63F226 756AA39C 026D930A 9C0906A9 EB0E363F 72076785 ',
         '05005713 95BF4A82 E2B87A14 7BB12BAE 0CB61B38 92D28E9B E5D5BE0D 7CDCEFB7 0BDBDF21 86D3D2D4 ',
@@ -865,14 +892,14 @@ module.exports = ohauth;
    * @class MD5
    * @constructor
    * @param {Object} [config]
-   * 
+   *
    * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
    * Digest Algorithm, as defined in RFC 1321.
    * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
    * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
    * See <http://pajhome.org.uk/crypt/md5> for more infHashes.
    */
-  MD5 : function (options) {  
+  MD5 : function (options) {
     /**
      * Private config properties. You may need to tweak these to be compatible with
      * the server-side, but the defaults work in most cases.
@@ -882,24 +909,24 @@ module.exports = ohauth;
         b64pad = (options && typeof options.pad === 'string') ? options.pda : '=', // base-64 pad character. Defaults to '=' for strict RFC compliance
         utf8 = (options && typeof options.utf8 === 'boolean') ? options.utf8 : true; // enable/disable utf8 encoding
 
-    // privileged (public) methods 
-    this.hex = function (s) { 
+    // privileged (public) methods
+    this.hex = function (s) {
       return rstr2hex(rstr(s, utf8), hexcase);
     };
-    this.b64 = function (s) { 
+    this.b64 = function (s) {
       return rstr2b64(rstr(s), b64pad);
     };
-    this.any = function(s, e) { 
-      return rstr2any(rstr(s, utf8), e); 
+    this.any = function(s, e) {
+      return rstr2any(rstr(s, utf8), e);
     };
-    this.hex_hmac = function (k, d) { 
-      return rstr2hex(rstr_hmac(k, d), hexcase); 
+    this.hex_hmac = function (k, d) {
+      return rstr2hex(rstr_hmac(k, d), hexcase);
     };
-    this.b64_hmac = function (k, d) { 
-      return rstr2b64(rstr_hmac(k,d), b64pad); 
+    this.b64_hmac = function (k, d) {
+      return rstr2b64(rstr_hmac(k,d), b64pad);
     };
-    this.any_hmac = function (k, d, e) { 
-      return rstr2any(rstr_hmac(k, d), e); 
+    this.any_hmac = function (k, d, e) {
+      return rstr2any(rstr_hmac(k, d), e);
     };
     /**
      * Perform a simple self-test to see if the VM is working
@@ -908,33 +935,33 @@ module.exports = ohauth;
     this.vm_test = function () {
       return hex('abc').toLowerCase() === '900150983cd24fb0d6963f7d28e17f72';
     };
-    /** 
-     * Enable/disable uppercase hexadecimal returned string 
-     * @param {Boolean} 
+    /**
+     * Enable/disable uppercase hexadecimal returned string
+     * @param {Boolean}
      * @return {Object} this
-     */ 
+     */
     this.setUpperCase = function (a) {
       if (typeof a === 'boolean' ) {
         hexcase = a;
       }
       return this;
     };
-    /** 
-     * Defines a base64 pad string 
+    /**
+     * Defines a base64 pad string
      * @param {String} Pad
      * @return {Object} this
-     */ 
+     */
     this.setPad = function (a) {
       b64pad = a || b64pad;
       return this;
     };
-    /** 
-     * Defines a base64 pad string 
-     * @param {Boolean} 
+    /**
+     * Defines a base64 pad string
+     * @param {Boolean}
      * @return {Object} [this]
-     */ 
+     */
     this.setUTF8 = function (a) {
-      if (typeof a === 'boolean') { 
+      if (typeof a === 'boolean') {
         utf8 = a;
       }
       return this;
@@ -949,7 +976,7 @@ module.exports = ohauth;
       s = (utf8) ? utf8Encode(s): s;
       return binl2rstr(binl(rstr2binl(s), s.length * 8));
     }
-    
+
     /**
      * Calculate the HMAC-MD5, of a key and some data (raw strings)
      */
@@ -959,11 +986,11 @@ module.exports = ohauth;
       key = (utf8) ? utf8Encode(key) : key;
       data = (utf8) ? utf8Encode(data) : data;
       bkey = rstr2binl(key);
-      if (bkey.length > 16) { 
-        bkey = binl(bkey, key.length * 8); 
+      if (bkey.length > 16) {
+        bkey = binl(bkey, key.length * 8);
       }
 
-      ipad = Array(16), opad = Array(16); 
+      ipad = Array(16), opad = Array(16);
       for (i = 0; i < 16; i+=1) {
           ipad[i] = bkey[i] ^ 0x36363636;
           opad[i] = bkey[i] ^ 0x5C5C5C5C;
@@ -981,7 +1008,7 @@ module.exports = ohauth;
           b = -271733879,
           c = -1732584194,
           d =  271733878;
-        
+
       /* append padding */
       x[len >> 5] |= 0x80 << ((len) % 32);
       x[(((len + 64) >>> 9) << 4) + 14] = len;
@@ -1092,7 +1119,7 @@ module.exports = ohauth;
    * @class Hashes.SHA1
    * @param {Object} [config]
    * @constructor
-   * 
+   *
    * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined in FIPS 180-1
    * Version 2.2 Copyright Paul Johnston 2000 - 2009.
    * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
@@ -1109,22 +1136,22 @@ module.exports = ohauth;
         utf8 = (options && typeof options.utf8 === 'boolean') ? options.utf8 : true; // enable/disable utf8 encoding
 
     // public methods
-    this.hex = function (s) { 
-    	return rstr2hex(rstr(s, utf8), hexcase); 
+    this.hex = function (s) {
+    	return rstr2hex(rstr(s, utf8), hexcase);
     };
-    this.b64 = function (s) { 
+    this.b64 = function (s) {
     	return rstr2b64(rstr(s, utf8), b64pad);
     };
-    this.any = function (s, e) { 
+    this.any = function (s, e) {
     	return rstr2any(rstr(s, utf8), e);
     };
     this.hex_hmac = function (k, d) {
     	return rstr2hex(rstr_hmac(k, d));
     };
-    this.b64_hmac = function (k, d) { 
-    	return rstr2b64(rstr_hmac(k, d), b64pad); 
+    this.b64_hmac = function (k, d) {
+    	return rstr2b64(rstr_hmac(k, d), b64pad);
     };
-    this.any_hmac = function (k, d, e) { 
+    this.any_hmac = function (k, d, e) {
     	return rstr2any(rstr_hmac(k, d), e);
     };
     /**
@@ -1135,34 +1162,34 @@ module.exports = ohauth;
     this.vm_test = function () {
       return hex('abc').toLowerCase() === '900150983cd24fb0d6963f7d28e17f72';
     };
-    /** 
-     * @description Enable/disable uppercase hexadecimal returned string 
-     * @param {boolean} 
+    /**
+     * @description Enable/disable uppercase hexadecimal returned string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUpperCase = function (a) {
     	if (typeof a === 'boolean') {
         hexcase = a;
       }
     	return this;
     };
-    /** 
-     * @description Defines a base64 pad string 
+    /**
+     * @description Defines a base64 pad string
      * @param {string} Pad
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setPad = function (a) {
       b64pad = a || b64pad;
     	return this;
     };
-    /** 
-     * @description Defines a base64 pad string 
-     * @param {boolean} 
+    /**
+     * @description Defines a base64 pad string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUTF8 = function (a) {
     	if (typeof a === 'boolean') {
         utf8 = a;
@@ -1223,12 +1250,12 @@ module.exports = ohauth;
         oldc = c;
         oldd = d;
         olde = e;
-      
+
       	for (j = 0; j < 80; j+=1)	{
-      	  if (j < 16) { 
-            w[j] = x[i + j]; 
-          } else { 
-            w[j] = bit_rol(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1); 
+      	  if (j < 16) {
+            w[j] = x[i + j];
+          } else {
+            w[j] = bit_rol(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1);
           }
       	  t = safe_add(safe_add(bit_rol(a, 5), sha1_ft(j, b, c, d)),
       					   safe_add(safe_add(e, w[j]), sha1_kt(j)));
@@ -1270,7 +1297,7 @@ module.exports = ohauth;
   /**
    * @class Hashes.SHA256
    * @param {config}
-   * 
+   *
    * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined in FIPS 180-2
    * Version 2.2 Copyright Angel Marin, Paul Johnston 2000 - 2009.
    * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
@@ -1290,23 +1317,23 @@ module.exports = ohauth;
               sha256_K;
 
     /* privileged (public) methods */
-    this.hex = function (s) { 
-      return rstr2hex(rstr(s, utf8)); 
+    this.hex = function (s) {
+      return rstr2hex(rstr(s, utf8));
     };
-    this.b64 = function (s) { 
+    this.b64 = function (s) {
       return rstr2b64(rstr(s, utf8), b64pad);
     };
-    this.any = function (s, e) { 
-      return rstr2any(rstr(s, utf8), e); 
+    this.any = function (s, e) {
+      return rstr2any(rstr(s, utf8), e);
     };
-    this.hex_hmac = function (k, d) { 
-      return rstr2hex(rstr_hmac(k, d)); 
+    this.hex_hmac = function (k, d) {
+      return rstr2hex(rstr_hmac(k, d));
     };
-    this.b64_hmac = function (k, d) { 
+    this.b64_hmac = function (k, d) {
       return rstr2b64(rstr_hmac(k, d), b64pad);
     };
-    this.any_hmac = function (k, d, e) { 
-      return rstr2any(rstr_hmac(k, d), e); 
+    this.any_hmac = function (k, d, e) {
+      return rstr2any(rstr_hmac(k, d), e);
     };
     /**
      * Perform a simple self-test to see if the VM is working
@@ -1316,41 +1343,41 @@ module.exports = ohauth;
     this.vm_test = function () {
       return hex('abc').toLowerCase() === '900150983cd24fb0d6963f7d28e17f72';
     };
-    /** 
-     * Enable/disable uppercase hexadecimal returned string 
-     * @param {boolean} 
+    /**
+     * Enable/disable uppercase hexadecimal returned string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUpperCase = function (a) {
-      if (typeof a === 'boolean') { 
+      if (typeof a === 'boolean') {
         hexcase = a;
       }
       return this;
     };
-    /** 
-     * @description Defines a base64 pad string 
+    /**
+     * @description Defines a base64 pad string
      * @param {string} Pad
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setPad = function (a) {
       b64pad = a || b64pad;
       return this;
     };
-    /** 
-     * Defines a base64 pad string 
-     * @param {boolean} 
+    /**
+     * Defines a base64 pad string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUTF8 = function (a) {
       if (typeof a === 'boolean') {
         utf8 = a;
       }
       return this;
     };
-    
+
     // private methods
 
     /**
@@ -1368,21 +1395,21 @@ module.exports = ohauth;
       key = (utf8) ? utf8Encode(key) : key;
       data = (utf8) ? utf8Encode(data) : data;
       var hash, i = 0,
-          bkey = rstr2binb(key), 
-          ipad = Array(16), 
+          bkey = rstr2binb(key),
+          ipad = Array(16),
           opad = Array(16);
 
       if (bkey.length > 16) { bkey = binb(bkey, key.length * 8); }
-      
+
       for (; i < 16; i+=1) {
         ipad[i] = bkey[i] ^ 0x36363636;
         opad[i] = bkey[i] ^ 0x5C5C5C5C;
       }
-      
+
       hash = binb(ipad.concat(rstr2binb(data)), 512 + data.length * 8);
       return binb2rstr(binb(opad.concat(hash), 512 + 256));
     }
-    
+
     /*
      * Main sha256 function, with its support functions
      */
@@ -1398,7 +1425,7 @@ module.exports = ohauth;
     function sha256_Sigma1512(x) {return (sha256_S(x, 14) ^ sha256_S(x, 18) ^ sha256_S(x, 41));}
     function sha256_Gamma0512(x) {return (sha256_S(x, 1)  ^ sha256_S(x, 8) ^ sha256_R(x, 7));}
     function sha256_Gamma1512(x) {return (sha256_S(x, 19) ^ sha256_S(x, 61) ^ sha256_R(x, 6));}
-    
+
     sha256_K = [
       1116352408, 1899447441, -1245643825, -373957723, 961987163, 1508970993,
       -1841331548, -1424204075, -670586216, 310598401, 607225278, 1426881987,
@@ -1412,18 +1439,18 @@ module.exports = ohauth;
       1537002063, 1747873779, 1955562222, 2024104815, -2067236844, -1933114872,
       -1866530822, -1538233109, -1090935817, -965641998
     ];
-    
+
     function binb(m, l) {
       var HASH = [1779033703, -1150833019, 1013904242, -1521486534,
                  1359893119, -1694144372, 528734635, 1541459225];
       var W = new Array(64);
       var a, b, c, d, e, f, g, h;
       var i, j, T1, T2;
-    
+
       /* append padding */
       m[l >> 5] |= 0x80 << (24 - l % 32);
       m[((l + 64 >> 9) << 4) + 15] = l;
-    
+
       for (i = 0; i < m.length; i += 16)
       {
       a = HASH[0];
@@ -1434,16 +1461,16 @@ module.exports = ohauth;
       f = HASH[5];
       g = HASH[6];
       h = HASH[7];
-    
+
       for (j = 0; j < 64; j+=1)
       {
-        if (j < 16) { 
+        if (j < 16) {
           W[j] = m[j + i];
-        } else { 
+        } else {
           W[j] = safe_add(safe_add(safe_add(sha256_Gamma1256(W[j - 2]), W[j - 7]),
                           sha256_Gamma0256(W[j - 15])), W[j - 16]);
         }
-    
+
         T1 = safe_add(safe_add(safe_add(safe_add(h, sha256_Sigma1256(e)), sha256_Ch(e, f, g)),
                                   sha256_K[j]), W[j]);
         T2 = safe_add(sha256_Sigma0256(a), sha256_Maj(a, b, c));
@@ -1456,7 +1483,7 @@ module.exports = ohauth;
         b = a;
         a = safe_add(T1, T2);
       }
-    
+
       HASH[0] = safe_add(a, HASH[0]);
       HASH[1] = safe_add(b, HASH[1]);
       HASH[2] = safe_add(c, HASH[2]);
@@ -1474,11 +1501,11 @@ module.exports = ohauth;
   /**
    * @class Hashes.SHA512
    * @param {config}
-   * 
+   *
    * A JavaScript implementation of the Secure Hash Algorithm, SHA-512, as defined in FIPS 180-2
    * Version 2.2 Copyright Anonymous Contributor, Paul Johnston 2000 - 2009.
    * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
-   * See http://pajhome.org.uk/crypt/md5 for details. 
+   * See http://pajhome.org.uk/crypt/md5 for details.
    */
   SHA512 : function (options) {
     /**
@@ -1493,22 +1520,22 @@ module.exports = ohauth;
         sha512_k;
 
     /* privileged (public) methods */
-    this.hex = function (s) { 
-      return rstr2hex(rstr(s)); 
+    this.hex = function (s) {
+      return rstr2hex(rstr(s));
     };
-    this.b64 = function (s) { 
-      return rstr2b64(rstr(s), b64pad);  
+    this.b64 = function (s) {
+      return rstr2b64(rstr(s), b64pad);
     };
-    this.any = function (s, e) { 
+    this.any = function (s, e) {
       return rstr2any(rstr(s), e);
     };
     this.hex_hmac = function (k, d) {
       return rstr2hex(rstr_hmac(k, d));
     };
-    this.b64_hmac = function (k, d) { 
+    this.b64_hmac = function (k, d) {
       return rstr2b64(rstr_hmac(k, d), b64pad);
     };
-    this.any_hmac = function (k, d, e) { 
+    this.any_hmac = function (k, d, e) {
       return rstr2any(rstr_hmac(k, d), e);
     };
     /**
@@ -1519,34 +1546,34 @@ module.exports = ohauth;
     this.vm_test = function () {
       return hex('abc').toLowerCase() === '900150983cd24fb0d6963f7d28e17f72';
     };
-    /** 
-     * @description Enable/disable uppercase hexadecimal returned string 
-     * @param {boolean} 
+    /**
+     * @description Enable/disable uppercase hexadecimal returned string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUpperCase = function (a) {
       if (typeof a === 'boolean') {
         hexcase = a;
       }
       return this;
     };
-    /** 
-     * @description Defines a base64 pad string 
+    /**
+     * @description Defines a base64 pad string
      * @param {string} Pad
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setPad = function (a) {
       b64pad = a || b64pad;
       return this;
     };
-    /** 
-     * @description Defines a base64 pad string 
-     * @param {boolean} 
+    /**
+     * @description Defines a base64 pad string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUTF8 = function (a) {
       if (typeof a === 'boolean') {
         utf8 = a;
@@ -1555,7 +1582,7 @@ module.exports = ohauth;
     };
 
     /* private methods */
-    
+
     /**
      * Calculate the SHA-512 of a raw string
      */
@@ -1569,22 +1596,22 @@ module.exports = ohauth;
     function rstr_hmac(key, data) {
       key = (utf8) ? utf8Encode(key) : key;
       data = (utf8) ? utf8Encode(data) : data;
-      
-      var hash, i = 0, 
+
+      var hash, i = 0,
           bkey = rstr2binb(key),
           ipad = Array(32), opad = Array(32);
 
       if (bkey.length > 32) { bkey = binb(bkey, key.length * 8); }
-      
+
       for (; i < 32; i+=1) {
         ipad[i] = bkey[i] ^ 0x36363636;
         opad[i] = bkey[i] ^ 0x5C5C5C5C;
       }
-      
+
       hash = binb(ipad.concat(rstr2binb(data)), 1024 + data.length * 8);
       return binb2rstr(binb(opad.concat(hash), 1024 + 512));
     }
-            
+
     /**
      * Calculate the SHA-512 of an array of big-endian dwords, and a bit length
      */
@@ -1667,11 +1694,11 @@ module.exports = ohauth;
             new int64(0x5fcb6fab, 0x3ad6faec), new int64(0x6c44198c, 0x4a475817)
           ];
       }
-  
+
       for (i=0; i<80; i+=1) {
         W[i] = new int64(0, 0);
       }
-    
+
       // append padding to the source string. The format is described in the FIPS.
       x[len >> 5] |= 0x80 << (24 - (len & 0x1f));
       x[((len + 128 >> 10)<< 5) + 31] = len;
@@ -1685,12 +1712,12 @@ module.exports = ohauth;
         int64copy(f, H[5]);
         int64copy(g, H[6]);
         int64copy(h, H[7]);
-      
+
         for (j=0; j<16; j+=1) {
           W[j].h = x[i + 2*j];
           W[j].l = x[i + 2*j + 1];
         }
-      
+
         for (j=16; j<80; j+=1) {
           //sigma1
           int64rrot(r1, W[j-2], 19);
@@ -1704,36 +1731,36 @@ module.exports = ohauth;
           int64shr(r3, W[j-15], 7);
           s0.l = r1.l ^ r2.l ^ r3.l;
           s0.h = r1.h ^ r2.h ^ r3.h;
-      
+
           int64add4(W[j], s1, W[j-7], s0, W[j-16]);
         }
-      
+
         for (j = 0; j < 80; j+=1) {
           //Ch
           Ch.l = (e.l & f.l) ^ (~e.l & g.l);
           Ch.h = (e.h & f.h) ^ (~e.h & g.h);
-      
+
           //Sigma1
           int64rrot(r1, e, 14);
           int64rrot(r2, e, 18);
           int64revrrot(r3, e, 9);
           s1.l = r1.l ^ r2.l ^ r3.l;
           s1.h = r1.h ^ r2.h ^ r3.h;
-      
+
           //Sigma0
           int64rrot(r1, a, 28);
           int64revrrot(r2, a, 2);
           int64revrrot(r3, a, 7);
           s0.l = r1.l ^ r2.l ^ r3.l;
           s0.h = r1.h ^ r2.h ^ r3.h;
-      
+
           //Maj
           Maj.l = (a.l & b.l) ^ (a.l & c.l) ^ (b.l & c.l);
           Maj.h = (a.h & b.h) ^ (a.h & c.h) ^ (b.h & c.h);
-      
+
           int64add5(T1, h, s1, Ch, sha512_k[j], W[j]);
           int64add(T2, s0, Maj);
-      
+
           int64copy(h, g);
           int64copy(g, f);
           int64copy(f, e);
@@ -1752,7 +1779,7 @@ module.exports = ohauth;
         int64add(H[6], H[6], g);
         int64add(H[7], H[7], h);
       }
-    
+
       //represent the hash as an array of 32-bit dwords
       for (i=0; i<8; i+=1) {
         hash[2*i] = H[i].h;
@@ -1760,20 +1787,20 @@ module.exports = ohauth;
       }
       return hash;
     }
-    
+
     //A constructor for 64-bit numbers
     function int64(h, l) {
       this.h = h;
       this.l = l;
       //this.toString = int64toString;
     }
-    
+
     //Copies src into dst, assuming both are 64-bit numbers
     function int64copy(dst, src) {
       dst.h = src.h;
       dst.l = src.l;
     }
-    
+
     //Right-rotates a 64-bit number by shift
     //Won't handle cases of shift>=32
     //The function revrrot() is for that
@@ -1781,21 +1808,21 @@ module.exports = ohauth;
       dst.l = (x.l >>> shift) | (x.h << (32-shift));
       dst.h = (x.h >>> shift) | (x.l << (32-shift));
     }
-    
+
     //Reverses the dwords of the source and then rotates right by shift.
     //This is equivalent to rotation by 32+shift
     function int64revrrot(dst, x, shift) {
       dst.l = (x.h >>> shift) | (x.l << (32-shift));
       dst.h = (x.l >>> shift) | (x.h << (32-shift));
     }
-    
+
     //Bitwise-shifts right a 64-bit number by shift
     //Won't handle shift>=32, but it's never needed in SHA512
     function int64shr(dst, x, shift) {
       dst.l = (x.l >>> shift) | (x.h << (32-shift));
       dst.h = (x.h >>> shift);
     }
-    
+
     //Adds two 64-bit numbers
     //Like the original implementation, does not rely on 32-bit operations
     function int64add(dst, x, y) {
@@ -1806,7 +1833,7 @@ module.exports = ohauth;
        dst.l = (w0 & 0xffff) | (w1 << 16);
        dst.h = (w2 & 0xffff) | (w3 << 16);
     }
-    
+
     //Same, except with 4 addends. Works faster than adding them one by one.
     function int64add4(dst, a, b, c, d) {
        var w0 = (a.l & 0xffff) + (b.l & 0xffff) + (c.l & 0xffff) + (d.l & 0xffff);
@@ -1816,7 +1843,7 @@ module.exports = ohauth;
        dst.l = (w0 & 0xffff) | (w1 << 16);
        dst.h = (w2 & 0xffff) | (w3 << 16);
     }
-    
+
     //Same, except with 5 addends
     function int64add5(dst, a, b, c, d, e) {
       var w0 = (a.l & 0xffff) + (b.l & 0xffff) + (c.l & 0xffff) + (d.l & 0xffff) + (e.l & 0xffff),
@@ -1831,7 +1858,7 @@ module.exports = ohauth;
    * @class Hashes.RMD160
    * @constructor
    * @param {Object} [config]
-   * 
+   *
    * A JavaScript implementation of the RIPEMD-160 Algorithm
    * Version 2.2 Copyright Jeremy Lin, Paul Johnston 2000 - 2009.
    * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
@@ -1879,22 +1906,22 @@ module.exports = ohauth;
 
     /* privileged (public) methods */
     this.hex = function (s) {
-      return rstr2hex(rstr(s, utf8)); 
+      return rstr2hex(rstr(s, utf8));
     };
     this.b64 = function (s) {
       return rstr2b64(rstr(s, utf8), b64pad);
     };
-    this.any = function (s, e) { 
+    this.any = function (s, e) {
       return rstr2any(rstr(s, utf8), e);
     };
-    this.hex_hmac = function (k, d) { 
+    this.hex_hmac = function (k, d) {
       return rstr2hex(rstr_hmac(k, d));
     };
-    this.b64_hmac = function (k, d) { 
+    this.b64_hmac = function (k, d) {
       return rstr2b64(rstr_hmac(k, d), b64pad);
     };
-    this.any_hmac = function (k, d, e) { 
-      return rstr2any(rstr_hmac(k, d), e); 
+    this.any_hmac = function (k, d, e) {
+      return rstr2any(rstr_hmac(k, d), e);
     };
     /**
      * Perform a simple self-test to see if the VM is working
@@ -1904,32 +1931,32 @@ module.exports = ohauth;
     this.vm_test = function () {
       return hex('abc').toLowerCase() === '900150983cd24fb0d6963f7d28e17f72';
     };
-    /** 
-     * @description Enable/disable uppercase hexadecimal returned string 
-     * @param {boolean} 
+    /**
+     * @description Enable/disable uppercase hexadecimal returned string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUpperCase = function (a) {
       if (typeof a === 'boolean' ) { hexcase = a; }
       return this;
     };
-    /** 
-     * @description Defines a base64 pad string 
+    /**
+     * @description Defines a base64 pad string
      * @param {string} Pad
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setPad = function (a) {
       if (typeof a !== 'undefined' ) { b64pad = a; }
       return this;
     };
-    /** 
-     * @description Defines a base64 pad string 
-     * @param {boolean} 
+    /**
+     * @description Defines a base64 pad string
+     * @param {boolean}
      * @return {Object} this
      * @public
-     */ 
+     */
     this.setUTF8 = function (a) {
       if (typeof a === 'boolean') { utf8 = a; }
       return this;
@@ -1955,10 +1982,10 @@ module.exports = ohauth;
           bkey = rstr2binl(key),
           ipad = Array(16), opad = Array(16);
 
-      if (bkey.length > 16) { 
-        bkey = binl(bkey, key.length * 8); 
+      if (bkey.length > 16) {
+        bkey = binl(bkey, key.length * 8);
       }
-      
+
       for (i = 0; i < 16; i+=1) {
         ipad[i] = bkey[i] ^ 0x36363636;
         opad[i] = bkey[i] ^ 0x5C5C5C5C;
@@ -1995,7 +2022,7 @@ module.exports = ohauth;
       x[len >> 5] |= 0x80 << (len % 32);
       x[(((len + 64) >>> 9) << 4) + 14] = len;
       l = x.length;
-      
+
       for (i = 0; i < l; i+=16) {
         A1 = A2 = h0; B1 = B2 = h1; C1 = C2 = h2; D1 = D2 = h3; E1 = E2 = h4;
         for (j = 0; j <= 79; j+=1) {
@@ -2021,7 +2048,7 @@ module.exports = ohauth;
       return [h0, h1, h2, h3, h4];
     }
 
-    // specific algorithm methods 
+    // specific algorithm methods
     function rmd160_f(j, x, y, z) {
       return ( 0 <= j && j <= 15) ? (x ^ y ^ z) :
          (16 <= j && j <= 31) ? (x & y) | (~x & z) :
@@ -2079,7 +2106,925 @@ module.exports = ohauth;
     }
   }( this ));
 }()); // IIFE
+
 })(window)
+},{}],2:[function(require,module,exports){
+'use strict';
+
+var hashes = require('jshashes'),
+    xtend = require('xtend'),
+    sha1 = new hashes.SHA1();
+
+var ohauth = {};
+
+ohauth.qsString = function(obj) {
+    return Object.keys(obj).sort().map(function(key) {
+        return ohauth.percentEncode(key) + '=' +
+            ohauth.percentEncode(obj[key]);
+    }).join('&');
+};
+
+ohauth.stringQs = function(str) {
+    return str.split('&').reduce(function(obj, pair){
+        var parts = pair.split('=');
+        obj[decodeURIComponent(parts[0])] = (null === parts[1]) ?
+            '' : decodeURIComponent(parts[1]);
+        return obj;
+    }, {});
+};
+
+ohauth.rawxhr = function(method, url, data, headers, callback) {
+    var xhr = new XMLHttpRequest(),
+        twoHundred = /^20\d$/;
+    xhr.onreadystatechange = function() {
+        if (4 == xhr.readyState && 0 !== xhr.status) {
+            if (twoHundred.test(xhr.status)) callback(null, xhr);
+            else return callback(xhr, null);
+        }
+    };
+    xhr.onerror = function(e) { return callback(e, null); };
+    xhr.open(method, url, true);
+    for (var h in headers) xhr.setRequestHeader(h, headers[h]);
+    xhr.send(data);
+};
+
+ohauth.xhr = function(method, url, auth, data, options, callback) {
+    var headers = (options && options.header) || {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    };
+    headers.Authorization = 'OAuth ' + ohauth.authHeader(auth);
+    ohauth.rawxhr(method, url, data, headers, callback);
+};
+
+ohauth.nonce = function() {
+    for (var o = ''; o.length < 6;) {
+        o += '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'[Math.floor(Math.random() * 61)];
+    }
+    return o;
+};
+
+ohauth.authHeader = function(obj) {
+    return Object.keys(obj).sort().map(function(key) {
+        return encodeURIComponent(key) + '="' + encodeURIComponent(obj[key]) + '"';
+    }).join(', ');
+};
+
+ohauth.timestamp = function() { return ~~((+new Date()) / 1000); };
+
+ohauth.percentEncode = function(s) {
+    return encodeURIComponent(s)
+        .replace(/\!/g, '%21').replace(/\'/g, '%27')
+        .replace(/\*/g, '%2A').replace(/\(/g, '%28').replace(/\)/g, '%29');
+};
+
+ohauth.baseString = function(method, url, params) {
+    if (params.oauth_signature) delete params.oauth_signature;
+    return [
+        method,
+        ohauth.percentEncode(url),
+        ohauth.percentEncode(ohauth.qsString(params))].join('&');
+};
+
+ohauth.signature = function(oauth_secret, token_secret, baseString) {
+    return sha1.b64_hmac(
+        ohauth.percentEncode(oauth_secret) + '&' +
+        ohauth.percentEncode(token_secret),
+        baseString);
+};
+
+/**
+ * Takes an options object for configuration (consumer_key,
+ * consumer_secret, version, signature_method, token) and returns a
+ * function that generates the Authorization header for given data.
+ *
+ * The returned function takes these parameters:
+ * - method: GET/POST/...
+ * - uri: full URI with protocol, port, path and query string
+ * - extra_params: any extra parameters (that are passed in the POST data),
+ *   can be an object or a from-urlencoded string.
+ *
+ * Returned function returns full OAuth header with "OAuth" string in it.
+ */
+
+ohauth.headerGenerator = function(options) {
+    options = options || {};
+    var consumer_key = options.consumer_key || '',
+        consumer_secret = options.consumer_secret || '',
+        signature_method = options.signature_method || 'HMAC-SHA1',
+        version = options.version || '1.0',
+        token = options.token || '';
+
+    return function(method, uri, extra_params) {
+        method = method.toUpperCase();
+        if (typeof extra_params === 'string' && extra_params.length > 0) {
+            extra_params = ohauth.stringQs(extra_params);
+        }
+
+        var uri_parts = uri.split('?', 2),
+        base_uri = uri_parts[0];
+
+        var query_params = uri_parts.length === 2 ?
+            ohauth.stringQs(uri_parts[1]) : {};
+
+        var oauth_params = {
+            oauth_consumer_key: consumer_key,
+            oauth_signature_method: signature_method,
+            oauth_version: version,
+            oauth_timestamp: ohauth.timestamp(),
+            oauth_nonce: ohauth.nonce()
+        };
+
+        if (token) oauth_params.oauth_token = token;
+
+        var all_params = xtend({}, oauth_params, query_params, extra_params),
+            base_str = ohauth.baseString(method, base_uri, all_params);
+
+        oauth_params.oauth_signature = ohauth.signature(consumer_secret, token, base_str);
+
+        return 'OAuth ' + ohauth.authHeader(oauth_params);
+    };
+};
+
+module.exports = ohauth;
+
+},{"jshashes":7,"xtend":4}],6:[function(require,module,exports){
+module.exports = Object.keys || require('./shim');
+
+
+},{"./shim":8}],8:[function(require,module,exports){
+(function () {
+	"use strict";
+
+	// modified from https://github.com/kriskowal/es5-shim
+	var has = Object.prototype.hasOwnProperty,
+		is = require('is'),
+		forEach = require('foreach'),
+		hasDontEnumBug = !({'toString': null}).propertyIsEnumerable('toString'),
+		dontEnums = [
+			"toString",
+			"toLocaleString",
+			"valueOf",
+			"hasOwnProperty",
+			"isPrototypeOf",
+			"propertyIsEnumerable",
+			"constructor"
+		],
+		keysShim;
+
+	keysShim = function keys(object) {
+		if (!is.object(object) && !is.array(object)) {
+			throw new TypeError("Object.keys called on a non-object");
+		}
+
+		var name, theKeys = [];
+		for (name in object) {
+			if (has.call(object, name)) {
+				theKeys.push(name);
+			}
+		}
+
+		if (hasDontEnumBug) {
+			forEach(dontEnums, function (dontEnum) {
+				if (has.call(object, dontEnum)) {
+					theKeys.push(dontEnum);
+				}
+			});
+		}
+		return theKeys;
+	};
+
+	module.exports = keysShim;
+}());
+
+
+},{"is":9,"foreach":10}],9:[function(require,module,exports){
+
+/**!
+ * is
+ * the definitive JavaScript type testing library
+ *
+ * @copyright 2013 Enrico Marino
+ * @license MIT
+ */
+
+var objProto = Object.prototype;
+var owns = objProto.hasOwnProperty;
+var toString = objProto.toString;
+var isActualNaN = function (value) {
+  return value !== value;
+};
+var NON_HOST_TYPES = {
+  "boolean": 1,
+  "number": 1,
+  "string": 1,
+  "undefined": 1
+};
+
+/**
+ * Expose `is`
+ */
+
+var is = module.exports = {};
+
+/**
+ * Test general.
+ */
+
+/**
+ * is.type
+ * Test if `value` is a type of `type`.
+ *
+ * @param {Mixed} value value to test
+ * @param {String} type type
+ * @return {Boolean} true if `value` is a type of `type`, false otherwise
+ * @api public
+ */
+
+is.a =
+is.type = function (value, type) {
+  return typeof value === type;
+};
+
+/**
+ * is.defined
+ * Test if `value` is defined.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if 'value' is defined, false otherwise
+ * @api public
+ */
+
+is.defined = function (value) {
+  return value !== undefined;
+};
+
+/**
+ * is.empty
+ * Test if `value` is empty.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is empty, false otherwise
+ * @api public
+ */
+
+is.empty = function (value) {
+  var type = toString.call(value);
+  var key;
+
+  if ('[object Array]' === type || '[object Arguments]' === type) {
+    return value.length === 0;
+  }
+
+  if ('[object Object]' === type) {
+    for (key in value) if (owns.call(value, key)) return false;
+    return true;
+  }
+
+  if ('[object String]' === type) {
+    return '' === value;
+  }
+
+  return false;
+};
+
+/**
+ * is.equal
+ * Test if `value` is equal to `other`.
+ *
+ * @param {Mixed} value value to test
+ * @param {Mixed} other value to compare with
+ * @return {Boolean} true if `value` is equal to `other`, false otherwise
+ */
+
+is.equal = function (value, other) {
+  var type = toString.call(value)
+  var key;
+
+  if (type !== toString.call(other)) {
+    return false;
+  }
+
+  if ('[object Object]' === type) {
+    for (key in value) {
+      if (!is.equal(value[key], other[key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  if ('[object Array]' === type) {
+    key = value.length;
+    if (key !== other.length) {
+      return false;
+    }
+    while (--key) {
+      if (!is.equal(value[key], other[key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  if ('[object Function]' === type) {
+    return value.prototype === other.prototype;
+  }
+
+  if ('[object Date]' === type) {
+    return value.getTime() === other.getTime();
+  }
+
+  return value === other;
+};
+
+/**
+ * is.hosted
+ * Test if `value` is hosted by `host`.
+ *
+ * @param {Mixed} value to test
+ * @param {Mixed} host host to test with
+ * @return {Boolean} true if `value` is hosted by `host`, false otherwise
+ * @api public
+ */
+
+is.hosted = function (value, host) {
+  var type = typeof host[value];
+  return type === 'object' ? !!host[value] : !NON_HOST_TYPES[type];
+};
+
+/**
+ * is.instance
+ * Test if `value` is an instance of `constructor`.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an instance of `constructor`
+ * @api public
+ */
+
+is.instance = is['instanceof'] = function (value, constructor) {
+  return value instanceof constructor;
+};
+
+/**
+ * is.null
+ * Test if `value` is null.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is null, false otherwise
+ * @api public
+ */
+
+is['null'] = function (value) {
+  return value === null;
+};
+
+/**
+ * is.undefined
+ * Test if `value` is undefined.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is undefined, false otherwise
+ * @api public
+ */
+
+is.undefined = function (value) {
+  return value === undefined;
+};
+
+/**
+ * Test arguments.
+ */
+
+/**
+ * is.arguments
+ * Test if `value` is an arguments object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an arguments object, false otherwise
+ * @api public
+ */
+
+is.arguments = function (value) {
+  var isStandardArguments = '[object Arguments]' === toString.call(value);
+  var isOldArguments = !is.array(value) && is.arraylike(value) && is.object(value) && is.fn(value.callee);
+  return isStandardArguments || isOldArguments;
+};
+
+/**
+ * Test array.
+ */
+
+/**
+ * is.array
+ * Test if 'value' is an array.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an array, false otherwise
+ * @api public
+ */
+
+is.array = function (value) {
+  return '[object Array]' === toString.call(value);
+};
+
+/**
+ * is.arguments.empty
+ * Test if `value` is an empty arguments object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an empty arguments object, false otherwise
+ * @api public
+ */
+is.arguments.empty = function (value) {
+  return is.arguments(value) && value.length === 0;
+};
+
+/**
+ * is.array.empty
+ * Test if `value` is an empty array.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an empty array, false otherwise
+ * @api public
+ */
+is.array.empty = function (value) {
+  return is.array(value) && value.length === 0;
+};
+
+/**
+ * is.arraylike
+ * Test if `value` is an arraylike object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an arguments object, false otherwise
+ * @api public
+ */
+
+is.arraylike = function (value) {
+  return !!value && !is.boolean(value)
+    && owns.call(value, 'length')
+    && isFinite(value.length)
+    && is.number(value.length)
+    && value.length >= 0;
+};
+
+/**
+ * Test boolean.
+ */
+
+/**
+ * is.boolean
+ * Test if `value` is a boolean.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a boolean, false otherwise
+ * @api public
+ */
+
+is.boolean = function (value) {
+  return '[object Boolean]' === toString.call(value);
+};
+
+/**
+ * is.false
+ * Test if `value` is false.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is false, false otherwise
+ * @api public
+ */
+
+is['false'] = function (value) {
+  return is.boolean(value) && (value === false || value.valueOf() === false);
+};
+
+/**
+ * is.true
+ * Test if `value` is true.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is true, false otherwise
+ * @api public
+ */
+
+is['true'] = function (value) {
+  return is.boolean(value) && (value === true || value.valueOf() === true);
+};
+
+/**
+ * Test date.
+ */
+
+/**
+ * is.date
+ * Test if `value` is a date.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a date, false otherwise
+ * @api public
+ */
+
+is.date = function (value) {
+  return '[object Date]' === toString.call(value);
+};
+
+/**
+ * Test element.
+ */
+
+/**
+ * is.element
+ * Test if `value` is an html element.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an HTML Element, false otherwise
+ * @api public
+ */
+
+is.element = function (value) {
+  return value !== undefined
+    && typeof HTMLElement !== 'undefined'
+    && value instanceof HTMLElement
+    && value.nodeType === 1;
+};
+
+/**
+ * Test error.
+ */
+
+/**
+ * is.error
+ * Test if `value` is an error object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an error object, false otherwise
+ * @api public
+ */
+
+is.error = function (value) {
+  return '[object Error]' === toString.call(value);
+};
+
+/**
+ * Test function.
+ */
+
+/**
+ * is.fn / is.function (deprecated)
+ * Test if `value` is a function.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a function, false otherwise
+ * @api public
+ */
+
+is.fn = is['function'] = function (value) {
+  var isAlert = typeof window !== 'undefined' && value === window.alert;
+  return isAlert || '[object Function]' === toString.call(value);
+};
+
+/**
+ * Test number.
+ */
+
+/**
+ * is.number
+ * Test if `value` is a number.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a number, false otherwise
+ * @api public
+ */
+
+is.number = function (value) {
+  return '[object Number]' === toString.call(value);
+};
+
+/**
+ * is.infinite
+ * Test if `value` is positive or negative infinity.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is positive or negative Infinity, false otherwise
+ * @api public
+ */
+is.infinite = function (value) {
+  return value === Infinity || value === -Infinity;
+};
+
+/**
+ * is.decimal
+ * Test if `value` is a decimal number.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a decimal number, false otherwise
+ * @api public
+ */
+
+is.decimal = function (value) {
+  return is.number(value) && !isActualNaN(value) && value % 1 !== 0;
+};
+
+/**
+ * is.divisibleBy
+ * Test if `value` is divisible by `n`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} n dividend
+ * @return {Boolean} true if `value` is divisible by `n`, false otherwise
+ * @api public
+ */
+
+is.divisibleBy = function (value, n) {
+  var isDividendInfinite = is.infinite(value);
+  var isDivisorInfinite = is.infinite(n);
+  var isNonZeroNumber = is.number(value) && !isActualNaN(value) && is.number(n) && !isActualNaN(n) && n !== 0;
+  return isDividendInfinite || isDivisorInfinite || (isNonZeroNumber && value % n === 0);
+};
+
+/**
+ * is.int
+ * Test if `value` is an integer.
+ *
+ * @param value to test
+ * @return {Boolean} true if `value` is an integer, false otherwise
+ * @api public
+ */
+
+is.int = function (value) {
+  return is.number(value) && !isActualNaN(value) && value % 1 === 0;
+};
+
+/**
+ * is.maximum
+ * Test if `value` is greater than 'others' values.
+ *
+ * @param {Number} value value to test
+ * @param {Array} others values to compare with
+ * @return {Boolean} true if `value` is greater than `others` values
+ * @api public
+ */
+
+is.maximum = function (value, others) {
+  if (isActualNaN(value)) {
+    throw new TypeError('NaN is not a valid value');
+  } else if (!is.arraylike(others)) {
+    throw new TypeError('second argument must be array-like');
+  }
+  var len = others.length;
+
+  while (--len >= 0) {
+    if (value < others[len]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+/**
+ * is.minimum
+ * Test if `value` is less than `others` values.
+ *
+ * @param {Number} value value to test
+ * @param {Array} others values to compare with
+ * @return {Boolean} true if `value` is less than `others` values
+ * @api public
+ */
+
+is.minimum = function (value, others) {
+  if (isActualNaN(value)) {
+    throw new TypeError('NaN is not a valid value');
+  } else if (!is.arraylike(others)) {
+    throw new TypeError('second argument must be array-like');
+  }
+  var len = others.length;
+
+  while (--len >= 0) {
+    if (value > others[len]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+/**
+ * is.nan
+ * Test if `value` is not a number.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is not a number, false otherwise
+ * @api public
+ */
+
+is.nan = function (value) {
+  return !is.number(value) || value !== value;
+};
+
+/**
+ * is.even
+ * Test if `value` is an even number.
+ *
+ * @param {Number} value value to test
+ * @return {Boolean} true if `value` is an even number, false otherwise
+ * @api public
+ */
+
+is.even = function (value) {
+  return is.infinite(value) || (is.number(value) && value === value && value % 2 === 0);
+};
+
+/**
+ * is.odd
+ * Test if `value` is an odd number.
+ *
+ * @param {Number} value value to test
+ * @return {Boolean} true if `value` is an odd number, false otherwise
+ * @api public
+ */
+
+is.odd = function (value) {
+  return is.infinite(value) || (is.number(value) && value === value && value % 2 !== 0);
+};
+
+/**
+ * is.ge
+ * Test if `value` is greater than or equal to `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean}
+ * @api public
+ */
+
+is.ge = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value >= other;
+};
+
+/**
+ * is.gt
+ * Test if `value` is greater than `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean}
+ * @api public
+ */
+
+is.gt = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value > other;
+};
+
+/**
+ * is.le
+ * Test if `value` is less than or equal to `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean} if 'value' is less than or equal to 'other'
+ * @api public
+ */
+
+is.le = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value <= other;
+};
+
+/**
+ * is.lt
+ * Test if `value` is less than `other`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} other value to compare with
+ * @return {Boolean} if `value` is less than `other`
+ * @api public
+ */
+
+is.lt = function (value, other) {
+  if (isActualNaN(value) || isActualNaN(other)) {
+    throw new TypeError('NaN is not a valid value');
+  }
+  return !is.infinite(value) && !is.infinite(other) && value < other;
+};
+
+/**
+ * is.within
+ * Test if `value` is within `start` and `finish`.
+ *
+ * @param {Number} value value to test
+ * @param {Number} start lower bound
+ * @param {Number} finish upper bound
+ * @return {Boolean} true if 'value' is is within 'start' and 'finish'
+ * @api public
+ */
+is.within = function (value, start, finish) {
+  if (isActualNaN(value) || isActualNaN(start) || isActualNaN(finish)) {
+    throw new TypeError('NaN is not a valid value');
+  } else if (!is.number(value) || !is.number(start) || !is.number(finish)) {
+    throw new TypeError('all arguments must be numbers');
+  }
+  var isAnyInfinite = is.infinite(value) || is.infinite(start) || is.infinite(finish);
+  return isAnyInfinite || (value >= start && value <= finish);
+};
+
+/**
+ * Test object.
+ */
+
+/**
+ * is.object
+ * Test if `value` is an object.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is an object, false otherwise
+ * @api public
+ */
+
+is.object = function (value) {
+  return value && '[object Object]' === toString.call(value);
+};
+
+/**
+ * is.hash
+ * Test if `value` is a hash - a plain object literal.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a hash, false otherwise
+ * @api public
+ */
+
+is.hash = function (value) {
+  return is.object(value) && value.constructor === Object && !value.nodeType && !value.setInterval;
+};
+
+/**
+ * Test regexp.
+ */
+
+/**
+ * is.regexp
+ * Test if `value` is a regular expression.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a regexp, false otherwise
+ * @api public
+ */
+
+is.regexp = function (value) {
+  return '[object RegExp]' === toString.call(value);
+};
+
+/**
+ * Test string.
+ */
+
+/**
+ * is.string
+ * Test if `value` is a string.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if 'value' is a string, false otherwise
+ * @api public
+ */
+
+is.string = function (value) {
+  return '[object String]' === toString.call(value);
+};
+
+
+},{}],10:[function(require,module,exports){
+
+var hasOwn = Object.prototype.hasOwnProperty;
+var toString = Object.prototype.toString;
+
+module.exports = function forEach (obj, fn, ctx) {
+    if (toString.call(fn) !== '[object Function]') {
+        throw new TypeError('iterator must be a function');
+    }
+    var l = obj.length;
+    if (l === +l) {
+        for (var i = 0; i < l; i++) {
+            fn.call(ctx, obj[i], i, obj);
+        }
+    } else {
+        for (var k in obj) {
+            if (hasOwn.call(obj, k)) {
+                fn.call(ctx, obj[k], k, obj);
+            }
+        }
+    }
+};
+
+
 },{}]},{},[1])(1)
 });
 ;

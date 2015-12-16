@@ -4,15 +4,18 @@
         "bridge",
         "tunnel",
         "embankment",
-        "cutting"
+        "cutting",
+        "ford"
     ],
     "label": "Structure",
+    "placeholder": "Unknown",
     "strings": {
         "options": {
             "bridge": "Bridge",
             "tunnel": "Tunnel",
             "embankment": "Embankment",
-            "cutting": "Cutting"
+            "cutting": "Cutting",
+            "ford": "Ford"
         }
     }
 }

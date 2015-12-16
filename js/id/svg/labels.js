@@ -1,4 +1,5 @@
 iD.svg.Labels = function(projection, context) {
+    var path = d3.geo.path().projection(projection);
 
     // Replace with dict and iterate over entities tags instead?
     var label_stack = [
@@ -33,11 +34,11 @@ iD.svg.Labels = function(projection, context) {
 
     var font_sizes = label_stack.map(function(d) {
         var style = iD.util.getStyle('text.' + d[0] + '.tag-' + d[1]),
-            m = style && style.cssText.match("font-size: ([0-9]{1,2})px;");
+            m = style && style.cssText.match('font-size: ([0-9]{1,2})px;');
         if (m) return parseInt(m[1], 10);
 
         style = iD.util.getStyle('text.' + d[0]);
-        m = style && style.cssText.match("font-size: ([0-9]{1,2})px;");
+        m = style && style.cssText.match('font-size: ([0-9]{1,2})px;');
         if (m) return parseInt(m[1], 10);
 
         return default_size;
@@ -80,38 +81,40 @@ iD.svg.Labels = function(projection, context) {
             return c[text];
 
         } else {
-            return size / 3 * 2 * text.length;
+            var str = encodeURIComponent(text).match(/%[CDEFcdef]/g);
+            if (str === null) {
+                return size / 3 * 2 * text.length;
+            } else {
+                return size / 3 * (2 * text.length + str.length);
+            }
         }
     }
 
     function drawLineLabels(group, entities, filter, classes, labels) {
-
         var texts = group.selectAll('text.' + classes)
             .filter(filter)
             .data(entities, iD.Entity.key);
 
-        var tp = texts.enter()
+        texts.enter()
             .append('text')
-            .attr('class', function(d, i) { return classes + ' ' + labels[i].classes;})
+            .attr('class', function(d, i) { return classes + ' ' + labels[i].classes + ' ' + d.id; })
             .append('textPath')
             .attr('class', 'textpath');
 
 
-        var tps = texts.selectAll('.textpath')
+        texts.selectAll('.textpath')
             .filter(filter)
             .data(entities, iD.Entity.key)
             .attr({
                 'startOffset': '50%',
                 'xlink:href': function(d) { return '#labelpath-' + d.id; }
             })
-            .text(function(d) { return name(d); });
+            .text(iD.util.displayName);
 
         texts.exit().remove();
-
     }
 
     function drawLinePaths(group, entities, filter, classes, labels) {
-
         var halos = group.selectAll('path')
             .filter(filter)
             .data(entities, iD.Entity.key);
@@ -135,26 +138,16 @@ iD.svg.Labels = function(projection, context) {
 
         texts.enter()
             .append('text')
-            .attr('class', function(d, i) { return classes + ' ' + labels[i].classes; });
+            .attr('class', function(d, i) { return classes + ' ' + labels[i].classes + ' ' + d.id; });
 
         texts.attr('x', get(labels, 'x'))
             .attr('y', get(labels, 'y'))
             .style('text-anchor', get(labels, 'textAnchor'))
-            .text(function(d) { return name(d); })
-            .each(function(d, i) { textWidth(name(d), labels[i].height, this); });
+            .text(iD.util.displayName)
+            .each(function(d, i) { textWidth(iD.util.displayName(d), labels[i].height, this); });
 
         texts.exit().remove();
         return texts;
-    }
-
-    function drawAreaHalos(group, entities, filter, classes, labels) {
-        entities = entities.filter(hasText);
-        labels = labels.filter(hasText);
-        return drawPointHalos(group, entities, filter, classes, labels);
-
-        function hasText(d, i) {
-            return labels[i].hasOwnProperty('x') && labels[i].hasOwnProperty('y');
-        }
     }
 
     function drawAreaLabels(group, entities, filter, classes, labels) {
@@ -168,19 +161,20 @@ iD.svg.Labels = function(projection, context) {
     }
 
     function drawAreaIcons(group, entities, filter, classes, labels) {
-
         var icons = group.selectAll('use')
             .filter(filter)
             .data(entities, iD.Entity.key);
 
         icons.enter()
             .append('use')
-            .attr('clip-path', 'url(#clip-square-18)')
-            .attr('class', 'icon');
+            .attr('class', 'icon areaicon')
+            .attr('width', '18px')
+            .attr('height', '18px');
 
         icons.attr('transform', get(labels, 'transform'))
             .attr('xlink:href', function(d) {
-                return '#maki-' + context.presets().match(d, context.graph()).icon + '-18';
+                var icon = context.presets().match(d, context.graph()).icon;
+                return '#' + icon + (icon === 'hairdresser' ? '-24': '-18');    // workaround: maki hairdresser-18 broken?
             });
 
 
@@ -189,7 +183,7 @@ iD.svg.Labels = function(projection, context) {
 
     function reverse(p) {
         var angle = Math.atan2(p[1][1] - p[0][1], p[1][0] - p[0][0]);
-        return !(p[0][0] < p[p.length - 1][0] && angle < Math.PI/2 && angle > - Math.PI/2);
+        return !(p[0][0] < p[p.length - 1][0] && angle < Math.PI/2 && angle > -Math.PI/2);
     }
 
     function lineString(nodes) {
@@ -234,54 +228,27 @@ iD.svg.Labels = function(projection, context) {
 
     }
 
-
     function hideOnMouseover() {
+        var layers = d3.select(this)
+            .selectAll('.layer-label, .layer-halo');
 
-        if (!mousePosition) return;
+        layers.selectAll('.proximate')
+            .classed('proximate', false);
 
-        var mouse = mousePosition(d3.event),
+        var mouse = context.mouse(),
             pad = 50,
-            rect = new RTree.Rectangle(mouse[0] - pad, mouse[1] - pad, 2*pad, 2*pad),
-            labels = _.pluck(rtree.search(rect, this), 'leaf'),
-            containsLabel = d3.set(labels),
-            selection = d3.select(this);
+            rect = [mouse[0] - pad, mouse[1] - pad, mouse[0] + pad, mouse[1] + pad],
+            ids = _.pluck(rtree.search(rect), 'id');
 
-        // ensures that simply resetting opacity
-        // does not force style recalculation
-        function resetOpacity() {
-            if (this._opacity !== '') {
-                this.style.opacity = '';
-                this._opacity = '';
-            }
-        }
-
-        selection.selectAll('.layer-label text, .layer-halo path, .layer-halo text')
-            .each(resetOpacity);
-
-        if (!labels.length) return;
-        selection.selectAll('.layer-label text, .layer-halo path, .layer-halo text')
-            .filter(function(d) {
-                return containsLabel.has(d.id);
-            })
-            .style('opacity', 0)
-            .property('_opacity', 0);
+        if (!ids.length) return;
+        layers.selectAll('.' + ids.join(', .'))
+            .classed('proximate', true);
     }
 
-    function name(d) {
-        return d.tags[lang] || d.tags.name;
-    }
-
-    var rtree = new RTree(),
-        rectangles = {},
-        lang = 'name:' + iD.detect().locale.toLowerCase().split('-')[0],
-        mousePosition, cacheDimensions;
+    var rtree = rbush(),
+        rectangles = {};
 
     function labels(surface, graph, entities, filter, dimensions, fullRedraw) {
-
-        if (!mousePosition || dimensions.join(',') !== cacheDimensions) {
-            mousePosition = iD.util.fastMouse(surface.node().parentNode);
-            cacheDimensions = dimensions.join(',');
-        }
 
         var hidePoints = !surface.select('.node.point').node();
 
@@ -289,29 +256,34 @@ iD.svg.Labels = function(projection, context) {
         for (i = 0; i < label_stack.length; i++) labelable.push([]);
 
         if (fullRedraw) {
-            rtree = new RTree();
+            rtree.clear();
             rectangles = {};
         } else {
             for (i = 0; i < entities.length; i++) {
-                rtree.remove(rectangles[entities[i].id], entities[i].id);
+                rtree.remove(rectangles[entities[i].id]);
             }
         }
 
         // Split entities into groups specified by label_stack
         for (i = 0; i < entities.length; i++) {
             entity = entities[i];
-            var geometry = entity.geometry(graph),
-                preset = geometry === 'area' && context.presets().match(entity, graph),
+            var geometry = entity.geometry(graph);
+
+            if (geometry === 'vertex')
+                continue;
+            if (hidePoints && geometry === 'point')
+                continue;
+
+            var preset = geometry === 'area' && context.presets().match(entity, graph),
                 icon = preset && !blacklisted(preset) && preset.icon;
 
-            if ((name(entity) || icon) && !(hidePoints && geometry === 'point')) {
+            if (!icon && !iD.util.displayName(entity))
+                continue;
 
-                for (k = 0; k < label_stack.length; k ++) {
-                    if (entity.geometry(graph) === label_stack[k][0] &&
-                        entity.tags[label_stack[k][1]]) {
-                        labelable[k].push(entity);
-                        break;
-                    }
+            for (k = 0; k < label_stack.length; k++) {
+                if (geometry === label_stack[k][0] && entity.tags[label_stack[k][1]]) {
+                    labelable[k].push(entity);
+                    break;
                 }
             }
         }
@@ -331,12 +303,15 @@ iD.svg.Labels = function(projection, context) {
         // Try and find a valid label for labellable entities
         for (k = 0; k < labelable.length; k++) {
             var font_size = font_sizes[k];
-            for (i = 0; i < labelable[k].length; i ++) {
+            for (i = 0; i < labelable[k].length; i++) {
                 entity = labelable[k][i];
 
-                if(entity.tags.floor !== context.floor().value) continue;
+                if (entity.tags.floor !== context.floor().value) {
+                    continue;
+                }
 
-                var width = name(entity) && textWidth(name(entity), font_size),
+                var name = iD.util.displayName(entity),
+                    width = name && textWidth(name, font_size),
                     p;
                 if (entity.geometry(graph) === 'point') {
                     p = getPointLabel(entity, width, font_size);
@@ -364,7 +339,7 @@ iD.svg.Labels = function(projection, context) {
                     y: coord[1] + offset[1],
                     textAnchor: offset[2]
                 };
-            var rect = new RTree.Rectangle(p.x - m, p.y - m, width + 2*m, height + 2*m);
+            var rect = [p.x - m, p.y - m, p.x + width + m, p.y + height + m];
             if (tryInsert(rect, entity.id)) return p;
         }
 
@@ -374,19 +349,19 @@ iD.svg.Labels = function(projection, context) {
                 length = iD.geo.pathLength(nodes);
             if (length < width + 20) return;
 
-            for (var i = 0; i < lineOffsets.length; i ++) {
+            for (var i = 0; i < lineOffsets.length; i++) {
                 var offset = lineOffsets[i],
                     middle = offset / 100 * length,
                     start = middle - width/2;
                 if (start < 0 || start + width > length) continue;
                 var sub = subpath(nodes, start, start + width),
                     rev = reverse(sub),
-                    rect = new RTree.Rectangle(
-                    Math.min(sub[0][0], sub[sub.length - 1][0]) - 10,
-                    Math.min(sub[0][1], sub[sub.length - 1][1]) - 10,
-                    Math.abs(sub[0][0] - sub[sub.length - 1][0]) + 20,
-                    Math.abs(sub[0][1] - sub[sub.length - 1][1]) + 30
-                );
+                    rect = [
+                        Math.min(sub[0][0], sub[sub.length - 1][0]) - 10,
+                        Math.min(sub[0][1], sub[sub.length - 1][1]) - 10,
+                        Math.max(sub[0][0], sub[sub.length - 1][0]) + 20,
+                        Math.max(sub[0][1], sub[sub.length - 1][1]) + 30
+                    ];
                 if (rev) sub = sub.reverse();
                 if (tryInsert(rect, entity.id)) return {
                     'font-size': height + 2,
@@ -397,13 +372,12 @@ iD.svg.Labels = function(projection, context) {
         }
 
         function getAreaLabel(entity, width, height) {
-            var path = d3.geo.path().projection(projection),
-                centroid = path.centroid(entity.asGeoJSON(graph, true)),
+            var centroid = path.centroid(entity.asGeoJSON(graph, true)),
                 extent = entity.extent(graph),
                 entitywidth = projection(extent[1])[0] - projection(extent[0])[0],
                 rect;
 
-            if (!centroid || entitywidth < 20) return;
+            if (isNaN(centroid[0]) || entitywidth < 20) return;
 
             var iconX = centroid[0] - (iconSize/2),
                 iconY = centroid[1] - (iconSize/2),
@@ -418,9 +392,9 @@ iD.svg.Labels = function(projection, context) {
                 p.y = centroid[1] + textOffset;
                 p.textAnchor = 'middle';
                 p.height = height;
-                rect = new RTree.Rectangle(p.x - width/2, p.y, width, height + textOffset);
+                rect = [p.x - width/2, p.y, p.x + width/2, p.y + height + textOffset];
             } else {
-                rect = new RTree.Rectangle(iconX, iconY, iconSize, iconSize);
+                rect = [iconX, iconY, iconX + iconSize, iconY + iconSize];
             }
 
             if (tryInsert(rect, entity.id)) return p;
@@ -429,29 +403,33 @@ iD.svg.Labels = function(projection, context) {
 
         function tryInsert(rect, id) {
             // Check that label is visible
-            if (rect.x1 < 0 || rect.y1 < 0 || rect.x2 > dimensions[0] ||
-                rect.y2 > dimensions[1]) return false;
-            var v = rtree.search(rect, true).length === 0;
+            if (rect[0] < 0 || rect[1] < 0 || rect[2] > dimensions[0] ||
+                rect[3] > dimensions[1]) return false;
+            var v = rtree.search(rect).length === 0;
             if (v) {
-                rtree.insert(rect, id);
+                rect.id = id;
+                rtree.insert(rect);
                 rectangles[id] = rect;
             }
             return v;
         }
 
         var label = surface.select('.layer-label'),
-            halo = surface.select('.layer-halo'),
-            // points
-            points = drawPointLabels(label, labelled.point, filter, 'pointlabel', positions.point),
-            pointHalos = drawPointLabels(halo, labelled.point, filter, 'pointlabel-halo', positions.point),
-            // lines
-            linesPaths = drawLinePaths(halo, labelled.line, filter, '', positions.line),
-            lines = drawLineLabels(label, labelled.line, filter, 'linelabel', positions.line),
-            linesHalos = drawLineLabels(halo, labelled.line, filter, 'linelabel-halo', positions.line),
-            // areas
-            areas = drawAreaLabels(label, labelled.area, filter, 'arealabel', positions.area),
-            areaHalos = drawAreaLabels(halo, labelled.area, filter, 'arealabel-halo', positions.area),
-            areaIcons = drawAreaIcons(label, labelled.area, filter, 'arealabel-icon', positions.area);
+            halo = surface.select('.layer-halo');
+
+        // points
+        drawPointLabels(label, labelled.point, filter, 'pointlabel', positions.point);
+        drawPointLabels(halo, labelled.point, filter, 'pointlabel-halo', positions.point);
+
+        // lines
+        drawLinePaths(halo, labelled.line, filter, '', positions.line);
+        drawLineLabels(label, labelled.line, filter, 'linelabel', positions.line);
+        drawLineLabels(halo, labelled.line, filter, 'linelabel-halo', positions.line);
+
+        // areas
+        drawAreaLabels(label, labelled.area, filter, 'arealabel', positions.area);
+        drawAreaLabels(halo, labelled.area, filter, 'arealabel-halo', positions.area);
+        drawAreaIcons(label, labelled.area, filter, 'arealabel-icon', positions.area);
     }
 
     labels.supersurface = function(supersurface) {

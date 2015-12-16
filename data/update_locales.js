@@ -28,15 +28,20 @@ var sourceCore = yaml.load(fs.readFileSync('./data/floorplan-core.yaml', 'utf8')
 asyncMap(resources, getResource, function(err, locales) {
     if (err) return console.log(err);
 
-    var locale = _.merge(sourceCore, sourcePresets);
+    var locale = _.merge(sourceCore, sourcePresets),
+        codes = [];
+
     locales.forEach(function(l) {
         locale = _.merge(locale, l);
     });
 
     for (var i in locale) {
-        if (i === 'en') continue;
+        if (i === 'en' || _.isEmpty(locale[i])) continue;
+        codes.push(i);
         fs.writeFileSync(outdir + i + '.json', JSON.stringify(locale[i], null, 4));
     }
+
+    fs.writeFileSync('data/locales.json', JSON.stringify(codes, null, 4));
 });
 
 function getResource(resource, callback) {
@@ -49,23 +54,23 @@ function getResource(resource, callback) {
 
             var locale = {};
             results.forEach(function(result, i) {
-                locale[codes[i]] = yaml.load(result)[codes[i]];
+                locale[codes[i]] = result;
             });
 
             callback(null, locale);
-
         });
-
-        fs.writeFileSync('data/locales.json', JSON.stringify(codes, null, 4));
     });
 }
 
 function getLanguage(resource) {
     return function(code, callback) {
-        request.get(resource + 'translation/' + code, { auth : auth },
+        code = code.replace(/-/g, '_');
+        var url = resource + 'translation/' + code;
+        if (code === 'vi') url += '?mode=reviewed';
+        request.get(url, { auth : auth },
             function(err, resp, body) {
             if (err) return callback(err);
-            callback(null, JSON.parse(body).content);
+            callback(null, yaml.load(JSON.parse(body).content)[code]);
         });
     };
 }
@@ -75,7 +80,7 @@ function getLanguages(resource, callback) {
         function(err, resp, body) {
         if (err) return callback(err);
         callback(null, JSON.parse(body).available_languages.map(function(d) {
-            return d.code;
+            return d.code.replace(/_/g, '-');
         }).filter(function(d) {
             return d !== 'en';
         }));

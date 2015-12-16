@@ -5,12 +5,11 @@
         "levels"
     ],
     "geometry": [
-        "point",
-        "vertex",
         "area"
     ],
     "tags": {
         "building": "apartments"
     },
+    "matchScore": 0.5,
     "name": "Apartments"
 }

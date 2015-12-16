@@ -1,8 +1,12 @@
 iD.behavior.Draw = function(context) {
     var event = d3.dispatch('move', 'click', 'clickWay',
-        'clickNode', 'undo', 'cancel', 'finish'),
+            'clickNode', 'undo', 'cancel', 'finish'),
         keybinding = d3.keybinding('draw'),
-        hover = iD.behavior.Hover().altDisables(true),
+        hover = iD.behavior.Hover(context)
+            .altDisables(true)
+            .on('hover', context.ui().sidebar.hover),
+        tail = iD.behavior.Tail(),
+        edit = iD.behavior.Edit(context),
         closeTolerance = 4,
         tolerance = 12;
 
@@ -14,26 +18,28 @@ iD.behavior.Draw = function(context) {
     function mousedown() {
 
         function point() {
-            var p = element.node().parentNode;
+            var p = context.container().node();
             return touchId !== null ? d3.touches(p).filter(function(p) {
                 return p.identifier === touchId;
             })[0] : d3.mouse(p);
         }
 
-        var eventTarget = d3.event.target,
-            element = d3.select(this),
+        var element = d3.select(this),
             touchId = d3.event.touches ? d3.event.changedTouches[0].identifier : null,
-            time = +new Date(),
-            pos = point();
+            t1 = +new Date(),
+            p1 = point();
 
         element.on('mousemove.draw', null);
 
         d3.select(window).on('mouseup.draw', function() {
-            element.on('mousemove.draw', mousemove);
-            if (iD.geo.dist(pos, point()) < closeTolerance ||
-                (iD.geo.dist(pos, point()) < tolerance &&
-                (+new Date() - time) < 500)) {
+            var t2 = +new Date(),
+                p2 = point(),
+                dist = iD.geo.euclideanDistance(p1, p2);
 
+            element.on('mousemove.draw', mousemove);
+            d3.select(window).on('mouseup.draw', null);
+
+            if (dist < closeTolerance || (dist < tolerance && (t2 - t1) < 500)) {
                 // Prevent a quick second click
                 d3.select(window).on('click.draw-block', function() {
                     d3.event.stopPropagation();
@@ -58,7 +64,7 @@ iD.behavior.Draw = function(context) {
     function click() {
         var d = datum();
         if (d.type === 'way') {
-            var choice = iD.geo.chooseIndex(d, d3.mouse(context.surface().node()), context),
+            var choice = iD.geo.chooseEdge(context.childNodes(d), context.mouse(), context.projection),
                 edge = [d.nodes[choice.index - 1], d.nodes[choice.index]];
             event.clickWay(choice.loc, edge);
 
@@ -87,6 +93,11 @@ iD.behavior.Draw = function(context) {
 
     function draw(selection) {
         context.install(hover);
+        context.install(edit);
+
+        if (!context.inIntro() && !iD.behavior.Draw.usedTails[tail.text()]) {
+            context.install(tail);
+        }
 
         keybinding
             .on('⌫', backspace)
@@ -106,6 +117,12 @@ iD.behavior.Draw = function(context) {
 
     draw.off = function(selection) {
         context.uninstall(hover);
+        context.uninstall(edit);
+
+        if (!context.inIntro() && !iD.behavior.Draw.usedTails[tail.text()]) {
+            context.uninstall(tail);
+            iD.behavior.Draw.usedTails[tail.text()] = true;
+        }
 
         selection
             .on('mousedown.draw', null)
@@ -118,5 +135,12 @@ iD.behavior.Draw = function(context) {
             .call(keybinding.off);
     };
 
+    draw.tail = function(_) {
+        tail.text(_);
+        return draw;
+    };
+
     return d3.rebind(draw, event, 'on');
 };
+
+iD.behavior.Draw.usedTails = {};

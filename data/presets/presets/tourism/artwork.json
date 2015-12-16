@@ -1,5 +1,9 @@
 {
     "icon": "art-gallery",
+    "fields": [
+        "artwork_type",
+        "artist"
+    ],
     "geometry": [
         "point",
         "vertex",
@@ -8,5 +12,10 @@
     "tags": {
         "tourism": "artwork"
     },
+    "terms": [
+        "mural",
+        "sculpture",
+        "statue"
+    ],
     "name": "Artwork"
 }

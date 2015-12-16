@@ -4,7 +4,11 @@ iD.ui.Modes = function(context) {
         iD.modes.AddLine(context),
         iD.modes.AddArea(context)];
 
-    return function(selection, limiter) {
+    function editable() {
+        return context.editable() && context.mode().id !== 'save';
+    }
+
+    return function(selection) {
         var buttons = selection.selectAll('button.add-button')
             .data(modes);
 
@@ -25,28 +29,16 @@ iD.ui.Modes = function(context) {
                    return iD.ui.tooltipHtml(mode.description, mode.key);
                }));
 
-        var notice = iD.ui.notice(limiter)
-            .message(false)
-            .on('zoom', function() { context.map().zoom(16); });
-
-        function disableTooHigh() {
-            if (context.map().editable()) {
-                notice.message(false);
-                buttons.attr('disabled', null);
-            } else {
-                buttons.attr('disabled', 'disabled');
-                notice.message(true);
-                context.enter(iD.modes.Browse(context));
-            }
-        }
-
         context.map()
-            .on('move.mode-buttons', _.debounce(disableTooHigh, 500));
+            .on('move.modes', _.debounce(update, 500));
 
-        disableTooHigh();
+        context
+            .on('enter.modes', update);
 
-        buttons.append('span')
-            .attr('class', function(mode) { return mode.id + ' icon icon-pre-text'; });
+        buttons.each(function(d) {
+            d3.select(this)
+                .call(iD.svg.Icon('#icon-' + d.button, 'pre-text'));
+        });
 
         buttons.append('span')
             .attr('class', 'label')
@@ -55,21 +47,25 @@ iD.ui.Modes = function(context) {
         context.on('enter.editor', function(entered) {
             buttons.classed('active', function(mode) { return entered.button === mode.button; });
             context.container()
-                .classed("mode-" + entered.id, true);
+                .classed('mode-' + entered.id, true);
         });
 
         context.on('exit.editor', function(exited) {
             context.container()
-                .classed("mode-" + exited.id, false);
+                .classed('mode-' + exited.id, false);
         });
 
         var keybinding = d3.keybinding('mode-buttons');
 
         modes.forEach(function(m) {
-            keybinding.on(m.key, function() { if (context.map().editable()) context.enter(m); });
+            keybinding.on(m.key, function() { if (editable()) context.enter(m); });
         });
 
         d3.select(document)
             .call(keybinding);
+
+        function update() {
+            buttons.property('disabled', !editable());
+        }
     };
 };

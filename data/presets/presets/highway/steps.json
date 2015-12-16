@@ -1,7 +1,10 @@
 {
     "fields": [
-        "access",
-        "surface"
+        "surface",
+        "lit",
+        "width",
+        "incline_steps",
+        "handrail"
     ],
     "icon": "highway-steps",
     "geometry": [

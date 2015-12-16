@@ -4,7 +4,7 @@ iD.ui.intro.area = function(context, reveal) {
         timeout;
 
     var step = {
-        name: 'Areas'
+        title: 'intro.areas.title'
     };
 
     step.enter = function() {
@@ -12,7 +12,7 @@ iD.ui.intro.area = function(context, reveal) {
         var playground = [-85.63552, 41.94159],
             corner = [-85.63565411045074, 41.9417715536927];
         context.map().centerZoom(playground, 19);
-        reveal('button.add-area', 'intro.areas.add');
+        reveal('button.add-area', t('intro.areas.add'), {tooltipClass: 'intro-areas-add'});
 
         context.on('enter.intro', addArea);
 
@@ -21,13 +21,13 @@ iD.ui.intro.area = function(context, reveal) {
             context.on('enter.intro', drawArea);
 
             var padding = 120 * Math.pow(2, context.map().zoom() - 19);
-            var pointBox = iD.ui.intro.pad(context.projection(corner), padding);
-            reveal(pointBox, 'intro.areas.corner');
+            var pointBox = iD.ui.intro.pad(corner, padding, context);
+            reveal(pointBox, t('intro.areas.corner'));
 
             context.map().on('move.intro', function() {
                 padding = 120 * Math.pow(2, context.map().zoom() - 19);
-                pointBox = iD.ui.intro.pad(context.projection(corner), padding);
-                reveal(pointBox, 'intro.areas.corner', 0);
+                pointBox = iD.ui.intro.pad(corner, padding, context);
+                reveal(pointBox, t('intro.areas.corner'), {duration: 0});
             });
         }
 
@@ -36,13 +36,13 @@ iD.ui.intro.area = function(context, reveal) {
             context.on('enter.intro', enterSelect);
 
             var padding = 150 * Math.pow(2, context.map().zoom() - 19);
-            var pointBox = iD.ui.intro.pad(context.projection(playground), padding);
-            reveal(pointBox, 'intro.areas.place');
+            var pointBox = iD.ui.intro.pad(playground, padding, context);
+            reveal(pointBox, t('intro.areas.place'));
 
             context.map().on('move.intro', function() {
                 padding = 150 * Math.pow(2, context.map().zoom() - 19);
-                pointBox = iD.ui.intro.pad(context.projection(playground), padding);
-                reveal(pointBox, 'intro.areas.place', 0);
+                pointBox = iD.ui.intro.pad(playground, padding, context);
+                reveal(pointBox, t('intro.areas.place'), {duration: 0});
             });
         }
 
@@ -52,26 +52,24 @@ iD.ui.intro.area = function(context, reveal) {
             context.on('enter.intro', null);
 
             timeout = setTimeout(function() {
-                reveal('.preset-grid-search-wrap input', 'intro.areas.search');
-                d3.select('.preset-grid-search-wrap input').on('keyup.intro', keySearch);
+                reveal('.preset-search-input', t('intro.areas.search', {name: context.presets().item('leisure/playground').name()}));
+                d3.select('.preset-search-input').on('keyup.intro', keySearch);
             }, 500);
         }
-        
+
         function keySearch() {
-            var first = d3.select('.grid-button-wrap:first-child');
-            if (first.datum().id === 'leisure/playground') {
-                reveal(first.select('.grid-entry').node(), 'intro.areas.choose');
+            var first = d3.select('.preset-list-item:first-child');
+            if (first.classed('preset-leisure-playground')) {
+                reveal(first.select('.preset-list-button').node(), t('intro.areas.choose'));
                 d3.selection.prototype.one.call(context.history(), 'change.intro', selectedPreset);
-                d3.select('.preset-grid-search-wrap input').on('keyup.intro', null);
+                d3.select('.preset-search-input').on('keyup.intro', null);
             }
         }
 
         function selectedPreset() {
-            reveal('.pane', 'intro.areas.describe');
+            reveal('.pane', t('intro.areas.describe'));
             context.on('exit.intro', event.done);
         }
-
-
     };
 
     step.exit = function() {
@@ -80,7 +78,7 @@ iD.ui.intro.area = function(context, reveal) {
         context.on('exit.intro', null);
         context.history().on('change.intro', null);
         context.map().on('move.intro', null);
-        d3.select('.preset-grid-search-wrap input').on('keyup.intro', null);
+        d3.select('.preset-search-input').on('keyup.intro', null);
     };
 
     return d3.rebind(step, event, 'on');

@@ -1,6 +1,6 @@
 iD.ui.preset.maxspeed = function(field, context) {
 
-    var event = d3.dispatch('change', 'close'),
+    var event = d3.dispatch('change'),
         entity,
         imperial,
         unitInput,
@@ -8,18 +8,24 @@ iD.ui.preset.maxspeed = function(field, context) {
         input;
 
     var metricValues = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120],
-        imperialValues = [20, 25, 30, 40, 45, 50, 55, 65, 70];
+        imperialValues = [20, 25, 30, 35, 40, 45, 50, 55, 65, 70];
 
     function maxspeed(selection) {
         combobox = d3.combobox();
         var unitCombobox = d3.combobox().data(['km/h', 'mph'].map(comboValues));
 
-        input = selection.append('input')
+        input = selection.selectAll('#preset-input-' + field.id)
+            .data([0]);
+
+        input.enter().append('input')
             .attr('type', 'text')
             .attr('id', 'preset-input-' + field.id)
+            .attr('placeholder', field.placeholder());
+
+        input
+            .call(combobox)
             .on('change', change)
-            .on('blur', change)
-            .call(combobox);
+            .on('blur', change);
 
         var childNodes = context.graph().childNodes(context.entity(entity.id)),
             loc = childNodes[~~(childNodes.length/2)].loc;
@@ -30,16 +36,21 @@ iD.ui.preset.maxspeed = function(field, context) {
             });
         });
 
-        unitInput = selection.append('input')
+        unitInput = selection.selectAll('input.maxspeed-unit')
+            .data([0]);
+
+        unitInput.enter().append('input')
             .attr('type', 'text')
-            .attr('class', 'maxspeed-unit')
+            .attr('class', 'maxspeed-unit');
+
+        unitInput
             .on('blur', changeUnits)
             .on('change', changeUnits)
             .call(unitCombobox);
 
         function changeUnits() {
-            imperial = unitInput.property('value') === 'mph';
-            unitInput.property('value', imperial ? 'mph' : 'km/h');
+            imperial = unitInput.value() === 'mph';
+            unitInput.value(imperial ? 'mph' : 'km/h');
             setSuggestions();
             change();
         }
@@ -48,7 +59,7 @@ iD.ui.preset.maxspeed = function(field, context) {
 
     function setSuggestions() {
         combobox.data((imperial ? imperialValues : metricValues).map(comboValues));
-        unitInput.property('value', imperial ? 'mph' : 'km/h');
+        unitInput.value(imperial ? 'mph' : 'km/h');
     }
 
     function comboValues(d) {
@@ -59,18 +70,18 @@ iD.ui.preset.maxspeed = function(field, context) {
     }
 
     function change() {
-        var value = input.property('value');
-        var t = {};
-        if (value) {
-            if (isNaN(value) || !imperial) {
-                t[field.key] = value;
-            } else {
-                t[field.key] = value + ' mph';
-            }
+        var tag = {},
+            value = input.value();
+
+        if (!value) {
+            tag[field.key] = undefined;
+        } else if (isNaN(value) || !imperial) {
+            tag[field.key] = value;
         } else {
-            t[field.key] = '';
+            tag[field.key] = value + ' mph';
         }
-        event.change(t);
+
+        event.change(tag);
     }
 
     maxspeed.tags = function(tags) {
@@ -85,7 +96,7 @@ iD.ui.preset.maxspeed = function(field, context) {
 
         setSuggestions();
 
-        input.property('value', value || '');
+        input.value(value || '');
     };
 
     maxspeed.focus = function() {

@@ -3,20 +3,39 @@
     "keys": [
         "addr:housename",
         "addr:housenumber",
+        "addr:conscriptionnumber",
         "addr:street",
         "addr:city",
-        "addr:postcode"
+        "addr:postcode",
+        "addr:place",
+        "addr:hamlet",
+        "addr:suburb",
+        "addr:subdistrict",
+        "addr:district",
+        "addr:province",
+        "addr:state",
+        "addr:country"
     ],
+    "reference": {"key": "addr"},
     "icon": "address",
     "universal": true,
     "label": "Address",
     "strings": {
         "placeholders": {
           "housename": "Housename",
-          "number": "123",
+          "housenumber": "123",
+          "conscriptionnumber": "123",
           "street": "Street",
           "city": "City",
-          "postcode": "Postal code"
+          "postcode": "Postcode",
+          "place": "Place",
+          "hamlet": "Hamlet",
+          "suburb": "Suburb",
+          "subdistrict": "Subdistrict",
+          "district": "District",
+          "province": "Province",
+          "state": "State",
+          "country": "Country"
         }
     }
 }

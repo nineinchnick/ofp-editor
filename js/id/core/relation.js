@@ -8,25 +8,81 @@ iD.Relation = iD.Entity.relation = function iD_Relation() {
 
 iD.Relation.prototype = Object.create(iD.Entity.prototype);
 
+iD.Relation.creationOrder = function(a, b) {
+    var aId = parseInt(iD.Entity.id.toOSM(a.id), 10);
+    var bId = parseInt(iD.Entity.id.toOSM(b.id), 10);
+
+    if (aId < 0 || bId < 0) return aId - bId;
+    return bId - aId;
+};
+
 _.extend(iD.Relation.prototype, {
-    type: "relation",
+    type: 'relation',
     members: [],
 
-    extent: function(resolver) {
+    copy: function(deep, resolver, replacements) {
+        var copy = iD.Entity.prototype.copy.call(this);
+        if (!deep || !resolver || !this.isComplete(resolver)) {
+            return copy;
+        }
+
+        var members = [],
+            i, oldmember, oldid, newid, children;
+
+        replacements = replacements || {};
+        replacements[this.id] = copy[0].id;
+
+        for (i = 0; i < this.members.length; i++) {
+            oldmember = this.members[i];
+            oldid = oldmember.id;
+            newid = replacements[oldid];
+            if (!newid) {
+                children = resolver.entity(oldid).copy(true, resolver, replacements);
+                newid = replacements[oldid] = children[0].id;
+                copy = copy.concat(children);
+            }
+            members.push({id: newid, type: oldmember.type, role: oldmember.role});
+        }
+
+        copy[0] = copy[0].update({members: members});
+        return copy;
+    },
+
+    extent: function(resolver, memo) {
         return resolver.transient(this, 'extent', function() {
-            return this.members.reduce(function(extent, member) {
-                member = resolver.hasEntity(member.id);
+            if (memo && memo[this.id]) return iD.geo.Extent();
+            memo = memo || {};
+            memo[this.id] = true;
+
+            var extent = iD.geo.Extent();
+            for (var i = 0; i < this.members.length; i++) {
+                var member = resolver.hasEntity(this.members[i].id);
                 if (member) {
-                    return extent.extend(member.extent(resolver));
-                } else {
-                    return extent;
+                    extent._extend(member.extent(resolver, memo));
                 }
-            }, iD.geo.Extent());
+            }
+            return extent;
         });
     },
 
-    geometry: function() {
-        return this.isMultipolygon() ? 'area' : 'relation';
+    geometry: function(graph) {
+        return graph.transient(this, 'geometry', function() {
+            return this.isMultipolygon() ? 'area' : 'relation';
+        });
+    },
+
+    isDegenerate: function() {
+        return this.members.length === 0;
+    },
+
+    // Return an array of members, each extended with an 'index' property whose value
+    // is the member index.
+    indexedMembers: function() {
+        var result = new Array(this.members.length);
+        for (var i = 0; i < this.members.length; i++) {
+            result[i] = _.extend({}, this.members[i], {index: i});
+        }
+        return result;
     },
 
     // Return the first member with the given role. A copy of the member object
@@ -71,7 +127,13 @@ _.extend(iD.Relation.prototype, {
         return this.update({members: members});
     },
 
-    removeMember: function(id) {
+    removeMember: function(index) {
+        var members = this.members.slice();
+        members.splice(index, 1);
+        return this.update({members: members});
+    },
+
+    removeMembersWithID: function(id) {
         var members = _.reject(this.members, function(m) { return m.id === id; });
         return this.update({members: members});
     },
@@ -116,24 +178,28 @@ _.extend(iD.Relation.prototype, {
     },
 
     asGeoJSON: function(resolver) {
-        if (this.isMultipolygon()) {
-            return {
-                type: 'Feature',
-                properties: this.tags,
-                geometry: {
+        return resolver.transient(this, 'GeoJSON', function () {
+            if (this.isMultipolygon()) {
+                return {
                     type: 'MultiPolygon',
                     coordinates: this.multipolygon(resolver)
-                }
-            };
-        } else {
-            return {
-                type: 'FeatureCollection',
-                properties: this.tags,
-                features: this.members.map(function(member) {
-                    return _.extend({role: member.role}, resolver.entity(member.id).asGeoJSON(resolver));
-                })
-            };
-        }
+                };
+            } else {
+                return {
+                    type: 'FeatureCollection',
+                    properties: this.tags,
+                    features: this.members.map(function (member) {
+                        return _.extend({role: member.role}, resolver.entity(member.id).asGeoJSON(resolver));
+                    })
+                };
+            }
+        });
+    },
+
+    area: function(resolver) {
+        return resolver.transient(this, 'area', function() {
+            return d3.geo.area(this.asGeoJSON(resolver));
+        });
     },
 
     isMultipolygon: function() {
@@ -164,55 +230,20 @@ _.extend(iD.Relation.prototype, {
     // rings not matched with the intended outer ring.
     //
     multipolygon: function(resolver) {
-        var members = this.members
-            .filter(function(m) { return m.type === 'way' && resolver.hasEntity(m.id); })
-            .map(function(m) { return { role: m.role || 'outer', id: m.id, nodes: resolver.childNodes(resolver.entity(m.id)) }; });
+        var outers = this.members.filter(function(m) { return 'outer' === (m.role || 'outer'); }),
+            inners = this.members.filter(function(m) { return 'inner' === m.role; });
 
-        function join(ways) {
-            var joined = [], current, first, last, i, how, what;
+        outers = iD.geo.joinWays(outers, resolver);
+        inners = iD.geo.joinWays(inners, resolver);
 
-            while (ways.length) {
-                current = ways.pop().nodes.slice();
-                joined.push(current);
+        outers = outers.map(function(outer) { return _.pluck(outer.nodes, 'loc'); });
+        inners = inners.map(function(inner) { return _.pluck(inner.nodes, 'loc'); });
 
-                while (ways.length && _.first(current) !== _.last(current)) {
-                    first = _.first(current);
-                    last  = _.last(current);
-
-                    for (i = 0; i < ways.length; i++) {
-                        what = ways[i].nodes;
-
-                        if (last === _.first(what)) {
-                            how  = current.push;
-                            what = what.slice(1);
-                            break;
-                        } else if (last === _.last(what)) {
-                            how  = current.push;
-                            what = what.slice(0, -1).reverse();
-                            break;
-                        } else if (first == _.last(what)) {
-                            how  = current.unshift;
-                            what = what.slice(0, -1);
-                            break;
-                        } else if (first == _.first(what)) {
-                            how  = current.unshift;
-                            what = what.slice(1).reverse();
-                            break;
-                        } else {
-                            what = how = null;
-                        }
-                    }
-
-                    if (!what)
-                        break; // Invalid geometry (unclosed ring)
-
-                    ways.splice(i, 1);
-                    how.apply(current, what);
-                }
-            }
-
-            return joined.map(function(nodes) { return _.pluck(nodes, 'loc'); });
-        }
+        var result = outers.map(function(o) {
+            // Heuristic for detecting counterclockwise winding order. Assumes
+            // that OpenStreetMap polygons are not hemisphere-spanning.
+            return [d3.geo.area({type: 'Polygon', coordinates: [o]}) > 2 * Math.PI ? o.reverse() : o];
+        });
 
         function findOuter(inner) {
             var o, outer;
@@ -230,11 +261,13 @@ _.extend(iD.Relation.prototype, {
             }
         }
 
-        var outers = join(members.filter(function(m) { return m.role === 'outer'; })),
-            inners = join(members.filter(function(m) { return m.role === 'inner'; })),
-            result = outers.map(function(o) { return [o]; });
-
         for (var i = 0; i < inners.length; i++) {
+            var inner = inners[i];
+
+            if (d3.geo.area({type: 'Polygon', coordinates: [inner]}) < 2 * Math.PI) {
+                inner = inner.reverse();
+            }
+
             var o = findOuter(inners[i]);
             if (o !== undefined)
                 result[o].push(inners[i]);

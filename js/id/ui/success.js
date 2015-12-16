@@ -1,56 +1,60 @@
-iD.ui.Success = function(connection) {
-    var event = d3.dispatch('cancel', 'save');
+iD.ui.Success = function(context) {
+    var dispatch = d3.dispatch('cancel'),
+        changeset;
 
     function success(selection) {
-        var changeset = selection.datum(),
-            header = selection.append('div').attr('class', 'header modal-section'),
-            body = selection.append('div').attr('class', 'body');
+        var message = (changeset.comment || t('success.edited_osm')).substring(0, 130) +
+            ' ' + context.connection().changesetURL(changeset.id);
 
-        header.append('h3').text(t('just_edited'));
+        var header = selection.append('div')
+            .attr('class', 'header fillL');
 
-        var m = changeset.comment ?
-            changeset.comment.substring(0, 130) : '';
+        header.append('button')
+            .attr('class', 'fr')
+            .on('click', function() { dispatch.cancel(); })
+            .call(iD.svg.Icon('#icon-close'));
 
-        var message = (m || 'Edited OSM!') + ' ' +
-            connection.changesetURL(changeset.id);
+        header.append('h3')
+            .text(t('success.just_edited'));
 
-        var links = body.append('div').attr('class','modal-actions cf');
+        var body = selection.append('div')
+            .attr('class', 'body save-success fillL');
 
-        links.append('a')
-            .attr('class','col4 osm')
+        body.append('p')
+            .html(t('success.help_html'));
+
+        var changesetURL = context.connection().changesetURL(changeset.id);
+
+        body.append('a')
+            .attr('class', 'button col12 osm')
             .attr('target', '_blank')
-            .attr('href', function() {
-                return connection.changesetURL(changeset.id);
-            })
-            .text(t('view_on_osm'));
+            .attr('href', changesetURL)
+            .text(t('success.view_on_osm'));
 
-        links.append('a')
-            .attr('class','col4 twitter')
+        var sharing = {
+            facebook: 'https://facebook.com/sharer/sharer.php?u=' + encodeURIComponent(changesetURL),
+            twitter: 'https://twitter.com/intent/tweet?source=webclient&text=' + encodeURIComponent(message),
+            google: 'https://plus.google.com/share?url=' + encodeURIComponent(changesetURL)
+        };
+
+        body.selectAll('.button.social')
+            .data(d3.entries(sharing))
+            .enter()
+            .append('a')
+            .attr('class', 'button social col4')
             .attr('target', '_blank')
-            .attr('href', function() {
-                return 'https://twitter.com/intent/tweet?source=webclient&text=' +
-                    encodeURIComponent(message);
-            })
-            .text('Tweet');
-
-        links.append('a')
-            .attr('class','col4 facebook')
-            .attr('target', '_blank')
-            .attr('href', function() {
-                return 'https://facebook.com/sharer/sharer.php?u=' + encodeURIComponent(message);
-            })
-            .text('Share on Facebook');
-
-        var section = body.append('div').attr('class','modal-section cf');
-
-        section.append('button')
-            .attr('class', 'action col2')
-            .on('click.save', function() {
-                event.cancel();
-            })
-            .text('Okay')
-            .node().focus();
+            .attr('href', function(d) { return d.value; })
+            .call(bootstrap.tooltip()
+                .title(function(d) { return t('success.' + d.key); })
+                .placement('bottom'))
+            .each(function(d) { d3.select(this).call(iD.svg.Icon('#logo-' + d.key, 'social')); });
     }
 
-    return d3.rebind(success, event, 'on');
+    success.changeset = function(_) {
+        if (!arguments.length) return changeset;
+        changeset = _;
+        return success;
+    };
+
+    return d3.rebind(success, dispatch, 'on');
 };

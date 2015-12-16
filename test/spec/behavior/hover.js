@@ -1,44 +1,36 @@
 describe("iD.behavior.Hover", function() {
-    var container;
+    var container, context;
 
     beforeEach(function() {
         container = d3.select('body').append('div');
+        context = {
+            hover: function() {}
+        };
     });
 
     afterEach(function() {
         container.remove();
     });
 
-    describe("#on", function () {
-        it("adds the .behavior-hover class to the selection", function () {
-            container.call(iD.behavior.Hover());
-            expect(container).to.be.classed('behavior-hover')
-        });
-    });
-
     describe("#off", function () {
-        it("removes the .behavior-hover class from the selection", function () {
-            container.classed('behavior-hover', true);
-            container.call(iD.behavior.Hover().off);
-            expect(container).not.to.be.classed('behavior-hover')
-        });
-
         it("removes the .hover class from all elements", function () {
             container.append('span').attr('class', 'hover');
-            container.call(iD.behavior.Hover().off);
+            container.call(iD.behavior.Hover(context).off);
             expect(container.select('span')).not.to.be.classed('hover')
         });
     });
 
     describe("mouseover", function () {
         it("adds the .hover class to all elements to which the same datum is bound", function () {
+            var a = iD.Node({id: 'a'}),
+                b = iD.Node({id: 'b'});
+
             container.selectAll('span')
-                .data([{id: 'a'}, {id: 'b'}, {id: 'a'}, {id: 'b'}])
+                .data([a, b, a, b])
                 .enter().append('span').attr('class', function(d) { return d.id; });
 
-            container.call(iD.behavior.Hover());
+            container.call(iD.behavior.Hover(context));
             container.selectAll('.a').trigger('mouseover');
-
 
             expect(container.selectAll('.a.hover')[0]).to.have.length(2);
             expect(container.selectAll('.b.hover')[0]).to.have.length(0);
@@ -46,10 +38,10 @@ describe("iD.behavior.Hover", function() {
 
         it("adds the .hover class to all members of a relation", function() {
             container.selectAll('span')
-                .data([{id: 'a', type: 'relation', members: [{id: 'b'}]}, {id: 'b'}])
+                .data([iD.Relation({id: 'a', members: [{id: 'b'}]}), iD.Node({id: 'b'})])
                 .enter().append('span').attr('class', function(d) { return d.id; });
 
-            container.call(iD.behavior.Hover());
+            container.call(iD.behavior.Hover(context));
             container.selectAll('.a').trigger('mouseover');
 
             expect(container.selectAll('.a.hover')[0]).to.have.length(1);
@@ -61,10 +53,34 @@ describe("iD.behavior.Hover", function() {
         it("removes the .hover class from all elements", function () {
             container.append('span').attr('class', 'hover');
 
-            container.call(iD.behavior.Hover());
+            container.call(iD.behavior.Hover(context));
             container.selectAll('.hover').trigger('mouseout');
 
             expect(container.selectAll('.hover')[0]).to.have.length(0);
+        });
+    });
+
+    describe("alt keydown", function () {
+        it("replaces the .hover class with .hover-suppressed", function () {
+            container.append('span').attr('class', 'hover');
+
+            container.call(iD.behavior.Hover(context).altDisables(true));
+            happen.keydown(window, {keyCode: 18});
+
+            expect(container.selectAll('.hover')[0]).to.have.length(0);
+            expect(container.selectAll('.hover-suppressed')[0]).to.have.length(1);
+        });
+    });
+
+    describe("alt keyup", function () {
+        it("replaces the .hover-suppressed class with .hover", function () {
+            container.append('span').attr('class', 'hover-suppressed');
+
+            container.call(iD.behavior.Hover(context).altDisables(true));
+            happen.keyup(window, {keyCode: 18});
+
+            expect(container.selectAll('.hover')[0]).to.have.length(1);
+            expect(container.selectAll('.hover-suppressed')[0]).to.have.length(0);
         });
     });
 });

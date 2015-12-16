@@ -1,11 +1,11 @@
 {
     "icon": "highway-motorway",
     "fields": [
-        "oneway",
+        "oneway_yes",
+        "maxspeed",
         "structure",
         "access",
         "lanes",
-        "maxspeed",
         "surface",
         "ref"
     ],

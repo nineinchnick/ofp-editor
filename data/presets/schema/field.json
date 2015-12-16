@@ -14,6 +14,36 @@
                 "type": "string"
             }
         },
+        "reference": {
+            "description": "Taginfo documentation parameters (to be used when a field manages multiple tags)",
+            "type": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "key": {
+                            "description": "For documentation of a key",
+                            "type": "string",
+                            "required": true
+                        },
+                        "value": {
+                            "description": "For documentation of a tag (key and value)",
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "rtype": {
+                            "description": "For documentation of a relation type",
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            ]
+        },
         "type": {
             "description": "Type of field",
             "type": "string",
@@ -22,6 +52,7 @@
                 "address",
                 "check",
                 "combo",
+                "cycleway",
                 "defaultcheck",
                 "text",
                 "maxspeed",
@@ -32,31 +63,34 @@
                 "radio",
                 "textarea",
                 "localized",
-                "wikipedia"
+                "wikipedia",
+                "typeCombo",
+                "restrictions"
             ],
             "required": true
         },
         "label": {
-            "description": "English label for the form",
+            "description": "English label for the field caption",
             "type": "string",
             "required": true
         },
         "geometry": {
+            "description": "If specified, only show the field for this kind of geometry",
             "type": "string"
         },
         "default": {
+            "description": "The default value for this field",
             "type": "string"
         },
-        "indexed": {
-            "type": "boolean"
-        },
         "options": {
+            "description": "List of untranslatable string suggestions (combo type fields)",
             "type": "array",
             "items": {
                 "type": "string"
             }
         },
         "universal": {
+            "description": "If true, this field will appear in the Add Field list for all presets",
             "type": "boolean",
             "default": false
         },
@@ -64,10 +98,17 @@
             "type": "string"
         },
         "placeholder": {
+            "description": "Placeholder text for this field",
             "type": "string"
         },
         "strings": {
+            "description": "Translatable strings options (combo type fields)",
             "type": "object"
+        },
+        "snake_case": {
+            "description": "If true, replace spaces with underscores in the tag value (combo type fields)",
+            "type": "boolean",
+            "default": true
         }
     },
     "additionalProperties": false

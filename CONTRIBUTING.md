@@ -16,7 +16,7 @@ To report a bug:
 * Write specifically what browser (type and version, like Firefox 22), OS, and browser extensions you have installed
 * Write steps to replicate the error: when did it happen? What did you expect to happen? What happened instead?
 * Please keep bug reports professional and straightforward: trust us, we share your dismay at software breaking.
-* If you can, [enable web developer extensions](http://macwright.org/enable-web-developer-extensions/) and report the
+* If you can, [enable web developer extensions](http://debugbrowser.com/) and report the
   Javascript error message.
 
 When in doubt, be over-descriptive of the bug and how you discovered it.
@@ -28,6 +28,15 @@ To request a feature:
 * Understand that ofp-editor is meant to be a simple editor and doesn't aim to be
   as complete or complicated as JOSM or similar.
 
+## Verifying Bug Fixes
+
+To verify a bug fix (or test a new feature), use the [master deployment](http://www.openstreetmap.us/iD/master/)
+(http://www.openstreetmap.us/iD/master/), which is updated every 10 minutes with the latest code.
+
+The deployments on openstreetmap.org and http://www.openstreetmap.us/iD/release/ are updated only
+with stable releases. Issues that are marked fixed in the tracker may still be present.
+
+## Translating
 
 
 
@@ -35,9 +44,15 @@ To request a feature:
 ## Contributing Documentation
 
 Documentation is maintained as a series of [Markdown](http://daringfireball.net/projects/markdown/)
-documents in the `data/doc/` path. The first line of each page of documentation
-should be of the form
+documents in [core.yaml](/data/core.yaml). The documentation
+is in the `help` section (currently starting at line 258). The first line
+of each new section of documentation should be of the form
 
+## Adding or Refining Presets
+
+Presets save time for iD users by automatically showing them the tags they are
+likely to add for a given feature. They are stored in `data/presets/presets`. If
+you're going to update the presets, [review the Presets README](/data/presets/README.md).
 
 ## Javascript
 
@@ -49,7 +64,7 @@ only one difference:
 No aligned `=`, no aligned arguments, spaces are either indents or the 1
 space between expressions. No hard tabs, ever.
 
-Javascript code should pass through [JSHint](http://www.jshint.com/) with no
+Javascript code should pass through [ESLint](http://eslint.org/) with no
 warnings.
 
 ## HTML

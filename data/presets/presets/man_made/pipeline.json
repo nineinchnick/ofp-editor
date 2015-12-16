@@ -1,13 +1,14 @@
 {
+    "icon": "pipeline-line",
+    "fields": [
+        "location",
+        "operator"
+    ],
     "geometry": [
         "line"
     ],
     "tags": {
         "man_made": "pipeline"
     },
-    "fields": [
-        "location",
-        "operator"
-    ],
     "name": "Pipeline"
 }

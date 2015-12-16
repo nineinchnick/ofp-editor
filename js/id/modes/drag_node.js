@@ -8,7 +8,11 @@ iD.modes.DragNode = function(context) {
         activeIDs,
         wasMidpoint,
         cancelled,
-        hover = iD.behavior.Hover().altDisables(true);
+        selectedIDs = [],
+        hover = iD.behavior.Hover(context)
+            .altDisables(true)
+            .on('hover', context.ui().sidebar.hover),
+        edit = iD.behavior.Edit(context);
 
     function edge(point, size) {
         var pad = [30, 100, 30, 100];
@@ -35,8 +39,8 @@ iD.modes.DragNode = function(context) {
         return t('operations.move.annotation.' + entity.geometry(context.graph()));
     }
 
-    function connectAnnotation(datum) {
-        return t('operations.connect.annotation.' + datum.geometry(context.graph()));
+    function connectAnnotation(entity) {
+        return t('operations.connect.annotation.' + entity.geometry(context.graph()));
     }
 
     function origin(entity) {
@@ -44,7 +48,9 @@ iD.modes.DragNode = function(context) {
     }
 
     function start(entity) {
-        cancelled = d3.event.sourceEvent.shiftKey;
+        cancelled = d3.event.sourceEvent.shiftKey ||
+            context.features().hasHiddenConnections(entity, context.graph());
+
         if (cancelled) return behavior.cancel();
 
         wasMidpoint = entity.type === 'midpoint';
@@ -54,8 +60,7 @@ iD.modes.DragNode = function(context) {
             context.perform(iD.actions.AddMidpoint(midpoint, entity));
 
              var vertex = context.surface()
-                .selectAll('.vertex')
-                .filter(function(d) { return d.id === entity.id; });
+                .selectAll('.' + entity.id);
              behavior.target(vertex.node(), entity);
 
         } else {
@@ -90,7 +95,7 @@ iD.modes.DragNode = function(context) {
 
         var nudge = childOf(context.container().node(),
             d3.event.sourceEvent.toElement) &&
-            edge(d3.event.point, context.map().size());
+            edge(d3.event.point, context.map().dimensions());
 
         if (nudge) startNudge(nudge);
         else stopNudge();
@@ -100,13 +105,13 @@ iD.modes.DragNode = function(context) {
         var d = datum();
         if (d.type === 'node' && d.id !== entity.id) {
             loc = d.loc;
-        } else if (d.type === 'way') {
-            loc = iD.geo.chooseIndex(d, d3.mouse(context.surface().node()), context).loc;
+        } else if (d.type === 'way' && !d3.select(d3.event.sourceEvent.target).classed('fill')) {
+            loc = iD.geo.chooseEdge(context.childNodes(d), context.mouse(), context.projection).loc;
         }
 
         context.replace(
             iD.actions.MoveNode(entity.id, loc),
-            t('operations.move.annotation.' + entity.geometry(context.graph())));
+            moveAnnotation(entity));
     }
 
     function end(entity) {
@@ -115,13 +120,12 @@ iD.modes.DragNode = function(context) {
         var d = datum();
 
         if (d.type === 'way') {
-            var choice = iD.geo.chooseIndex(d, d3.mouse(context.surface().node()), context);
+            var choice = iD.geo.chooseEdge(context.childNodes(d), context.mouse(), context.projection);
             context.replace(
                 iD.actions.AddMidpoint({ loc: choice.loc, edge: [d.nodes[choice.index - 1], d.nodes[choice.index]] }, entity),
                 connectAnnotation(d));
 
         } else if (d.type === 'node' && d.id !== entity.id) {
-            // `entity` is last so it will survive and it's parent ways can be selected below.
             context.replace(
                 iD.actions.Connect([d.id, entity.id]),
                 connectAnnotation(d));
@@ -137,11 +141,13 @@ iD.modes.DragNode = function(context) {
                 moveAnnotation(entity));
         }
 
-        var parentWays = _.pluck(context.graph().parentWays(entity), 'id');
+        var reselection = selectedIDs.filter(function(id) {
+            return context.graph().hasEntity(id);
+        });
 
-        if (parentWays.length) {
+        if (reselection.length) {
             context.enter(
-                iD.modes.Select(context, parentWays)
+                iD.modes.Select(context, reselection)
                     .suppressMenu(true));
         } else {
             context.enter(iD.modes.Browse(context));
@@ -153,8 +159,13 @@ iD.modes.DragNode = function(context) {
         context.enter(iD.modes.Browse(context));
     }
 
+    function setActiveElements() {
+        context.surface().selectAll(iD.util.entitySelector(activeIDs))
+            .classed('active', true);
+    }
+
     var behavior = iD.behavior.drag()
-        .delegate("g.node, g.point, g.midpoint")
+        .delegate('g.node, g.point, g.midpoint')
         .surface(context.surface().node())
         .origin(origin)
         .on('start', start)
@@ -163,27 +174,38 @@ iD.modes.DragNode = function(context) {
 
     mode.enter = function() {
         context.install(hover);
+        context.install(edit);
 
         context.history()
             .on('undone.drag-node', cancel);
 
-        context.surface()
-            .selectAll('.node, .way')
-            .filter(function(d) { return activeIDs.indexOf(d.id) >= 0; })
-            .classed('active', true);
+        context.map()
+            .on('drawn.drag-node', setActiveElements);
+
+        setActiveElements();
     };
 
     mode.exit = function() {
         context.uninstall(hover);
+        context.uninstall(edit);
 
         context.history()
             .on('undone.drag-node', null);
+
+        context.map()
+            .on('drawn.drag-node', null);
 
         context.surface()
             .selectAll('.active')
             .classed('active', false);
 
         stopNudge();
+    };
+
+    mode.selectedIDs = function(_) {
+        if (!arguments.length) return selectedIDs;
+        selectedIDs = _;
+        return mode;
     };
 
     mode.behavior = behavior;

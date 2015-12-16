@@ -14,7 +14,7 @@ This is pre-alpha code, intended as a proof of concept, more information will fo
 
 ## Installation
 
-To run the current development version, fork this project and serve it locally.
+To run the current development version, fork this project, run `make`, and serve it locally.
 If you have Python handy, just `cd` into the project root directory and run
 
      python -m SimpleHTTPServer
@@ -26,7 +26,10 @@ Or, with a Mac, you can enable Web Sharing and clone iD into your website direct
 
 OpenFloorPlan Editor (ofp-editor) is available under a dual MIT and WTFPL License, see the LICENSE file.
 
-The original iD project is available under the [WTFPL](http://sam.zoy.org/wtfpl/) see https://github.com/systemed/iD
+The original iD is available under the [ISC License](https://opensource.org/licenses/ISC).
 
 It includes [d3js](http://d3js.org/), which BSD-licensed.
 
+## Thank you
+
+Initial development of iD was made possible by a [grant of the Knight Foundation](http://www.mapbox.com/blog/knight-invests-openstreetmap/).

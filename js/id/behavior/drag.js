@@ -20,7 +20,7 @@ iD.behavior.drag = function() {
       d3.event.preventDefault();
     }
 
-    var event = d3.dispatch("start", "move", "end"),
+    var event = d3.dispatch('start', 'move', 'end'),
         origin = null,
         selector = '',
         filter = null,
@@ -28,16 +28,33 @@ iD.behavior.drag = function() {
 
     event.of = function(thiz, argumentz) {
       return function(e1) {
+        var e0 = e1.sourceEvent = d3.event;
+        e1.target = drag;
+        d3.event = e1;
         try {
-          var e0 = e1.sourceEvent = d3.event;
-          e1.target = drag;
-          d3.event = e1;
           event[e1.type].apply(thiz, argumentz);
         } finally {
           d3.event = e0;
         }
       };
     };
+
+    var d3_event_userSelectProperty = iD.util.prefixCSSProperty('UserSelect'),
+        d3_event_userSelectSuppress = d3_event_userSelectProperty ?
+            function () {
+                var selection = d3.selection(),
+                    select = selection.style(d3_event_userSelectProperty);
+                selection.style(d3_event_userSelectProperty, 'none');
+                return function () {
+                    selection.style(d3_event_userSelectProperty, select);
+                };
+            } :
+            function (type) {
+                var w = d3.select(window).on('selectstart.' + type, d3_eventCancel);
+                return function () {
+                    w.on('selectstart.' + type, null);
+                };
+            };
 
     function mousedown() {
         target = this;
@@ -46,11 +63,12 @@ iD.behavior.drag = function() {
             touchId = d3.event.touches ? d3.event.changedTouches[0].identifier : null,
             offset,
             origin_ = point(),
-            moved = 0;
+            started = false,
+            selectEnable = d3_event_userSelectSuppress(touchId !== null ? 'drag-' + touchId : 'drag');
 
         var w = d3.select(window)
-            .on(touchId !== null ? "touchmove.drag-" + touchId : "mousemove.drag", dragmove)
-            .on(touchId !== null ? "touchend.drag-" + touchId : "mouseup.drag", dragend, true);
+            .on(touchId !== null ? 'touchmove.drag-' + touchId : 'mousemove.drag', dragmove)
+            .on(touchId !== null ? 'touchend.drag-' + touchId : 'mouseup.drag', dragend, true);
 
         if (origin) {
             offset = origin.apply(target, arguments);
@@ -59,7 +77,7 @@ iD.behavior.drag = function() {
             offset = [0, 0];
         }
 
-        if (touchId === null) d3_eventCancel();
+        if (touchId === null) d3.event.stopPropagation();
 
         function point() {
             var p = target.parentNode || surface;
@@ -73,52 +91,46 @@ iD.behavior.drag = function() {
             var p = point(),
                 dx = p[0] - origin_[0],
                 dy = p[1] - origin_[1];
+            
+            if (dx === 0 && dy === 0)
+                return;
 
-            if (!moved) {
+            if (!started) {
+                started = true;
                 event_({
-                    type: "start"
+                    type: 'start'
                 });
             }
 
-            moved |= dx | dy;
             origin_ = p;
             d3_eventCancel();
 
             event_({
-                type: "move",
+                type: 'move',
                 point: [p[0] + offset[0],  p[1] + offset[1]],
                 delta: [dx, dy]
             });
         }
 
         function dragend() {
-            if (moved) {
+            if (started) {
                 event_({
-                    type: "end"
+                    type: 'end'
                 });
 
                 d3_eventCancel();
-                if (d3.event.target === eventTarget) w.on("click.drag", click, true);
+                if (d3.event.target === eventTarget) w.on('click.drag', click, true);
             }
 
-            w.on(touchId !== null ? "touchmove.drag-" + touchId : "mousemove.drag", null)
-                .on(touchId !== null ? "touchend.drag-" + touchId : "mouseup.drag", null);
+            w.on(touchId !== null ? 'touchmove.drag-' + touchId : 'mousemove.drag', null)
+                .on(touchId !== null ? 'touchend.drag-' + touchId : 'mouseup.drag', null);
+            selectEnable();
         }
 
         function click() {
             d3_eventCancel();
-            w.on("click.drag", null);
+            w.on('click.drag', null);
         }
-    }
-
-    var lastPos = [[0, 0], [0, 0]],
-        lastTimes = [0, 0];
-
-    function move() {
-        lastPos.push([d3.event.clientX, d3.event.clientY]);
-        lastTimes.push((new Date()).getTime());
-        lastTimes.shift();
-        lastPos.shift();
     }
 
     function drag(selection) {
@@ -127,14 +139,6 @@ iD.behavior.drag = function() {
 
         if (selector) {
             delegate = function() {
-
-                var velocity = Math.sqrt(
-                        Math.pow(lastPos[0][0] - d3.event.clientX, 2),
-                        Math.pow(lastPos[0][1] - d3.event.clientY, 2)) /
-                    ((new Date()).getTime() - lastTimes[0]);
-
-                if (velocity > 0.05) return;
-
                 var root = this,
                     target = d3.event.target;
                 for (; target && target !== root; target = target.parentNode) {
@@ -146,17 +150,13 @@ iD.behavior.drag = function() {
             };
         }
 
-        selection
-            .on("mousemove.drag" + selector, move)
-            .on("mousedown.drag" + selector, delegate)
-            .on("touchstart.drag" + selector, delegate);
+        selection.on('mousedown.drag' + selector, delegate)
+            .on('touchstart.drag' + selector, delegate);
     }
 
     drag.off = function(selection) {
-        selection
-            .on("mousemove.drag" + selector, null)
-            .on("mousedown.drag" + selector, null)
-            .on("touchstart.drag" + selector, null);
+        selection.on('mousedown.drag' + selector, null)
+            .on('touchstart.drag' + selector, null);
     };
 
     drag.delegate = function(_) {
@@ -179,8 +179,8 @@ iD.behavior.drag = function() {
 
     drag.cancel = function() {
         d3.select(window)
-            .on("mousemove.drag", null)
-            .on("mouseup.drag", null);
+            .on('mousemove.drag', null)
+            .on('mouseup.drag', null);
         return drag;
     };
 
@@ -197,5 +197,5 @@ iD.behavior.drag = function() {
         return drag;
     };
 
-    return d3.rebind(drag, event, "on");
+    return d3.rebind(drag, event, 'on');
 };

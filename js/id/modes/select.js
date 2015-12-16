@@ -1,4 +1,4 @@
-iD.modes.Select = function(context, selection) {
+iD.modes.Select = function(context, selectedIDs) {
     var mode = {
         id: 'select',
         button: 'browse'
@@ -7,10 +7,14 @@ iD.modes.Select = function(context, selection) {
     var keybinding = d3.keybinding('select'),
         timeout = null,
         behaviors = [
-            iD.behavior.Hover(),
+            iD.behavior.Copy(context),
+            iD.behavior.Paste(context),
+            iD.behavior.Hover(context),
             iD.behavior.Select(context),
             iD.behavior.Lasso(context),
-            iD.modes.DragNode(context).behavior],
+            iD.modes.DragNode(context)
+                .selectedIDs(selectedIDs)
+                .behavior],
         inspector,
         radialMenu,
         newFeature = false,
@@ -19,30 +23,55 @@ iD.modes.Select = function(context, selection) {
     var wrap = context.container()
         .select('.inspector-wrap');
 
+
     function singular() {
-        if (selection.length === 1) {
-            return context.entity(selection[0]);
+        if (selectedIDs.length === 1) {
+            return context.entity(selectedIDs[0]);
+        }
+    }
+
+    function closeMenu() {
+        if (radialMenu) {
+            context.surface().call(radialMenu.close);
         }
     }
 
     function positionMenu() {
-        var entity = singular();
+        if (suppressMenu || !radialMenu) { return; }
 
-        if (entity && entity.type === 'node') {
+        var entity = singular();
+        if (entity && context.geometry(entity.id) === 'relation') {
+            suppressMenu = true;
+        } else if (entity && entity.type === 'node') {
             radialMenu.center(context.projection(entity.loc));
         } else {
-            radialMenu.center(d3.mouse(context.surface().node()));
+            var point = context.mouse(),
+                viewport = iD.geo.Extent(context.projection.clipExtent()).polygon();
+            if (iD.geo.pointInPolygon(point, viewport)) {
+                radialMenu.center(point);
+            } else {
+                suppressMenu = true;
+            }
         }
     }
 
     function showMenu() {
-        context.surface()
-            .call(radialMenu.close)
-            .call(radialMenu);
+        closeMenu();
+        if (!suppressMenu && radialMenu) {
+            context.surface().call(radialMenu);
+        }
     }
 
-    mode.selection = function() {
-        return selection;
+    function toggleMenu() {
+        if (d3.select('.radial-menu').empty()) {
+            showMenu();
+        } else {
+            closeMenu();
+        }
+    }
+
+    mode.selectedIDs = function() {
+        return selectedIDs;
     };
 
     mode.reselect = function() {
@@ -68,71 +97,20 @@ iD.modes.Select = function(context, selection) {
     };
 
     mode.enter = function() {
-        behaviors.forEach(function(behavior) {
-            context.install(behavior);
-        });
-
-        var operations = _.without(d3.values(iD.operations), iD.operations.Delete)
-            .map(function(o) { return o(selection, context); })
-            .filter(function(o) { return o.available(); });
-        operations.unshift(iD.operations.Delete(selection, context));
-
-        keybinding.on('⎋', function() {
-            context.enter(iD.modes.Browse(context));
-        }, true);
-
-        operations.forEach(function(operation) {
-            operation.keys.forEach(function(key) {
-                keybinding.on(key, function() {
-                    if (!operation.disabled()) {
-                        operation();
-                    }
-                });
-            });
-        });
-
-        var notNew = selection.filter(function(id) {
-            return !context.entity(id).isNew();
-        });
-
-        if (notNew.length) {
-            var q = iD.util.stringQs(location.hash.substring(1));
-            location.replace('#' + iD.util.qsString(_.assign(q, {
-                id: notNew.join(',')
-            }), true));
-        }
-
-        if (singular()) {
-            inspector = iD.ui.Inspector(context, singular())
-                .newFeature(newFeature);
-
-            wrap.call(inspector);
-        }
-
-        context.history()
-            .on('undone.select', update)
-            .on('redone.select', update);
-
         function update() {
-            context.surface().call(radialMenu.close);
-
-            if (_.any(selection, function(id) { return !context.hasEntity(id); })) {
+            closeMenu();
+            if (_.any(selectedIDs, function(id) { return !context.hasEntity(id); })) {
                 // Exit mode if selected entity gets undone
                 context.enter(iD.modes.Browse(context));
             }
         }
-
-        context.map().on('move.select', function() {
-            context.surface().call(radialMenu.close);
-        });
 
         function dblclick() {
             var target = d3.select(d3.event.target),
                 datum = target.datum();
 
             if (datum instanceof iD.Way && !target.classed('fill')) {
-                var choice = iD.geo.chooseIndex(datum,
-                        d3.mouse(context.surface().node()), context),
+                var choice = iD.geo.chooseEdge(context.childNodes(datum), context.mouse(), context.projection),
                     node = iD.Node();
 
                 var prev = datum.nodes[choice.index - 1],
@@ -147,28 +125,69 @@ iD.modes.Select = function(context, selection) {
             }
         }
 
-        function selected(entity) {
-            if (!entity) return false;
-            if (selection.indexOf(entity.id) >= 0) return true;
-            return _.any(context.graph().parentRelations(entity), function(parent) {
-                    return selection.indexOf(parent.id) >= 0;
-                });
+        function selectElements(drawn) {
+            var entity = singular();
+            if (entity && context.geometry(entity.id) === 'relation') {
+                suppressMenu = true;
+                return;
+            }
+
+            var selection = context.surface()
+                    .selectAll(iD.util.entityOrMemberSelector(selectedIDs, context.graph()));
+
+            if (selection.empty()) {
+                if (drawn) {  // Exit mode if selected DOM elements have disappeared..
+                    context.enter(iD.modes.Browse(context));
+                }
+            } else {
+                selection
+                    .classed('selected', true);
+            }
         }
+
+
+        behaviors.forEach(function(behavior) {
+            context.install(behavior);
+        });
+
+        var operations = _.without(d3.values(iD.operations), iD.operations.Delete)
+                .map(function(o) { return o(selectedIDs, context); })
+                .filter(function(o) { return o.available(); });
+
+        operations.unshift(iD.operations.Delete(selectedIDs, context));
+
+        keybinding
+            .on('⎋', function() { context.enter(iD.modes.Browse(context)); }, true)
+            .on('space', toggleMenu);
+
+        operations.forEach(function(operation) {
+            operation.keys.forEach(function(key) {
+                keybinding.on(key, function() {
+                    if (!operation.disabled()) {
+                        operation();
+                    }
+                });
+            });
+        });
 
         d3.select(document)
             .call(keybinding);
 
-        function selectElements() {
-            context.surface()
-                .selectAll("*")
-                .filter(selected)
-                .classed('selected', true);
-        }
+        radialMenu = iD.ui.RadialMenu(context, operations);
 
-        context.map().on('drawn.select', selectElements);
+        context.ui().sidebar
+            .select(singular() ? singular().id : null, newFeature);
+
+        context.history()
+            .on('undone.select', update)
+            .on('redone.select', update);
+
+        context.map()
+            .on('move.select', closeMenu)
+            .on('drawn.select', selectElements);
+
         selectElements();
 
-        radialMenu = iD.ui.RadialMenu(operations);
         var show = d3.event && !suppressMenu;
 
         if (show) {
@@ -183,6 +202,11 @@ iD.modes.Select = function(context, selection) {
             context.surface()
                 .on('dblclick.select', dblclick);
         }, 200);
+
+        if (selectedIDs.length > 1) {
+            var entities = iD.ui.SelectionList(context, selectedIDs);
+            context.ui().sidebar.show(entities);
+        }
     };
 
     mode.exit = function() {
@@ -194,22 +218,21 @@ iD.modes.Select = function(context, selection) {
             context.uninstall(behavior);
         });
 
-        var q = iD.util.stringQs(location.hash.substring(1));
-        location.replace('#' + iD.util.qsString(_.omit(q, 'id'), true));
-
         keybinding.off();
+        closeMenu();
+        radialMenu = undefined;
 
         context.history()
             .on('undone.select', null)
             .on('redone.select', null);
 
         context.surface()
-            .call(radialMenu.close)
             .on('dblclick.select', null)
-            .selectAll(".selected")
+            .selectAll('.selected')
             .classed('selected', false);
 
         context.map().on('drawn.select', null);
+        context.ui().sidebar.hide();
     };
 
     return mode;

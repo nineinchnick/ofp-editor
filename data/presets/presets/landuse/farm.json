@@ -1,4 +1,8 @@
 {
+    "icon": "farm",
+    "fields": [
+        "crop"
+    ],
     "geometry": [
         "point",
         "area"
@@ -7,5 +11,6 @@
         "landuse": "farm"
     },
     "terms": [],
-    "name": "Farm"
+    "name": "Farmland",
+    "searchable": false
 }

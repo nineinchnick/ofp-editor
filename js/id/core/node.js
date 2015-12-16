@@ -9,18 +9,40 @@ iD.Node = iD.Entity.node = function iD_Node() {
 iD.Node.prototype = Object.create(iD.Entity.prototype);
 
 _.extend(iD.Node.prototype, {
-    type: "node",
+    type: 'node',
 
     extent: function() {
         return new iD.geo.Extent(this.loc);
     },
 
     geometry: function(graph) {
-        return graph.isPoi(this) ? 'point' : 'vertex';
+        return graph.transient(this, 'geometry', function() {
+            return graph.isPoi(this) ? 'point' : 'vertex';
+        });
     },
 
     move: function(loc) {
         return this.update({loc: loc});
+    },
+
+    isIntersection: function(resolver) {
+        return resolver.transient(this, 'isIntersection', function() {
+            return resolver.parentWays(this).filter(function(parent) {
+                return (parent.tags.highway ||
+                    parent.tags.waterway ||
+                    parent.tags.railway ||
+                    parent.tags.aeroway) &&
+                    parent.geometry(resolver) === 'line';
+            }).length > 1;
+        });
+    },
+
+    isHighwayIntersection: function(resolver) {
+        return resolver.transient(this, 'isHighwayIntersection', function() {
+            return resolver.parentWays(this).filter(function(parent) {
+                return parent.tags.highway && parent.geometry(resolver) === 'line';
+            }).length > 1;
+        });
     },
 
     asJXON: function(changeset_id) {
@@ -41,12 +63,8 @@ _.extend(iD.Node.prototype, {
 
     asGeoJSON: function() {
         return {
-            type: 'Feature',
-            properties: this.tags,
-            geometry: {
-                type: 'Point',
-                coordinates: this.loc
-            }
+            type: 'Point',
+            coordinates: this.loc
         };
     }
 });

@@ -12,8 +12,7 @@ iD.ui.Contributors = function(context) {
             subset = u.slice(0, u.length > limit ? limit - 1 : limit);
 
         selection.html('')
-            .append('span')
-            .attr('class', 'icon nearby light icon-pre-text');
+            .call(iD.svg.Icon('#icon-nearby', 'pre-text light'));
 
         var userList = d3.select(document.createElement('span'));
 
@@ -34,10 +33,7 @@ iD.ui.Contributors = function(context) {
                 .attr('target', '_blank')
                 .attr('tabindex', -1)
                 .attr('href', function() {
-                    var ext = context.map().extent();
-                    return 'http://openfloorplan.herokuapp.com/browse/changesets?bbox=' + [
-                        ext[0][0], ext[0][1],
-                        ext[1][0], ext[1][1]];
+                    return context.connection().changesetsURL(context.map().center(), context.map().zoom());
                 })
                 .text(u.length - limit + 1);
 
@@ -58,7 +54,7 @@ iD.ui.Contributors = function(context) {
     return function(selection) {
         update(selection);
 
-        context.connection().on('load.contributors', function() {
+        context.connection().on('loaded.contributors', function() {
             update(selection);
         });
 

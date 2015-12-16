@@ -1,29 +1,37 @@
 iD.ui.Attribution = function(context) {
     var selection;
 
-    function update() {
-        if (!context.background().source()) {
-            selection.html('');
-            return;
-        }
+    function attribution(data, klass) {
+        var div = selection.selectAll('.' + klass)
+            .data([0]);
 
-        var attribution = selection.selectAll('.provided-by')
-            .data([context.background().source()], function(d) { return d.data.name; });
+        div.enter()
+            .append('div')
+            .attr('class', klass);
 
-        attribution.enter()
+        var background = div.selectAll('.attribution')
+            .data(data, function(d) { return d.name(); });
+
+        background.enter()
             .append('span')
-            .attr('class', 'provided-by')
+            .attr('class', 'attribution')
             .each(function(d) {
-                var source = d.data.sourcetag || d.data.name;
-
-                if (d.data.logo) {
-                    source = '<img class="source-image" src="' + context.imagePath(d.data.logo) + '">';
+                if (d.terms_html) {
+                    d3.select(this)
+                        .html(d.terms_html);
+                    return;
                 }
 
-                if (d.data.terms_url) {
+                var source = d.terms_text || d.id || d.name();
+
+                if (d.logo) {
+                    source = '<img class="source-image" src="' + context.imagePath(d.logo) + '">';
+                }
+
+                if (d.terms_url) {
                     d3.select(this)
                         .append('a')
-                        .attr('href', d.data.terms_url)
+                        .attr('href', d.terms_url)
                         .attr('target', '_blank')
                         .html(source);
                 } else {
@@ -32,10 +40,10 @@ iD.ui.Attribution = function(context) {
                 }
             });
 
-        attribution.exit()
+        background.exit()
             .remove();
 
-        var copyright = attribution.selectAll('.copyright-notice')
+        var copyright = background.selectAll('.copyright-notice')
             .data(function(d) {
                 var notice = d.copyrightNotices(context.map().zoom(), context.map().extent());
                 return notice ? [notice] : [];
@@ -51,6 +59,13 @@ iD.ui.Attribution = function(context) {
             .remove();
     }
 
+    function update() {
+        attribution([context.background().baseLayerSource()], 'base-layer-attribution');
+        attribution(context.background().overlayLayerSources().filter(function (s) {
+            return s.validZoom(context.map().zoom());
+        }), 'overlay-layer-attribution');
+    }
+
     return function(select) {
         selection = select;
 
@@ -58,7 +73,7 @@ iD.ui.Attribution = function(context) {
             .on('change.attribution', update);
 
         context.map()
-            .on('move.attribution', _.throttle(update, 400));
+            .on('move.attribution', _.throttle(update, 400, {leading: false}));
 
         update();
     };

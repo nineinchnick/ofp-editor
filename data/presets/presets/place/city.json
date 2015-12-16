@@ -1,5 +1,8 @@
 {
-    "icon": "square",
+    "icon": "city",
+    "fields": [
+        "population"
+    ],
     "geometry": [
         "point",
         "area"

@@ -4,7 +4,7 @@ iD.presets.Field = function(id, field) {
     field.id = id;
 
     field.matchGeometry = function(geometry) {
-        return !field.geometry || field.geometry.indexOf(geometry) >= 0;
+        return !field.geometry || field.geometry === geometry;
     };
 
     field.t = function(scope, options) {
@@ -13,6 +13,11 @@ iD.presets.Field = function(id, field) {
 
     field.label = function() {
         return field.t('label', {'default': id});
+    };
+
+    var placeholder = field.placeholder;
+    field.placeholder = function() {
+        return field.t('placeholder', {'default': placeholder});
     };
 
     return field;

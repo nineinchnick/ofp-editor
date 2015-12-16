@@ -1,4 +1,7 @@
 {
+    "fields": [
+        "backrest"
+    ],
     "geometry": [
         "point",
         "vertex",

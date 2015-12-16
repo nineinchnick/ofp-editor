@@ -5,6 +5,8 @@ iD.Entity = function(attrs) {
     // Create the appropriate subtype.
     if (attrs && attrs.type) {
         return iD.Entity[attrs.type].apply(this, arguments);
+    } else if (attrs && attrs.id) {
+        return iD.Entity[iD.Entity.id.type(attrs.id)].apply(this, arguments);
     }
 
     // Initialize a generic Entity (used only in tests).
@@ -31,7 +33,7 @@ iD.Entity.id.type = function(id) {
 
 // A function suitable for use as the second argument to d3.selection#data().
 iD.Entity.key = function(entity) {
-    return entity.id;
+    return entity.id + 'v' + (entity.v || 0);
 };
 
 iD.Entity.prototype = {
@@ -42,13 +44,20 @@ iD.Entity.prototype = {
             var source = sources[i];
             for (var prop in source) {
                 if (Object.prototype.hasOwnProperty.call(source, prop)) {
-                    this[prop] = source[prop];
+                    if (source[prop] === undefined) {
+                        delete this[prop];
+                    } else {
+                        this[prop] = source[prop];
+                    }
                 }
             }
         }
 
         if (!this.id && this.type) {
             this.id = iD.Entity.id(this.type);
+        }
+        if (!this.hasOwnProperty('visible')) {
+            this.visible = true;
         }
 
         if (iD.debug) {
@@ -63,6 +72,12 @@ iD.Entity.prototype = {
         return this;
     },
 
+    copy: function() {
+        // Returns an array so that we can support deep copying ways and relations.
+        // The first array element will contain this.copy, followed by any descendants.
+        return [iD.Entity(this, {id: undefined, user: undefined, version: undefined})];
+    },
+
     osmId: function() {
         return iD.Entity.id.toOSM(this.id);
     },
@@ -72,7 +87,7 @@ iD.Entity.prototype = {
     },
 
     update: function(attrs) {
-        return iD.Entity(this, attrs);
+        return iD.Entity(this, attrs, {v: 1 + (this.v || 0)});
     },
 
     mergeTags: function(tags) {
@@ -95,14 +110,17 @@ iD.Entity.prototype = {
         return this.extent(resolver).intersects(extent);
     },
 
+    isUsed: function(resolver) {
+        return _.without(Object.keys(this.tags), 'area').length > 0 ||
+            resolver.parentRelations(this).length > 0;
+    },
+
     hasInterestingTags: function() {
-        return _.keys(this.tags).some(function(key) {
-            return key != 'attribution' &&
-                key != 'created_by' &&
-                key != 'source' &&
-                key != 'odbl' &&
-                key.indexOf('tiger:') !== 0;
-        });
+        return _.keys(this.tags).some(iD.interestingTag);
+    },
+
+    isHighwayIntersection: function() {
+        return false;
     },
 
     deprecatedTags: function() {
@@ -112,8 +130,8 @@ iD.Entity.prototype = {
         iD.data.deprecated.forEach(function(d) {
             var match = _.pairs(d.old)[0];
             tags.forEach(function(t) {
-                if (t[0] == match[0] &&
-                    (t[1] == match[1] || match[1] == '*')) {
+                if (t[0] === match[0] &&
+                    (t[1] === match[1] || match[1] === '*')) {
                     deprecated[t[0]] = t[1];
                 }
             });

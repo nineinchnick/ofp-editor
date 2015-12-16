@@ -1,25 +1,18 @@
-iD.ui.preset = function(context, entity, preset) {
-    var original = context.graph().base().entities[entity.id],
-        event = d3.dispatch('change', 'close'),
-        fields = [],
-        tags = {},
-        formwrap,
-        formbuttonwrap;
+iD.ui.preset = function(context) {
+    var event = d3.dispatch('change'),
+        state,
+        fields,
+        preset,
+        tags,
+        id;
 
-    function UIField(field, show) {
+    function UIField(field, entity, show) {
         field = _.clone(field);
 
         field.input = iD.ui.preset[field.type](field, context)
-            .on('close', event.close)
             .on('change', event.change);
 
-        field.reference = iD.ui.TagReference(entity, {key: field.key});
-
-        if (field.type === 'address' ||
-            field.type === 'wikipedia' ||
-            field.type === 'maxspeed') {
-            field.input.entity(entity);
-        }
+        if (field.input.entity) field.input.entity(entity);
 
         field.keys = field.keys || [field.key];
 
@@ -30,177 +23,225 @@ iD.ui.preset = function(context, entity, preset) {
         };
 
         field.modified = function() {
+            var original = context.graph().base().entities[entity.id];
             return _.any(field.keys, function(key) {
                 return original ? tags[key] !== original.tags[key] : tags[key];
             });
         };
 
+        field.revert = function() {
+            var original = context.graph().base().entities[entity.id],
+                t = {};
+            field.keys.forEach(function(key) {
+                t[key] = original ? original.tags[key] : undefined;
+            });
+            return t;
+        };
+
+        field.present = function() {
+            return _.any(field.keys, function(key) {
+                return tags[key];
+            });
+        };
+
+        field.remove = function() {
+            var t = {};
+            field.keys.forEach(function(key) {
+                t[key] = undefined;
+            });
+            return t;
+        };
+
         return field;
     }
-
-    fields.push(UIField(context.presets().field('name')));
-
-    var geometry = entity.geometry(context.graph());
-    preset.fields.forEach(function(field) {
-        if (field.matchGeometry(geometry)) {
-            fields.push(UIField(field, true));
-        }
-    });
-
-    context.presets().universal().forEach(function(field) {
-        if (preset.fields.indexOf(field) < 0) {
-            fields.push(UIField(field));
-        }
-    });
 
     function fieldKey(field) {
         return field.id;
     }
 
-    function shown() {
-        return fields.filter(function(field) { return field.shown(); });
-    }
+    function presets(selection) {
+        if (!fields) {
+            var entity = context.entity(id),
+                geometry = context.geometry(id);
 
-    function notShown() {
-        return fields.filter(function(field) { return !field.shown(); });
-    }
+            fields = [UIField(context.presets().field('name'), entity)];
 
-    function show(field) {
-        field.show = true;
-        render();
-        field.input.focus();
-    }
+            preset.fields.forEach(function(field) {
+                if (field.matchGeometry(geometry)) {
+                    fields.push(UIField(field, entity, true));
+                }
+            });
 
-    function revert(field) {
-        d3.event.stopPropagation();
-        d3.event.preventDefault();
-        var t = {};
-        field.keys.forEach(function(key) {
-            t[key] = original ? original.tags[key] || '' : '';
-        });
-        event.change(t);
-    }
-
-    function toggleReference(field) {
-        d3.event.stopPropagation();
-        d3.event.preventDefault();
-
-        _.forEach(shown(), function(other) {
-            if (other.id === field.id) {
-                other.reference.toggle();
-            } else {
-                other.reference.hide();
+            if (entity.isHighwayIntersection(context.graph())) {
+                fields.push(UIField(context.presets().field('restrictions'), entity, true));
             }
-        });
 
-        render();
-    }
+            context.presets().universal().forEach(function(field) {
+                if (preset.fields.indexOf(field) < 0) {
+                    fields.push(UIField(field, entity));
+                }
+            });
+        }
 
-    function render() {
-        var selection = formwrap.selectAll('.form-field')
-            .data(shown(), fieldKey);
+        var shown = fields.filter(function(field) { return field.shown(); }),
+            notShown = fields.filter(function(field) { return !field.shown(); });
 
-        var enter = selection.enter()
-            .insert('div', '.more-buttons')
-            .style('opacity', 0)
+        var $form = selection.selectAll('.preset-form')
+            .data([0]);
+
+        $form.enter().append('div')
+            .attr('class', 'preset-form inspector-inner fillL3');
+
+        var $fields = $form.selectAll('.form-field')
+            .data(shown, fieldKey);
+
+        // Enter
+
+        var $enter = $fields.enter()
+            .append('div')
             .attr('class', function(field) {
-                return 'form-field form-field-' + field.id + ' fillL col12';
+                return 'form-field form-field-' + field.id;
             });
 
-        enter.transition()
-            .style('max-height', '0px')
-            .style('padding-top', '0px')
-            .style('opacity', '0')
-            .transition()
-            .duration(200)
-            .style('padding-top', '20px')
-            .style('max-height', '240px')
-            .style('opacity', '1')
-            .each('end', function(d) {
-                d3.select(this).style('max-height', '');
-            });
-
-        var label = enter.append('label')
+        var $label = $enter.append('label')
             .attr('class', 'form-label')
             .attr('for', function(field) { return 'preset-input-' + field.id; })
             .text(function(field) { return field.label(); });
 
-        label.append('button')
-            .attr('class', 'tag-reference-button minor')
+        var wrap = $label.append('div')
+            .attr('class', 'form-label-button-wrap');
+
+        wrap.append('button')
+            .attr('class', 'remove-icon')
+            .call(iD.svg.Icon('#operation-delete'));
+
+        wrap.append('button')
+            .attr('class', 'modified-icon')
             .attr('tabindex', -1)
-            .on('click', toggleReference)
-            .append('span')
-            .attr('class', 'icon inspect');
+            .call(iD.svg.Icon('#icon-undo'));
 
-        label.append('button')
-            .attr('class', 'modified-icon minor')
-            .attr('tabindex', -1)
-            .on('click', revert)
-            .append('div')
-            .attr('class','icon undo');
+        // Update
 
-        enter.each(function(field) {
-            d3.select(this)
-                .call(field.input)
-                .call(field.reference);
-        });
+        $fields.select('.form-label-button-wrap .remove-icon')
+            .on('click', remove);
 
-        selection
-            .each(function(field) {
-                field.input.tags(tags);
-            })
+        $fields.select('.modified-icon')
+            .on('click', revert);
+
+        $fields
+            .order()
             .classed('modified', function(field) {
                 return field.modified();
+            })
+            .classed('present', function(field) {
+                return field.present();
+            })
+            .each(function(field) {
+                var reference = iD.ui.TagReference(field.reference || {key: field.key}, context);
+
+                if (state === 'hover') {
+                    reference.showing(false);
+                }
+
+                d3.select(this)
+                    .call(field.input)
+                    .call(reference.body)
+                    .select('.form-label-button-wrap')
+                    .call(reference.button);
+
+                field.input.tags(tags);
             });
 
-        selection.exit()
+        $fields.exit()
             .remove();
 
-        var addFields = formbuttonwrap.selectAll('.preset-add-field')
-            .data(notShown(), fieldKey);
+        notShown = notShown.map(function(field) {
+            return {
+                title: field.label(),
+                value: field.label(),
+                field: field
+            };
+        });
 
-        addFields.enter()
-            .append('button')
-            .attr('class', 'preset-add-field')
-            .on('click', show)
-            .call(bootstrap.tooltip()
-                .placement('top')
-                .title(function(d) { return d.label(); }))
-            .append('span')
-            .attr('class', function(d) { return 'icon ' + d.icon; });
+        var $more = selection.selectAll('.more-fields')
+            .data((notShown.length > 0) ? [0] : []);
 
-        addFields.exit()
-            .transition()
-            .style('opacity', 0)
+        $more.enter().append('div')
+            .attr('class', 'more-fields')
+            .append('label')
+                .text(t('inspector.add_fields'));
+
+        var $input = $more.selectAll('.value')
+            .data([0]);
+
+        $input.enter().append('input')
+            .attr('class', 'value')
+            .attr('type', 'text');
+
+        $input.value('')
+            .attr('placeholder', function() {
+                var placeholder = [];
+                for (var field in notShown) {
+                    placeholder.push(notShown[field].title);
+                }
+                return placeholder.slice(0,3).join(', ') + ((placeholder.length > 3) ? '…' : '');
+            })
+            .call(d3.combobox().data(notShown)
+                .minItems(1)
+                .on('accept', show));
+
+        $more.exit()
             .remove();
 
-        return selection;
+        $input.exit()
+            .remove();
+
+        function show(field) {
+            field = field.field;
+            field.show = true;
+            presets(selection);
+            field.input.focus();
+        }
+
+        function revert(field) {
+            d3.event.stopPropagation();
+            d3.event.preventDefault();
+            event.change(field.revert());
+        }
+
+        function remove(field) {
+            d3.event.stopPropagation();
+            d3.event.preventDefault();
+            event.change(field.remove());
+        }
     }
-
-    function presets(selection) {
-        selection.html('');
-
-        formwrap = selection;
-
-        formbuttonwrap = selection.append('div')
-            .attr('class', 'col12 more-buttons inspector-inner');
-
-        render();
-    }
-
-    presets.rendered = function() {
-        return _.flatten(shown().map(function(field) { return field.keys; }));
-    };
 
     presets.preset = function(_) {
         if (!arguments.length) return preset;
+        if (preset && preset.id === _.id) return presets;
         preset = _;
+        fields = null;
         return presets;
     };
 
-    presets.change = function(_) {
+    presets.state = function(_) {
+        if (!arguments.length) return state;
+        state = _;
+        return presets;
+    };
+
+    presets.tags = function(_) {
+        if (!arguments.length) return tags;
         tags = _;
-        render();
+        // Don't reset fields here.
+        return presets;
+    };
+
+    presets.entityID = function(_) {
+        if (!arguments.length) return id;
+        if (id === _) return presets;
+        id = _;
+        fields = null;
         return presets;
     };
 

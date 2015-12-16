@@ -16,89 +16,100 @@ iD.svg.Lines = function(projection, context) {
     };
 
     function waystack(a, b) {
-        if (!a || !b || !a.tags || !b.tags) return 0;
-        if (a.tags.layer !== undefined && b.tags.layer !== undefined) {
-            return a.tags.layer - b.tags.layer;
-        }
-        if (a.tags.bridge) return 1;
-        if (b.tags.bridge) return -1;
-        if (a.tags.tunnel) return -1;
-        if (b.tags.tunnel) return 1;
         var as = 0, bs = 0;
-        if (a.tags.highway && b.tags.highway) {
-            as -= highway_stack[a.tags.highway];
-            bs -= highway_stack[b.tags.highway];
-        }
+
+        if (a.tags.highway) { as -= highway_stack[a.tags.highway]; }
+        if (b.tags.highway) { bs -= highway_stack[b.tags.highway]; }
         return as - bs;
     }
 
     return function drawLines(surface, graph, entities, filter) {
-        function drawPaths(group, lines, filter, klass, lineString) {
-            lines = lines.filter(function(line) {
-                return lineString(line);
-            });
-
-            var tagClasses = iD.svg.TagClasses();
-
-            if (klass === 'stroke') {
-                tagClasses.tags(iD.svg.MultipolygonMemberTags(graph));
-            }
-
-            var paths = group.selectAll('path.line')
-                .filter(filter)
-                .data(lines, iD.Entity.key);
-
-            paths.enter()
-                .append('path')
-                .attr('class', 'way line ' + klass);
-
-            paths
-                .order()
-                .attr('d', lineString)
-                .call(tagClasses)
-                .call(iD.svg.MemberClasses(graph));
-
-            paths.exit()
-                .remove();
-
-            return paths;
-        }
-
-        var lines = [];
+        var ways = [], pathdata = {}, onewaydata = {},
+            getPath = iD.svg.Path(projection, graph);
 
         for (var i = 0; i < entities.length; i++) {
             var entity = entities[i],
                 outer = iD.geo.simpleMultipolygonOuterMember(entity, graph);
-            if(entity.tags.floor === context.floor().value){
+            if (entity.tags.floor === context.floor().value) {
                 if (outer) {
-                    lines.push(entity.mergeTags(outer.tags));
+                    ways.push(entity.mergeTags(outer.tags));
                 } else if (entity.geometry(graph) === 'line') {
-                    lines.push(entity);
+                    ways.push(entity);
                 }
             }
         }
 
-        lines.sort(waystack);
+        ways = ways.filter(getPath);
 
-        var lineString = iD.svg.LineString(projection, graph);
+        pathdata = _.groupBy(ways, function(way) { return way.layer(); });
 
-        var shadow = surface.select('.layer-shadow'),
-            casing = surface.select('.layer-casing'),
-            stroke = surface.select('.layer-stroke'),
-            defs   = surface.select('defs'),
-            oneway = surface.select('.layer-oneway');
+        _.forOwn(pathdata, function(v, k) {
+            onewaydata[k] = _(v)
+                .filter(function(d) { return d.isOneWay(); })
+                .map(iD.svg.OneWaySegments(projection, graph, 35))
+                .flatten()
+                .valueOf();
+        });
 
-        drawPaths(shadow, lines, filter, 'shadow', lineString);
-        drawPaths(casing, lines, filter, 'casing', lineString);
-        drawPaths(stroke, lines, filter, 'stroke', lineString);
+        var layergroup = surface
+            .select('.layer-lines')
+            .selectAll('g.layergroup')
+            .data(d3.range(-10, 11));
 
-        var segments = _.flatten(lines
-            .filter(function(d) { return d.isOneWay(); })
-            .map(iD.svg.OneWaySegments(projection, graph, 35)));
+        layergroup.enter()
+            .append('g')
+            .attr('class', function(d) { return 'layer layergroup layer' + String(d); });
 
-        var oneways = oneway.selectAll('path.oneway')
+
+        var linegroup = layergroup
+            .selectAll('g.linegroup')
+            .data(['shadow', 'casing', 'stroke']);
+
+        linegroup.enter()
+            .append('g')
+            .attr('class', function(d) { return 'layer linegroup line-' + d; });
+
+
+        var lines = linegroup
+            .selectAll('path')
             .filter(filter)
-            .data(segments, function(d) { return [d.id, d.index]; });
+            .data(
+                function() { return pathdata[this.parentNode.parentNode.__data__] || []; },
+                iD.Entity.key
+            );
+
+        // Optimization: call simple TagClasses only on enter selection. This
+        // works because iD.Entity.key is defined to include the entity v attribute.
+        lines.enter()
+            .append('path')
+            .attr('class', function(d) { return 'way line ' + this.parentNode.__data__ + ' ' + d.id; })
+            .call(iD.svg.TagClasses());
+
+        lines
+            .sort(waystack)
+            .attr('d', getPath)
+            .call(iD.svg.TagClasses().tags(iD.svg.MultipolygonMemberTags(graph)));
+
+        lines.exit()
+            .remove();
+
+
+        var onewaygroup = layergroup
+            .selectAll('g.onewaygroup')
+            .data(['oneway']);
+
+        onewaygroup.enter()
+            .append('g')
+            .attr('class', 'layer onewaygroup');
+
+
+        var oneways = onewaygroup
+            .selectAll('path')
+            .filter(filter)
+            .data(
+                function() { return onewaydata[this.parentNode.parentNode.__data__] || []; },
+                function(d) { return [d.id, d.index]; }
+            );
 
         oneways.enter()
             .append('path')
@@ -106,10 +117,14 @@ iD.svg.Lines = function(projection, context) {
             .attr('marker-mid', 'url(#oneway-marker)');
 
         oneways
-            .order()
             .attr('d', function(d) { return d.d; });
+
+        if (iD.detect().ie) {
+            oneways.each(function() { this.parentNode.insertBefore(this, this); });
+        }
 
         oneways.exit()
             .remove();
+
     };
 };

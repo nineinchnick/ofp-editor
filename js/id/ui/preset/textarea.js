@@ -1,26 +1,30 @@
 iD.ui.preset.textarea = function(field) {
 
-    var event = d3.dispatch('change', 'close'),
+    var event = d3.dispatch('change'),
         input;
 
     function i(selection) {
-        input = selection.append('textarea')
+        input = selection.selectAll('textarea')
+            .data([0]);
+
+        input.enter().append('textarea')
             .attr('id', 'preset-input-' + field.id)
-            .attr('placeholder', field.placeholder || '')
-            .attr('maxlength', 255)
+            .attr('placeholder', field.placeholder() || t('inspector.unknown'))
+            .attr('maxlength', 255);
+
+        input
             .on('blur', change)
-            .on('change', change)
-            .call(iD.behavior.accept().on('accept', event.close));
+            .on('change', change);
     }
 
     function change() {
         var t = {};
-        t[field.key] = input.text();
+        t[field.key] = input.value() || undefined;
         event.change(t);
     }
 
     i.tags = function(tags) {
-        input.text(tags[field.key] || '');
+        input.value(tags[field.key] || '');
     };
 
     i.focus = function() {
