@@ -11,21 +11,13 @@ iD.Map = function(context) {
         transformStart,
         transformed = false,
         minzoom = 0,
-        layers = [
-            iD.Background().projection(projection),
-            iD.LocalGpx(context).projection(projection),
-            iD.Background('overlay').projection(projection),
-            iD.Overlay(context).projection(projection)
-            ],
-        transformProp = iD.util.prefixCSSProperty('Transform'),
-        points = iD.svg.Points(roundedProjection, context),
-        vertices = iD.svg.Vertices(roundedProjection, context),
-        lines = iD.svg.Lines(projection, context),
-        areas = iD.svg.Areas(roundedProjection, context),
-        midpoints = iD.svg.Midpoints(roundedProjection, context),
-        labels = iD.svg.Labels(roundedProjection, context),
-        tail = iD.ui.Tail(),
-        supersurface, surface, layergroup,
+        points = iD.svg.Points(projection, context),
+        vertices = iD.svg.Vertices(projection, context),
+        lines = iD.svg.Lines(projection),
+        areas = iD.svg.Areas(projection),
+        midpoints = iD.svg.Midpoints(projection, context),
+        labels = iD.svg.Labels(projection, context),
+        supersurface, surface,
         mouse,
         mousemove;
 

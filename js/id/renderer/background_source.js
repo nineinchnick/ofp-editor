@@ -82,7 +82,7 @@ iD.BackgroundSource.Bing = function(data, dispatch) {
 
     data.template = 'https://ecn.t{switch:0,1,2,3}.tiles.virtualearth.net/tiles/a{u}.jpeg?g=587&mkt=en-gb&n=z';
 
-    var bing = iD.BackgroundSource.template(data),
+    var bing = iD.BackgroundSource(data),
         key = 'Atkp1j5n2iDRkTlBtuwM63zz-GN0cInZY-B4xylrFpbJYXNO5NL-HXWMmm8_xo0t', // Same as P2 and JOSM
         url = 'http://dev.virtualearth.net/REST/v1/Imagery/Metadata/Aerial?include=ImageryProviders&key=' +
             key + '&jsonp={callback}',
