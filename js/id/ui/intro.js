@@ -1,8 +1,54 @@
 iD.ui.intro = function(context) {
-
     var step;
 
     function intro(selection) {
+
+        function localizedName(id) {
+            var features = {
+                n2140018997: 'city_hall',
+                n367813436: 'fire_department',
+                w203988286: 'memory_isle_park',
+                w203972937: 'riverwalk_trail',
+                w203972938: 'riverwalk_trail',
+                w203972940: 'riverwalk_trail',
+                w41785752: 'w_michigan_ave',
+                w134150789: 'w_michigan_ave',
+                w134150795: 'w_michigan_ave',
+                w134150800: 'w_michigan_ave',
+                w134150811: 'w_michigan_ave',
+                w134150802: 'e_michigan_ave',
+                w134150836: 'e_michigan_ave',
+                w41074896: 'e_michigan_ave',
+                w17965834: 'spring_st',
+                w203986457: 'scidmore_park',
+                w203049587: 'petting_zoo',
+                w17967397: 'n_andrews_st',
+                w17967315: 's_andrews_st',
+                w17967326: 'n_constantine_st',
+                w17966400: 's_constantine_st',
+                w170848823: 'rocky_river',
+                w170848824: 'rocky_river',
+                w170848331: 'rocky_river',
+                w17967752: 'railroad_dr',
+                w17965998: 'conrail_rr',
+                w134150845: 'conrail_rr',
+                w170989131: 'st_joseph_river',
+                w143497377: 'n_main_st',
+                w134150801: 's_main_st',
+                w134150830: 's_main_st',
+                w17966462: 's_main_st',
+                w17967734: 'water_st',
+                w17964996: 'foster_st',
+                w170848330: 'portage_river',
+                w17965351: 'flower_st',
+                w17965502: 'elm_st',
+                w17965402: 'walnut_st',
+                w17964793: 'morris_ave',
+                w17967444: 'east_st',
+                w17966984: 'portage_ave'
+            };
+            return features[id] && t('intro.graph.' + features[id]);
+        }
 
         context.enter(iD.modes.Browse(context));
 
@@ -15,7 +61,10 @@ iD.ui.intro = function(context) {
             opacity = d3.select('.background-layer').style('opacity'),
             loadedTiles = context.connection().loadedTiles(),
             baseEntities = context.history().graph().base().entities,
-            introGraph;
+            introGraph, name;
+
+        // Block saving
+        context.inIntro(true);
 
         // Load semi-real data used in intro
         context.connection().toggle(false).flush();
@@ -24,15 +73,13 @@ iD.ui.intro = function(context) {
         introGraph = JSON.parse(iD.introGraph);
         for (var key in introGraph) {
             introGraph[key] = iD.Entity(introGraph[key]);
+            name = localizedName(key);
+            if (name) {
+                introGraph[key].tags.name = name;
+            }
         }
         context.history().merge(d3.values(iD.Graph().load(introGraph).entities));
         context.background().bing();
-
-        // Block saving
-        var savebutton = d3.select('#bar button.save'),
-            save = savebutton.on('click');
-        savebutton.on('click', null);
-        context.inIntro(true);
 
         d3.select('.background-layer').style('opacity', 1);
 
@@ -67,7 +114,6 @@ iD.ui.intro = function(context) {
             context.map().centerZoom(center, zoom);
             window.location.replace(hash);
             context.inIntro(false);
-            d3.select('#bar button.save').on('click', save);
         });
 
         var navwrap = selection.append('div').attr('class', 'intro-nav-wrap fillD');
@@ -135,4 +181,9 @@ iD.ui.intro.pad = function(box, padding, context) {
         width: (box.width || 0) + 2 * padding,
         height: (box.width || 0) + 2 * padding
     };
+};
+
+iD.ui.intro.icon = function(name, svgklass) {
+    return '<svg class="icon ' + (svgklass || '') + '">' +
+        '<use xlink:href="' + name + '"></use></svg>';
 };

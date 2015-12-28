@@ -13,7 +13,7 @@ Please [search for your issue before filing it: many bugs and improvements have 
 
 To report a bug:
 
-* Write specifically what browser (type and version, like Firefox 22), OS, and browser extensions you have installed
+* Write specifically what browser (type and version, like "Firefox 43.0"), OS, and browser extensions you have installed
 * Write steps to replicate the error: when did it happen? What did you expect to happen? What happened instead?
 * Please keep bug reports professional and straightforward: trust us, we share your dismay at software breaking.
 * If you can, [enable web developer extensions](http://debugbrowser.com/) and report the
@@ -37,8 +37,6 @@ The deployments on openstreetmap.org and http://www.openstreetmap.us/iD/release/
 with stable releases. Issues that are marked fixed in the tracker may still be present.
 
 ## Translating
-
-
 
 
 ## Contributing Documentation

@@ -309,6 +309,9 @@ en:
       description:
         # 'description=*'
         label: Description
+      dock:
+        # 'dock=*'
+        label: Type
       drive_through:
         # 'drive_through=*'
         label: Drive-Through
@@ -1195,6 +1198,7 @@ en:
       amenity/bench:
         # amenity=bench
         name: Bench
+        # 'terms: seat'
         terms: "<translate with synonyms or related terms for 'Bench', separated by commas>"
       amenity/bicycle_parking:
         # amenity=bicycle_parking
@@ -1208,9 +1212,9 @@ en:
         terms: "<translate with synonyms or related terms for 'Bicycle Rental', separated by commas>"
       amenity/bicycle_repair_station:
         # amenity=bicycle_repair_station
-        name: Bicycle Repair Station
-        # 'terms: bike'
-        terms: "<translate with synonyms or related terms for 'Bicycle Repair Station', separated by commas>"
+        name: Bicycle Repair Tool Stand
+        # 'terms: bike,repair,chain,pump'
+        terms: "<translate with synonyms or related terms for 'Bicycle Repair Tool Stand', separated by commas>"
       amenity/biergarten:
         # amenity=biergarten
         name: Beer Garden
@@ -1232,7 +1236,7 @@ en:
       amenity/cafe:
         # amenity=cafe
         name: Cafe
-        # 'terms: coffee,tea'
+        # 'terms: bistro,coffee,tea'
         terms: "<translate with synonyms or related terms for 'Cafe', separated by commas>"
       amenity/car_rental:
         # amenity=car_rental
@@ -1298,7 +1302,7 @@ en:
         name: Dentist
         # 'terms: tooth,teeth'
         terms: "<translate with synonyms or related terms for 'Dentist', separated by commas>"
-      amenity/doctor:
+      amenity/doctors:
         # amenity=doctors
         name: Doctor
         # 'terms: medic*'
@@ -1322,6 +1326,10 @@ en:
         name: Fast Food
         # 'terms: restaurant'
         terms: "<translate with synonyms or related terms for 'Fast Food', separated by commas>"
+      amenity/ferry_terminal:
+        # amenity=ferry_terminal
+        name: Ferry Terminal
+        terms: "<translate with synonyms or related terms for 'Ferry Terminal', separated by commas>"
       amenity/fire_station:
         # amenity=fire_station
         name: Fire Station
@@ -1333,7 +1341,7 @@ en:
       amenity/fuel:
         # amenity=fuel
         name: Gas Station
-        # 'terms: petrol,fuel,propane,diesel,lng,cng,biodiesel'
+        # 'terms: petrol,fuel,gasoline,propane,diesel,lng,cng,biodiesel'
         terms: "<translate with synonyms or related terms for 'Gas Station', separated by commas>"
       amenity/grave_yard:
         # amenity=grave_yard
@@ -1349,6 +1357,10 @@ en:
         name: Hospital Grounds
         # 'terms: clinic,doctor,emergency room,health service,hospice,infirmary,institution,nursing home,sanatorium,sanitarium,sick,surgery,ward'
         terms: "<translate with synonyms or related terms for 'Hospital Grounds', separated by commas>"
+      amenity/hunting_stand:
+        # amenity=hunting_stand
+        name: Hunting Stand
+        terms: "<translate with synonyms or related terms for 'Hunting Stand', separated by commas>"
       amenity/kindergarten:
         # amenity=kindergarten
         name: Preschool/Kindergarten Grounds
@@ -1380,6 +1392,10 @@ en:
         # amenity=parking_entrance
         name: Parking Garage Entrance/Exit
         terms: "<translate with synonyms or related terms for 'Parking Garage Entrance/Exit', separated by commas>"
+      amenity/parking_space:
+        # amenity=parking_space
+        name: Parking Space
+        terms: "<translate with synonyms or related terms for 'Parking Space', separated by commas>"
       amenity/pharmacy:
         # amenity=pharmacy
         name: Pharmacy
@@ -1583,8 +1599,12 @@ en:
       amenity/waste_basket:
         # amenity=waste_basket
         name: Waste Basket
-        # 'terms: rubbish,litter,trash,garbage'
+        # 'terms: bin,rubbish,litter,trash,garbage'
         terms: "<translate with synonyms or related terms for 'Waste Basket', separated by commas>"
+      amenity/water_point:
+        # amenity=water_point
+        name: RV Drinking Water
+        terms: "<translate with synonyms or related terms for 'RV Drinking Water', separated by commas>"
       area:
         # area=yes
         name: Area
@@ -3090,6 +3110,7 @@ en:
       shop/bicycle:
         # shop=bicycle
         name: Bicycle Shop
+        # 'terms: bike,repair'
         terms: "<translate with synonyms or related terms for 'Bicycle Shop', separated by commas>"
       shop/bookmaker:
         # shop=bookmaker
@@ -3706,6 +3727,10 @@ en:
         # 'waterway=*'
         name: Waterway
         terms: "<translate with synonyms or related terms for 'Waterway', separated by commas>"
+      waterway/boatyard:
+        # waterway=boatyard
+        name: Boatyard
+        terms: "<translate with synonyms or related terms for 'Boatyard', separated by commas>"
       waterway/canal:
         # waterway=canal
         name: Canal
@@ -3718,6 +3743,10 @@ en:
         # waterway=ditch
         name: Ditch
         terms: "<translate with synonyms or related terms for 'Ditch', separated by commas>"
+      waterway/dock:
+        # waterway=dock
+        name: Dock
+        terms: "<translate with synonyms or related terms for 'Dock', separated by commas>"
       waterway/drain:
         # waterway=drain
         name: Drain
@@ -3746,6 +3775,10 @@ en:
         name: Stream
         # 'terms: beck,branch,brook,burn,course,creek,current,drift,flood,flow,freshet,race,rill,rindle,rivulet,run,runnel,rush,spate,spritz,surge,tide,torrent,tributary,watercourse'
         terms: "<translate with synonyms or related terms for 'Stream', separated by commas>"
+      waterway/water_point:
+        # waterway=water_point
+        name: Marine Drinking Water
+        terms: "<translate with synonyms or related terms for 'Marine Drinking Water', separated by commas>"
       waterway/weir:
         # waterway=weir
         name: Weir
