@@ -6,8 +6,8 @@ iD.ui.Floors = function(context) {
         iD.floors.Third(context),
         iD.floors.Other(context)];
 
-    return function(selection, limiter) {
-        var buttons, notice;
+    return function(selection) {
+        var buttons;
         buttons = selection.selectAll('button.floor-button')
             .data(floors);
 
@@ -28,17 +28,9 @@ iD.ui.Floors = function(context) {
                     return iD.ui.tooltipHtml(floor.description, floor.key);
                 }));
 
-        notice = iD.ui.notice(limiter)
-            .message(false)
-            .on('zoom', function() { context.map().zoom(16); });
-
         function disableTooHigh() {
-            if (context.map().editable()) {
-                notice.message(false);
-                buttons.attr('disabled', null);
-            } else {
-                buttons.attr('disabled', 'disabled');
-                notice.message(true);
+            buttons.attr('disabled', context.map().editable() ? null : 'disabled');
+            if (!context.map().editable()) {
                 context.enterFloor(iD.floors.First(context));
             }
         }

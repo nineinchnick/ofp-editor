@@ -231,7 +231,6 @@ window.iD = function () {
         floor = newFloor;
         floor.enterFloor();
         dispatch.enterFloor(floor);
-        context.map().redraw();
 
     };
 

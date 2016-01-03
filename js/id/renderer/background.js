@@ -65,7 +65,7 @@ iD.Background = function(context) {
         base.call(baseLayer);
 
         var overlays = selection.selectAll('.layer-overlay')
-            .data(overlayLayers, function(d) { return d.source().name(); });
+            .data(overlayLayers, function(d) { return typeof d === 'string' ? d : d.source().name(); });
 
         overlays.enter().insert('div', '.layer-data')
             .attr('class', 'layer-layer layer-overlay');

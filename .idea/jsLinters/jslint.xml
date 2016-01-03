@@ -7,7 +7,5 @@
     <option nomen="true" />
     <option predef="d3,iD,t,bootstrap,_" />
     <option sloppy="true" />
-    <option anon="true" />
   </component>
 </project>
-
